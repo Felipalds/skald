@@ -3,54 +3,54 @@
 
 
 - SISTEMA DE TIPOS (3 TIPOS)
-	- string (ascii com \\0)
-	- double
-	- int64
-- ESTRUTURA DE CONTROLE (SELEÇÃO, LAÇOS)
-	- var/rav, main/niam, loop/pool e if/else/fi, 
-	- stop, die
-	- out, in
-- SINTAXE
-	- sem chaves
-	- tem ponto e virgula
-	- sem parenteses no if e while
+	- `str` (ascii \\0)
+	- `real` (float64)
+	- `int` (int64)
+- ESTRUTURA DO PROGRAMA / SINTAXE
+	- `var`/`rav`, `main`/`niam`
+    - `loop`/`pool` e `if`/`or`/`fi`, 
+	- `stop`, `die`
+	- `in`, `out`
+	- `.` termina declaração
+    - `$` inicia comentário
+	- sem chaves, usar `do`
+	- sem parênteses no condicional
 - OPERAÇÕES
-	- recebe: <-
-	- a <- 1
-	- +, -, \*, /, %, ˆ
-	- &, |, !
-	- <, <=, >=, >, =, !=
+	- atribuição `<-`, ex. `a <- 1`
+	- aritmética `+`, `-`, `*`, `/`, `%`, `ˆ`
+	- lógica `&`, `|`, `!`
+	- relacional `<`, `<=`, `>=`, `>`, `=`, `!=`
 
-
-
-
+Programa exemplo
 ```
 var
 	a int.
 	b int.
 	c int.
-	d int.
+	counter int.
 rav
 
 main
 	a <- 1.
 	b <- 1.
 
-	in d.
-	if d < 0 do
+	in counter.
+	if counter < 0 do
 		out "Erro mortal \n".
 		die.
 	fi
 		
-	loop d > 0 do
-		out "Variavel a \n".
+	loop counter > 0 do
+		out "fibonacci ".
 		out a.
+        out "\n"
+
 		c <- a + b.
 		a <- b.
 		b <- c.
-		d <- d - 1.
+		counter <- counter - 1.
 		
-		if d = 1 do
+		if counter = 1 do
 			out "Acabando \n".
 			stop.
 		or
@@ -58,5 +58,4 @@ main
 		fi
 	pool
 niam
-
 ```
