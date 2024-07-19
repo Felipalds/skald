@@ -70,25 +70,40 @@ union TokenData {
     OpRel op_rel;
     Type type;
 
-    TokenData operator=(const TokenData &data) {
-        return *(TokenData*)memcpy(this, &data, sizeof(*this));
-    }
-
     TokenData() {}
-    TokenData(double x): lit_real(x) {}
-    TokenData(int64_t x): lit_int(x) {}
-    TokenData(std::pair<size_t, size_t> x): span(x) {}
-    TokenData(OpArit x): op_arit(x) {}
-    TokenData(OpLogic x): op_logic(x) {}
-    TokenData(OpRel x): op_rel(x) {}
-    TokenData(Type x): type(x) {}
+
+    TokenData(double x)
+        : lit_real(x) {}
+
+    TokenData(int64_t x)
+        : lit_int(x) {}
+
+    TokenData(std::pair<size_t, size_t> x)
+        : span(x) {}
+
+    TokenData(OpArit x)
+        : op_arit(x) {}
+
+    TokenData(OpLogic x)
+        : op_logic(x) {}
+
+    TokenData(OpRel x)
+        : op_rel(x) {}
+
+    TokenData(Type x)
+        : type(x) {}
 };
 
 struct Token {
     TokenKind kind;
     TokenData data;
 
-    Token(TokenKind kind): kind(kind) {}
-    Token(TokenKind kind, TokenData data): kind(kind), data(data) {}
-};
+    Token(TokenKind kind)
+        : kind(kind) {}
 
+    Token(TokenKind kind, TokenData data)
+        : kind(kind)
+        , data(data) {}
+
+    void printf_fmt();
+};
