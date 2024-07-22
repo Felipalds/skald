@@ -1,6 +1,6 @@
 .PHONY: main test
 
-CPP=src/lexer.cpp src/output.cpp
+CPP=src/lexer.cpp src/output.cpp src/input.cpp
 
 main:
 	g++ -g -o skald src/main.cpp $(CPP)

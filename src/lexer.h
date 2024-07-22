@@ -1,7 +1,8 @@
+#ifndef lexer_h
+#define lexer_h
+
 #include <cstdint>
-#include <string>
-#include <utility>
-#include <cstring>
+#include "input.h"
 
 enum TokenKind {
     Tok_Var,
@@ -107,3 +108,4 @@ struct Token {
 
     void printf_fmt();
 };
+#endif
