@@ -62,10 +62,18 @@ enum Type {
     Type_Real,
 };
 
+struct Span {
+    size_t first, second;
+
+    Span(size_t f, size_t s) 
+        : first(f)
+        , second(s) {}
+};
+
 union TokenData {
     double lit_real;
     int64_t lit_int;
-    std::pair<size_t, size_t> span;
+    Span span;
     OpArit op_arit;
     OpLogic op_logic;
     OpRel op_rel;
@@ -79,7 +87,7 @@ union TokenData {
     TokenData(int64_t x)
         : lit_int(x) {}
 
-    TokenData(std::pair<size_t, size_t> x)
+    TokenData(Span x)
         : span(x) {}
 
     TokenData(OpArit x)
