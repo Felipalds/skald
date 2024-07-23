@@ -1,6 +1,11 @@
-.PHONY: main
+.PHONY: main test
 
-SRC=$(wildcard src/*.cpp)
+CPP=src/lexer.cpp src/output.cpp src/input.cpp
 
 main:
-	gcc -g -o skald $(SRC)
+	g++ -g -o skald src/main.cpp $(CPP)
+
+test:
+	g++ -g -o test src/tests.cpp $(CPP)
+	./test
+
