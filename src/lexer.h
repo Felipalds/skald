@@ -64,10 +64,6 @@ enum Type {
 
 struct Span {
     size_t first, second;
-
-    Span(size_t f, size_t s) 
-        : first(f)
-        , second(s) {}
 };
 
 union TokenData {
