@@ -23,6 +23,9 @@ int main(int argc, const char **argv) {
   }
 
   Src src(src_file);
+  printf("%c", src.bytes[2]);
+
+  Lexer lexer(src);
 
   /* algo assim
    * LexResult lex_result = lex(src)

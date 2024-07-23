@@ -2,6 +2,7 @@
 #define lexer_h
 
 #include <cstdint>
+#include <list>
 #include "input.h"
 
 enum TokenKind {
@@ -99,6 +100,7 @@ union TokenData {
         : type(x) {}
 };
 
+
 struct Token {
     TokenKind kind;
     TokenData data;
@@ -112,4 +114,15 @@ struct Token {
 
     void printf_fmt();
 };
+
+struct LexResult {
+    std::list<Token> token;
+};
+
+struct Lexer {
+    Src src;
+    Lexer(Src src): src(src) {}
+    LexResult lex();
+};
+
 #endif
