@@ -26,6 +26,8 @@ Token Lexer::verify_token(const std::string& str) {
     static const std::regex lit_real_regex("^\\d+(,\\d+)*$");
     static const std::regex op_arit_regex("^[+\\-*/%]$");
     static const std::regex ident_regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    static const std::regex literal_string_regex("^\".*\"$");
+
 
     if (std::regex_match(str, var_regex)) {
         return Token(Tok_Var);
@@ -57,6 +59,8 @@ Token Lexer::verify_token(const std::string& str) {
         return Token(Tok_Die);
     } else if (std::regex_match(str, assign_regex)) {
         return Token(Tok_Assign);
+    } else if (std::regex_match(str, literal_string_regex)) {
+        return Token (Tok_LitStr, TokenData());
     } else if (std::regex_match(str, lit_int_regex)) {
         return Token(Tok_LitInt, std::stoll(str));
     } else if (std::regex_match(str, lit_real_regex)) {
@@ -89,7 +93,8 @@ enum State {
     START,
     ABC,
     DIG,
-    DEC
+    DEC,
+    LIT,
 
 };
 
@@ -116,6 +121,41 @@ LexResult Lexer::lex() {
             if (std::isdigit(ch)) {
                 temporary += ch;
                 state = DIG;
+                continue;
+            }
+
+            if (ch == '"') {
+                temporary += ch;
+                state = LIT;
+                continue;
+            }
+
+            // printf("In Found: %s", &temporary);
+            // Token token = verify_token(temporary);
+            // token.printf_fmt();
+            // result.tokens.push_back(token);
+            // temporary = "";
+            // printf("\n");
+            // state = START;
+            // i--;
+            // continue;
+
+        }
+
+        if (state == LIT) {
+            if (ch == '"') {
+                temporary += ch;
+                printf("In Found: %s", &temporary);
+                Token token = verify_token(temporary);
+                token.printf_fmt();
+                result.tokens.push_back(token);
+                temporary = "";
+                printf("\n");
+                state = START;
+                i--;
+                continue;
+            } else {
+                temporary += ch;
                 continue;
             }
         }
