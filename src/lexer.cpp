@@ -4,6 +4,7 @@
 #include <string>
 #include <regex>
 #include <iostream>
+#include <algorithm>
 
 Token Lexer::verify_token(const std::string& str) {
     static const std::regex var_regex("^var$");
@@ -22,6 +23,7 @@ Token Lexer::verify_token(const std::string& str) {
     static const std::regex die_regex("^die$");
     static const std::regex assign_regex("^<-?$");
     static const std::regex lit_int_regex("^\\d+$");
+    static const std::regex lit_real_regex("^\\d+(,\\d+)*$");
     static const std::regex op_arit_regex("^[+\\-*/%]$");
     static const std::regex ident_regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
 
@@ -55,9 +57,17 @@ Token Lexer::verify_token(const std::string& str) {
         return Token(Tok_Die);
     } else if (std::regex_match(str, assign_regex)) {
         return Token(Tok_Assign);
-    // } else if (std::regex_match(str, lit_int_regex)) {
-    //     return Token(Tok_LitInt, TokenData(std::stoi(str)));
-    } else if (std::regex_match(str, op_arit_regex)) {
+    } else if (std::regex_match(str, lit_int_regex)) {
+        return Token(Tok_LitInt, std::stoll(str));
+    } else if (std::regex_match(str, lit_real_regex)) {
+        std::string modified_str = str;
+        size_t pos = modified_str.find(',');
+        if (pos != std::string::npos) {
+            modified_str.replace(pos, 1, ".");
+        }
+        return Token(Tok_LitReal, std::stof(modified_str));
+    }
+    else if (std::regex_match(str, op_arit_regex)) {
         OpArit op;
         switch (str[0]) {
             case '+': op = Op_Add; break;
@@ -77,7 +87,9 @@ Token Lexer::verify_token(const std::string& str) {
 
 enum State {
     START,
-    ABC
+    ABC,
+    DIG,
+    DEC
 
 };
 
@@ -95,9 +107,53 @@ LexResult Lexer::lex() {
         char ch = src.bytes[i];
 
         if (state == START) {
-            if (std::isalpha(ch)) {
+            if (std::isalpha(ch) || ch == '_') {
                 state = ABC;
                 temporary += ch;
+                continue;
+            }
+
+            if (std::isdigit(ch)) {
+                temporary += ch;
+                state = DIG;
+                continue;
+            }
+        }
+
+        if(state == DIG) {
+           if (std::isdigit(ch)) {
+               temporary += ch;
+               continue;
+           } else if (ch == ',') {
+               state = DEC;
+               temporary += ch;
+               continue;
+           } else {
+                printf("In Found: %s", &temporary);
+                Token token = verify_token(temporary);
+                token.printf_fmt();
+                result.tokens.push_back(token);
+                temporary = "";
+                printf("\n");
+                state = START;
+                i--;
+                continue;
+           }
+        }
+
+        if(state == DEC) {
+            if (std::isdigit(ch)) {
+                temporary += ch;
+                continue;
+            } else {
+                printf("In Found: %s", &temporary);
+                Token token = verify_token(temporary);
+                token.printf_fmt();
+                result.tokens.push_back(token);
+                temporary = "";
+                printf("\n");
+                state = START;
+                i--;
                 continue;
             }
         }
