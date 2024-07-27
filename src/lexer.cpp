@@ -1,7 +1,9 @@
 #include "lexer.h"
 #include <cctype>
+#include <cstdio>
 #include <string>
 #include <regex>
+#include <iostream>
 
 Token Lexer::verify_token(const std::string& str) {
     static const std::regex var_regex("^var$");
@@ -75,14 +77,8 @@ Token Lexer::verify_token(const std::string& str) {
 
 enum State {
     START,
-    START_TEXT,
-    TEXT,
-    NUM_IN_TEXT,
-    FINISH_TEXT,
-    START_LITERAL,
-    END_LITERAL,
-    NUMBER,
-    SYMBOL
+    ABC
+
 };
 
 
@@ -98,35 +94,31 @@ LexResult Lexer::lex() {
     for (int i = 0; i < src.bytes.size(); i++){
         char ch = src.bytes[i];
 
-        // rules to change state
-        if (state == START) { //rules if we are starting reading
-           if(std::isalpha(ch) || ch == '_') {
-               state = START_TEXT;
-           }
-           if(std::isdigit(ch)) {
-               state = NUMBER;
-           }
-           if(ch == '"') {
-               state = START_LITERAL;
-           }
-        }
-        if(state == START_TEXT) {
-            if(std::isdigit(ch)) {
-                state = NUM_IN_TEXT;
-            }
-            if(std::isalpha(ch) || ch == '_') {
-                state = TEXT;
+        if (state == START) {
+            if (std::isalpha(ch)) {
+                state = ABC;
+                temporary += ch;
+                continue;
             }
         }
 
-        // rules to consume and return token
-        if (state == START) {
-           if (std::ispunct(ch)) {
-                temporary += ch;
-                result.tokens.push_back(verify_token(temporary));
-                temporary = "";
+        if (state == ABC) {
+           if(std::isalnum(ch)) {
+              temporary += ch;
+              continue;
+           } else {
+               printf("In Found: %s", &temporary);
+               Token token = verify_token(temporary);
+               token.printf_fmt();
+               result.tokens.push_back(token);
+               temporary = "";
+               printf("\n");
+               state = START;
+               i--;
+               continue;
            }
         }
     }
+    return result;
 
 }
