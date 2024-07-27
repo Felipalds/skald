@@ -116,13 +116,14 @@ struct Token {
 };
 
 struct LexResult {
-    std::list<Token> token;
+    std::list<Token> tokens;
 };
 
 struct Lexer {
     Src src;
     Lexer(Src src): src(src) {}
     LexResult lex();
+    Token verify_token(const std::string& str);
 };
 
 #endif
