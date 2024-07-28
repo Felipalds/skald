@@ -28,9 +28,11 @@ static const std::regex arithmetic_operator_regex("^[+\\-*/%^]$");
 static const std::regex relational_operator_regex("^([<>]=?|>=|==|!=)$");
 static const std::regex ident_regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
 static const std::regex literal_string_regex("^\".*\"$");
+static const std::regex open_par_regex("^\\($");
+static const std::regex close_par_regex("^\\)$");
 
-bool isOperation (char ch) {
-   return (ch == '<' || ch == '>' || ch == '!' || ch =='&' ||ch == '|' || ch == '=' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^');
+bool isDefault (char ch) {
+   return (ch == '(' || ch == ')' || ch == '<' || ch == '>' || ch == '!' || ch =='&' ||ch == '|' || ch == '=' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^');
 }
 
 Token Lexer::verify_token(const std::string& str) {
@@ -107,6 +109,10 @@ Token Lexer::verify_token(const std::string& str) {
         else if (str == "==") op = Op_Eq;
         else if (str == "!=") op = Op_Neq;
         return Token(Tok_OpRel, op);
+    } else if (std::regex_match(str, open_par_regex)) {
+        return Token(Tok_ParOpen);
+    } else if (std::regex_match(str, close_par_regex)) {
+        return Token(Tok_ParClose);
     }
 
     // TODO: return an special error
@@ -155,23 +161,11 @@ LexResult Lexer::lex() {
                 continue;
             }
 
-            if (isOperation(ch)) {
+            if (isDefault(ch)) {
                 temporary += ch;
                 state = O;
                 continue;
             }
-
-
-            // printf("In Found: %s", &temporary);
-            // Token token = verify_token(temporary);
-            // token.printf_fmt();
-            // result.tokens.push_back(token);
-            // temporary = "";
-            // printf("\n");
-            // state = START;
-            // i--;
-            // continue;
-
         }
 
         if (state == O) {
