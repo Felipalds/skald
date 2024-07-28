@@ -6,28 +6,34 @@
 #include <iostream>
 #include <algorithm>
 
-Token Lexer::verify_token(const std::string& str) {
-    static const std::regex var_regex("^var$");
-    static const std::regex rav_regex("^rav$");
-    static const std::regex main_regex("^main$");
-    static const std::regex niam_regex("^niam$");
-    static const std::regex loop_regex("^loop$");
-    static const std::regex pool_regex("^pool$");
-    static const std::regex if_regex("^if$");
-    static const std::regex or_regex("^or$");
-    static const std::regex fi_regex("^fi$");
-    static const std::regex do_regex("^do$");
-    static const std::regex in_regex("^in$");
-    static const std::regex out_regex("^out$");
-    static const std::regex stop_regex("^stop$");
-    static const std::regex die_regex("^die$");
-    static const std::regex assign_regex("^<-?$");
-    static const std::regex lit_int_regex("^\\d+$");
-    static const std::regex lit_real_regex("^\\d+(,\\d+)*$");
-    static const std::regex op_arit_regex("^[+\\-*/%]$");
-    static const std::regex ident_regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
-    static const std::regex literal_string_regex("^\".*\"$");
+static const std::regex var_regex("^var$");
+static const std::regex rav_regex("^rav$");
+static const std::regex main_regex("^main$");
+static const std::regex niam_regex("^niam$");
+static const std::regex loop_regex("^loop$");
+static const std::regex pool_regex("^pool$");
+static const std::regex if_regex("^if$");
+static const std::regex or_regex("^or$");
+static const std::regex fi_regex("^fi$");
+static const std::regex do_regex("^do$");
+static const std::regex in_regex("^in$");
+static const std::regex out_regex("^out$");
+static const std::regex stop_regex("^stop$");
+static const std::regex die_regex("^die$");
+static const std::regex assign_regex("^<-$");
+static const std::regex lit_int_regex("^\\d+$");
+static const std::regex lit_real_regex("^\\d+(,\\d+)*$");
+static const std::regex logical_operator_regex("^([&|!])$");
+static const std::regex arithmetic_operator_regex("^[+\\-*/%^]$");
+static const std::regex relational_operator_regex("^([<>]=?|>=|==|!=)$");
+static const std::regex ident_regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
+static const std::regex literal_string_regex("^\".*\"$");
 
+bool isOperation (char ch) {
+   return (ch == '<' || ch == '>' || ch == '!' || ch =='&' ||ch == '|' || ch == '=' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^');
+}
+
+Token Lexer::verify_token(const std::string& str) {
 
     if (std::regex_match(str, var_regex)) {
         return Token(Tok_Var);
@@ -71,7 +77,7 @@ Token Lexer::verify_token(const std::string& str) {
         }
         return Token(Tok_LitReal, std::stof(modified_str));
     }
-    else if (std::regex_match(str, op_arit_regex)) {
+    else if (std::regex_match(str, arithmetic_operator_regex)) {
         OpArit op;
         switch (str[0]) {
             case '+': op = Op_Add; break;
@@ -79,14 +85,32 @@ Token Lexer::verify_token(const std::string& str) {
             case '*': op = Op_Mul; break;
             case '/': op = Op_Div; break;
             case '%': op = Op_Mod; break;
+            case '^': op = Op_Pow; break;
         }
         return Token(Tok_OpArit, TokenData(op));
     } else if (std::regex_match(str, ident_regex)) {
         return Token(Tok_Ident, TokenData());
+    } else if (std::regex_match(str, logical_operator_regex)) {
+        OpLogic op;
+        switch (str[0]) {
+            case '&': op = Op_And; break;
+            case '|': op = Op_Or; break;
+            case '!': op = Op_Not; break;
+        }
+        return Token(Tok_OpLogic, op);
+    } else if (std::regex_match(str, relational_operator_regex)) {
+        OpRel op;
+        if (str == "<") op = Op_Less;
+        else if (str == "<=") op = Op_LessEq;
+        else if (str == ">") op = Op_Greater;
+        else if (str == ">=") op = Op_GreaterEq;
+        else if (str == "==") op = Op_Eq;
+        else if (str == "!=") op = Op_Neq;
+        return Token(Tok_OpRel, op);
     }
 
     // TODO: return an special error
-    return Token(Tok_Ident);
+    return Token(Err);
 }
 
 enum State {
@@ -95,6 +119,7 @@ enum State {
     DIG,
     DEC,
     LIT,
+    O
 
 };
 
@@ -130,6 +155,13 @@ LexResult Lexer::lex() {
                 continue;
             }
 
+            if (isOperation(ch)) {
+                temporary += ch;
+                state = O;
+                continue;
+            }
+
+
             // printf("In Found: %s", &temporary);
             // Token token = verify_token(temporary);
             // token.printf_fmt();
@@ -140,6 +172,20 @@ LexResult Lexer::lex() {
             // i--;
             // continue;
 
+        }
+
+        if (state == O) {
+            if (ch == '=' || ch == '-') {
+                temporary += ch;
+            }
+            printf("In Found: %s", &temporary);
+            Token token = verify_token(temporary);
+            token.printf_fmt();
+            result.tokens.push_back(token);
+            temporary = "";
+            printf("\n");
+            state = START;
+            continue;
         }
 
         if (state == LIT) {

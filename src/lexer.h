@@ -32,6 +32,7 @@ enum TokenKind {
     Tok_LitStr,
     Tok_LitReal,
     Tok_LitInt,
+    Err
 };
 
 enum OpArit {
@@ -46,6 +47,7 @@ enum OpArit {
 enum OpLogic {
     Op_And,
     Op_Or,
+    Op_Not
 };
 
 enum OpRel {

@@ -131,6 +131,9 @@ void Token::printf_fmt() {
         case Tok_LitInt:
             printf("[int; %" PRId64 "]", data.lit_int);
             break;
+        case Err:
+            printf("[invalid token; ]");
+            break;
         default:
             printf("[??; ]");
     }
