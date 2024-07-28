@@ -25,14 +25,15 @@ static const std::regex lit_int_regex("^\\d+$");
 static const std::regex lit_real_regex("^\\d+(,\\d+)*$");
 static const std::regex logical_operator_regex("^([&|!])$");
 static const std::regex arithmetic_operator_regex("^[+\\-*/%^]$");
-static const std::regex relational_operator_regex("^([<>]=?|>=|==|!=)$");
+static const std::regex relational_operator_regex("^([<>]=?|>=|=|!=)$");
 static const std::regex ident_regex("^[a-zA-Z_][a-zA-Z0-9_]*$");
 static const std::regex literal_string_regex("^\".*\"$");
 static const std::regex open_par_regex("^\\($");
 static const std::regex close_par_regex("^\\)$");
+static const std::regex dot_regex("^\\.$");
 
 bool isDefault (char ch) {
-   return (ch == '(' || ch == ')' || ch == '<' || ch == '>' || ch == '!' || ch =='&' ||ch == '|' || ch == '=' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^');
+   return (ch == '=' || ch == '.' || ch == '(' || ch == ')' || ch == '<' || ch == '>' || ch == '!' || ch =='&' ||ch == '|' || ch == '=' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^');
 }
 
 Token Lexer::verify_token(const std::string& str) {
@@ -106,13 +107,15 @@ Token Lexer::verify_token(const std::string& str) {
         else if (str == "<=") op = Op_LessEq;
         else if (str == ">") op = Op_Greater;
         else if (str == ">=") op = Op_GreaterEq;
-        else if (str == "==") op = Op_Eq;
+        else if (str == "=") op = Op_Eq;
         else if (str == "!=") op = Op_Neq;
         return Token(Tok_OpRel, op);
     } else if (std::regex_match(str, open_par_regex)) {
         return Token(Tok_ParOpen);
     } else if (std::regex_match(str, close_par_regex)) {
         return Token(Tok_ParClose);
+    } else if(std::regex_match(str, dot_regex)) {
+        return Token(Tok_Period);
     }
 
     // TODO: return an special error
