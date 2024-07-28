@@ -25,13 +25,17 @@ int main(int argc, const char **argv) {
   Src src(src_file);
 
   Lexer lexer(src);
-  lexer.lex();
+  LexResult result = lexer.lex();
 
-  /* algo assim
-   * LexResult lex_result = lex(src)
-   * if (lex_result.is_err) ...
-   * report_err(lex_result.err.span) ...
-   */
+  for (Token token : result.tokens) {
+     token.printf_fmt();
+     printf("\n");
+  }
+
+  for (Error err : result.errors) {
+      size_t line = src.which_line(static_cast<size_t>(err.index));
+      printf("\033[31mError in position %lu (line %lu )\n\033[0m", err.index, line);
+  }
 
   return 0;
 }

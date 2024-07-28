@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <list>
+#include <string>
 #include "input.h"
 
 enum TokenKind {
@@ -117,8 +118,15 @@ struct Token {
     void printf_fmt();
 };
 
+struct Error {
+    size_t index;
+    Token token;
+    public: Error(size_t index, Token token): index(index), token(token) {}
+};
+
 struct LexResult {
     std::list<Token> tokens;
+    std::list<Error> errors;
 };
 
 struct Lexer {

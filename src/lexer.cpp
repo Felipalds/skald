@@ -118,8 +118,7 @@ Token Lexer::verify_token(const std::string& str) {
         return Token(Tok_Period);
     }
 
-    // TODO: return an special error
-    return Token(Err);
+    return Token(Err, TokenData());
 }
 
 enum State {
@@ -169,18 +168,32 @@ LexResult Lexer::lex() {
                 state = O;
                 continue;
             }
+
+            if (!isspace(ch)) {
+                Token token = verify_token(temporary);
+                if(token.kind == Err) {
+                    Error error(i, token);
+                    result.errors.push_back(error);
+                }
+                result.tokens.push_back(token);
+                temporary = "";
+                state = START;
+                continue;
+            }
+
         }
 
         if (state == O) {
             if (ch == '=' || ch == '-') {
                 temporary += ch;
             }
-            printf("In Found: %s", &temporary);
             Token token = verify_token(temporary);
-            token.printf_fmt();
+            if(token.kind == Err) {
+                Error error(i, token);
+                result.errors.push_back(error);
+            }
             result.tokens.push_back(token);
             temporary = "";
-            printf("\n");
             state = START;
             continue;
         }
@@ -188,14 +201,14 @@ LexResult Lexer::lex() {
         if (state == LIT) {
             if (ch == '"') {
                 temporary += ch;
-                printf("In Found: %s", &temporary);
                 Token token = verify_token(temporary);
-                token.printf_fmt();
+                if(token.kind == Err) {
+                    Error error(i, token);
+                    result.errors.push_back(error);
+                }
                 result.tokens.push_back(token);
                 temporary = "";
-                printf("\n");
                 state = START;
-                i--;
                 continue;
             } else {
                 temporary += ch;
@@ -212,15 +225,16 @@ LexResult Lexer::lex() {
                temporary += ch;
                continue;
            } else {
-                printf("In Found: %s", &temporary);
-                Token token = verify_token(temporary);
-                token.printf_fmt();
-                result.tokens.push_back(token);
-                temporary = "";
-                printf("\n");
-                state = START;
-                i--;
-                continue;
+               Token token = verify_token(temporary);
+               if(token.kind == Err) {
+                   Error error(i, token);
+                   result.errors.push_back(error);
+               }
+               i--;
+               result.tokens.push_back(token);
+               temporary = "";
+               state = START;
+               continue;
            }
         }
 
@@ -229,14 +243,15 @@ LexResult Lexer::lex() {
                 temporary += ch;
                 continue;
             } else {
-                printf("In Found: %s", &temporary);
                 Token token = verify_token(temporary);
-                token.printf_fmt();
+                if(token.kind == Err) {
+                    Error error(i, token);
+                    result.errors.push_back(error);
+                }
+                i--;
                 result.tokens.push_back(token);
                 temporary = "";
-                printf("\n");
                 state = START;
-                i--;
                 continue;
             }
         }
@@ -246,14 +261,15 @@ LexResult Lexer::lex() {
               temporary += ch;
               continue;
            } else {
-               printf("In Found: %s", &temporary);
                Token token = verify_token(temporary);
-               token.printf_fmt();
+               if(token.kind == Err) {
+                   Error error(i, token);
+                   result.errors.push_back(error);
+               }
+               i--;
                result.tokens.push_back(token);
                temporary = "";
-               printf("\n");
                state = START;
-               i--;
                continue;
            }
         }
