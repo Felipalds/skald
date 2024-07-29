@@ -3,6 +3,7 @@
 #include <cinttypes>
 
 Src::Src(FILE *src_file) {
+    lines.push_back(0);
     char buf[SRC_BUF_SIZE];
     for (;;) {
         size_t read_bytes = fread(&buf[0], sizeof(char), SRC_BUF_SIZE, src_file);
