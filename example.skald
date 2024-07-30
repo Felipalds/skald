@@ -4,6 +4,7 @@ var
     counter int.
 rav
 
+$ este comentário será desconsiderado!
 main
     a <- 1.
     b <- 1,55.

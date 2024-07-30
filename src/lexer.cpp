@@ -127,8 +127,8 @@ enum State {
     DIG,
     DEC,
     LIT,
-    O
-
+    O,
+    COMMENT
 };
 
 
@@ -163,6 +163,11 @@ LexResult Lexer::lex() {
                 continue;
             }
 
+            if (ch == '$') {
+                state = COMMENT;
+                continue;
+            }
+
             if (isDefault(ch)) {
                 temporary += ch;
                 state = O;
@@ -181,6 +186,14 @@ LexResult Lexer::lex() {
                 continue;
             }
 
+        }
+
+        if (state == COMMENT) {
+            if (ch == '\n') {
+                temporary = "";
+                state = START;
+                continue;
+            }
         }
 
         if (state == O) {
