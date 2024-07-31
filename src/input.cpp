@@ -5,6 +5,7 @@
 Src::Src(FILE *src_file) {
     lines.push_back(0);
     char buf[SRC_BUF_SIZE];
+    lines.push_back(0);
     for (;;) {
         size_t read_bytes = fread(&buf[0], sizeof(char), SRC_BUF_SIZE, src_file);
         if (read_bytes == 0) {

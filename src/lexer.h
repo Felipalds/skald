@@ -2,6 +2,8 @@
 #define lexer_h
 
 #include <cstdint>
+#include <list>
+#include <string>
 #include "input.h"
 
 enum TokenKind {
@@ -31,6 +33,8 @@ enum TokenKind {
     Tok_LitStr,
     Tok_LitReal,
     Tok_LitInt,
+    Tok_Type,
+    Err
 };
 
 enum OpArit {
@@ -45,6 +49,7 @@ enum OpArit {
 enum OpLogic {
     Op_And,
     Op_Or,
+    Op_Not
 };
 
 enum OpRel {
@@ -64,10 +69,6 @@ enum Type {
 
 struct Span {
     size_t first, second;
-
-    Span(size_t f, size_t s) 
-        : first(f)
-        , second(s) {}
 };
 
 union TokenData {
@@ -103,6 +104,7 @@ union TokenData {
         : type(x) {}
 };
 
+
 struct Token {
     TokenKind kind;
     TokenData data;
@@ -114,6 +116,25 @@ struct Token {
         : kind(kind)
         , data(data) {}
 
-    void printf_fmt();
+    void printf_fmt(Src src);
 };
+
+struct Error {
+    size_t index;
+    Token token;
+    public: Error(size_t index, Token token): index(index), token(token) {}
+};
+
+struct LexResult {
+    std::list<Token> tokens;
+    std::list<Error> errors;
+};
+
+struct Lexer {
+    Src src;
+    Lexer(Src src): src(src) {}
+    LexResult lex();
+    Token verify_token(const std::string& str);
+};
+
 #endif

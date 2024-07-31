@@ -1,0 +1,32 @@
+var
+    a int.
+    b real.
+    counter int.
+rav
+
+$ este comentário será desconsiderado!
+main
+    a <- 1.
+    b <- 1,55.
+
+    in counter.
+    if counter < 0 do
+        out "Erro mortal \n".
+        die.
+    fi
+
+    loop counter > 0 do
+        out "fibonacci ".
+        out "\n"
+
+        c <- a + b.
+        counter <- counter - 1.
+
+        if counter = 1 do
+            out "Acabando \n".
+            stop.
+        or
+            out "Não acabando \n".
+        fi
+    pool
+niam
