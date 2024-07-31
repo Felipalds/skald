@@ -1,0 +1,13 @@
+var
+    input str.
+rav
+
+main
+    loop 1=1 do
+        if !(in input) do
+            die.
+        fi
+        out input.
+        out "\n".
+    pool
+niam

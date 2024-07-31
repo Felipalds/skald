@@ -1,0 +1,43 @@
+var
+    max_iter int.
+    iter int.
+    iterf real.
+    factorial real.
+    x real.
+    xpow real.
+    y real.
+rav
+
+main
+    out "valor x: ".
+    in x.
+    out "\n".
+
+    out "numero de iteracoes: ".
+    in max_iter.
+    out "\n".
+    
+    if max_iter < 0 do
+        out "numero de iteracoes deve ser positivo".
+        die.
+    fi
+
+    iter <- 0.
+    iterf <- 1,0.
+    factorial <- 1,0.
+    xpow <- 1,0.
+    y <- 1,0.
+    loop iter < max_iter do
+        y <- y + (xpow / factorial).
+        xpow <- xpow * x.
+        factorial <- factorial * iterf.
+        iter <- iter + 1.
+        iterf <- iterf + 1,0.
+    pool
+
+    out "exp(".
+    out x.
+    out ") = ".
+    out y.
+    out "\n".
+niam
