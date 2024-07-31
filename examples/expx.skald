@@ -22,6 +22,8 @@ main
         die.
     fi
 
+    "string com \" escape de aspas!"
+
     iter <- 0.
     iterf <- 1,0.
     factorial <- 1,0.

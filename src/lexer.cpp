@@ -165,6 +165,10 @@ LexResult Lexer::lex() {
                 break;
 
             case LIT:
+                if (!temporary.empty() && temporary.back() == '\\' && ch == '"') {
+                    temporary += "\\\"";
+                    break;
+                }
                 temporary += ch;
                 if (ch == '"') {
                     span.second = i;
