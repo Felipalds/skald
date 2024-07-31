@@ -21,10 +21,9 @@ Src::Src(FILE *src_file) {
 
 size_t Src::which_line(size_t index) {
     for (size_t i = 0; i < lines.size(); i++) {
-        if (lines[i] < index) {
-            return i + 1;
+        if (index < lines[i]) {
+            return i;
         }
     }
-
-    return SIZE_MAX;
+    return lines.size();
 }

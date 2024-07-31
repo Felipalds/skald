@@ -59,7 +59,7 @@ Token Lexer::verify_token(const std::string& str) {
     if (std::regex_match(str, die_regex)) return Token(Tok_Die);
     if (std::regex_match(str, assign_regex)) return Token(Tok_Assign);
     if (std::regex_match(str, literal_string_regex)) return Token(Tok_LitStr, TokenData());
-    if (std::regex_match(str, lit_int_regex)) return Token(Tok_LitInt, std::stoll(str));
+    if (std::regex_match(str, lit_int_regex)) return Token(Tok_LitInt, int64_t(std::stoll(str)));
 
     if (std::regex_match(str, lit_real_regex)) {
         std::string modified_str = str;
@@ -143,8 +143,10 @@ LexResult Lexer::lex() {
                     state = COMMENT;
                 } else if (isDefault(ch)) {
                     state = O;
-                } else if (!isspace(ch)) {
+                } else if (isspace(ch)) {
                     state = START;
+                } else {
+                    result.errors.push_back(Error(i, Token(Err, TokenData())));
                 }
 
                 if (state != START) temporary += ch;
@@ -154,21 +156,39 @@ LexResult Lexer::lex() {
                 if (ch == '\n') state = START;
                 break;
 
-            case O:
+            case O: {
                 if (ch == '=' || ch == '-') {
                     temporary += ch;
                 }
 
-                result.tokens.push_back(verify_token(temporary));
+                Token token = verify_token(temporary);
+                if (token.kind == Err) {
+                    Error error(i, token);
+                    result.errors.push_back(error);
+                    printf("found err\n");
+                } else {
+                    result.tokens.push_back(token);
+                }
                 temporary.clear();
                 state = START;
                 break;
-
+            }
             case LIT:
+                if (!temporary.empty() && temporary.back() == '\\' && ch == '"') {
+                    temporary += "\\\"";
+                    break;
+                }
                 temporary += ch;
                 if (ch == '"') {
                     span.second = i;
-                    result.tokens.push_back(verify_token(temporary));
+                    Token token = verify_token(temporary);
+                    if (token.kind == Err) {
+                        Error error(i, token);
+                        result.errors.push_back(error);
+                        printf("found err\n");
+                    } else {
+                        result.tokens.push_back(token);
+                    }
                     result.tokens.back().data = TokenData(span);
                     temporary.clear();
                     state = START;
@@ -182,7 +202,14 @@ LexResult Lexer::lex() {
                     state = DEC;
                     temporary += ch;
                 } else {
-                    result.tokens.push_back(verify_token(temporary));
+                    Token token = verify_token(temporary);
+                    if (token.kind == Err) {
+                        Error error(i, token);
+                        result.errors.push_back(error);
+                        printf("found err\n");
+                    } else {
+                        result.tokens.push_back(token);
+                    }
                     temporary.clear();
                     state = START;
                     --i; // re-evaluate current character
@@ -193,7 +220,14 @@ LexResult Lexer::lex() {
                 if (std::isdigit(ch)) {
                     temporary += ch;
                 } else {
-                    result.tokens.push_back(verify_token(temporary));
+                    Token token = verify_token(temporary);
+                    if (token.kind == Err) {
+                        Error error(i, token);
+                        result.errors.push_back(error);
+                        printf("found err\n");
+                    } else {
+                        result.tokens.push_back(token);
+                    }
                     temporary.clear();
                     state = START;
                     --i; // re-evaluate current character
@@ -201,11 +235,18 @@ LexResult Lexer::lex() {
                 break;
 
             case ABC:
-                if (std::isalnum(ch)) {
+                if (std::isalnum(ch) || ch == '_') {
                     temporary += ch;
                 } else {
-                    span.second = i;
-                    result.tokens.push_back(verify_token(temporary));
+                    span.second = i - 1;
+                    Token token = verify_token(temporary);
+                    if (token.kind == Err) {
+                        Error error(i, token);
+                        result.errors.push_back(error);
+                        printf("found err\n");
+                    } else {
+                        result.tokens.push_back(token);
+                    }
                     if(result.tokens.back().kind == Tok_Ident)
                         result.tokens.back().data = TokenData(span);
                     temporary.clear();
@@ -217,7 +258,14 @@ LexResult Lexer::lex() {
     }
 
     if (!temporary.empty()) {
-        result.tokens.push_back(verify_token(temporary));
+        Token token = verify_token(temporary);
+        if (token.kind == Err) {
+            Error error(0, token);
+            result.errors.push_back(error);
+            printf("found err\n");
+        } else {
+            result.tokens.push_back(token);
+        }
     }
 
     return result;
