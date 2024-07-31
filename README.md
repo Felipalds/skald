@@ -59,3 +59,6 @@ main
     pool
 niam
 ```
+
+# Compilação
+Executar `make` no diretório do projeto. Para executar, `./skald caminho/do/arquivo`, há arquivos exemplo no diretório `examples`
