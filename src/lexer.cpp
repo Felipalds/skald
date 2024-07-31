@@ -32,55 +32,36 @@ static const std::regex open_par_regex("^\\($");
 static const std::regex close_par_regex("^\\)$");
 static const std::regex dot_regex("^\\.$");
 
-bool isDefault (char ch) {
-   return (ch == '=' || ch == '.' || ch == '(' || ch == ')' || ch == '<' || ch == '>' || ch == '!' || ch =='&' ||ch == '|' || ch == '=' || ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%' || ch == '^');
+bool isDefault(char ch) {
+    return std::strchr("=.<>()!&|+-*/%^", ch) != nullptr;
 }
 
 Token Lexer::verify_token(const std::string& str) {
+    if (std::regex_match(str, var_regex)) return Token(Tok_Var);
+    if (std::regex_match(str, rav_regex)) return Token(Tok_Rav);
+    if (std::regex_match(str, main_regex)) return Token(Tok_Main);
+    if (std::regex_match(str, niam_regex)) return Token(Tok_Niam);
+    if (std::regex_match(str, loop_regex)) return Token(Tok_Loop);
+    if (std::regex_match(str, pool_regex)) return Token(Tok_Pool);
+    if (std::regex_match(str, if_regex)) return Token(Tok_If);
+    if (std::regex_match(str, or_regex)) return Token(Tok_Or);
+    if (std::regex_match(str, fi_regex)) return Token(Tok_Fi);
+    if (std::regex_match(str, do_regex)) return Token(Tok_Do);
+    if (std::regex_match(str, in_regex)) return Token(Tok_In);
+    if (std::regex_match(str, out_regex)) return Token(Tok_Out);
+    if (std::regex_match(str, stop_regex)) return Token(Tok_Stop);
+    if (std::regex_match(str, die_regex)) return Token(Tok_Die);
+    if (std::regex_match(str, assign_regex)) return Token(Tok_Assign);
+    if (std::regex_match(str, literal_string_regex)) return Token(Tok_LitStr, TokenData());
+    if (std::regex_match(str, lit_int_regex)) return Token(Tok_LitInt, std::stoll(str));
 
-    if (std::regex_match(str, var_regex)) {
-        return Token(Tok_Var);
-    } else if (std::regex_match(str, rav_regex)) {
-        return Token(Tok_Rav);
-    } else if (std::regex_match(str, main_regex)) {
-        return Token(Tok_Main);
-    } else if (std::regex_match(str, niam_regex)) {
-        return Token(Tok_Niam);
-    } else if (std::regex_match(str, loop_regex)) {
-        return Token(Tok_Loop);
-    } else if (std::regex_match(str, pool_regex)) {
-        return Token(Tok_Pool);
-    } else if (std::regex_match(str, if_regex)) {
-        return Token(Tok_If);
-    } else if (std::regex_match(str, or_regex)) {
-        return Token(Tok_Or);
-    } else if (std::regex_match(str, fi_regex)) {
-        return Token(Tok_Fi);
-    } else if (std::regex_match(str, do_regex)) {
-        return Token(Tok_Do);
-    } else if (std::regex_match(str, in_regex)) {
-        return Token(Tok_In);
-    } else if (std::regex_match(str, out_regex)) {
-        return Token(Tok_Out);
-    } else if (std::regex_match(str, stop_regex)) {
-        return Token(Tok_Stop);
-    } else if (std::regex_match(str, die_regex)) {
-        return Token(Tok_Die);
-    } else if (std::regex_match(str, assign_regex)) {
-        return Token(Tok_Assign);
-    } else if (std::regex_match(str, literal_string_regex)) {
-        return Token (Tok_LitStr, TokenData());
-    } else if (std::regex_match(str, lit_int_regex)) {
-        return Token(Tok_LitInt, std::stoll(str));
-    } else if (std::regex_match(str, lit_real_regex)) {
+    if (std::regex_match(str, lit_real_regex)) {
         std::string modified_str = str;
-        size_t pos = modified_str.find(',');
-        if (pos != std::string::npos) {
-            modified_str.replace(pos, 1, ".");
-        }
+        std::replace(modified_str.begin(), modified_str.end(), ',', '.');
         return Token(Tok_LitReal, std::stof(modified_str));
     }
-    else if (std::regex_match(str, arithmetic_operator_regex)) {
+
+    if (std::regex_match(str, arithmetic_operator_regex)) {
         OpArit op;
         switch (str[0]) {
             case '+': op = Op_Add; break;
@@ -91,9 +72,11 @@ Token Lexer::verify_token(const std::string& str) {
             case '^': op = Op_Pow; break;
         }
         return Token(Tok_OpArit, TokenData(op));
-    } else if (std::regex_match(str, ident_regex)) {
-        return Token(Tok_Ident, TokenData());
-    } else if (std::regex_match(str, logical_operator_regex)) {
+    }
+
+    if (std::regex_match(str, ident_regex)) return Token(Tok_Ident, TokenData());
+
+    if (std::regex_match(str, logical_operator_regex)) {
         OpLogic op;
         switch (str[0]) {
             case '&': op = Op_And; break;
@@ -101,7 +84,9 @@ Token Lexer::verify_token(const std::string& str) {
             case '!': op = Op_Not; break;
         }
         return Token(Tok_OpLogic, op);
-    } else if (std::regex_match(str, relational_operator_regex)) {
+    }
+
+    if (std::regex_match(str, relational_operator_regex)) {
         OpRel op;
         if (str == "<") op = Op_Less;
         else if (str == "<=") op = Op_LessEq;
@@ -110,13 +95,11 @@ Token Lexer::verify_token(const std::string& str) {
         else if (str == "=") op = Op_Eq;
         else if (str == "!=") op = Op_Neq;
         return Token(Tok_OpRel, op);
-    } else if (std::regex_match(str, open_par_regex)) {
-        return Token(Tok_ParOpen);
-    } else if (std::regex_match(str, close_par_regex)) {
-        return Token(Tok_ParClose);
-    } else if(std::regex_match(str, dot_regex)) {
-        return Token(Tok_Period);
     }
+
+    if (std::regex_match(str, open_par_regex)) return Token(Tok_ParOpen);
+    if (std::regex_match(str, close_par_regex)) return Token(Tok_ParClose);
+    if (std::regex_match(str, dot_regex)) return Token(Tok_Period);
 
     return Token(Err, TokenData());
 }
@@ -131,162 +114,97 @@ enum State {
     COMMENT
 };
 
-
 LexResult Lexer::lex() {
-
     State state = START;
-    State changed_state = START;
-
     LexResult result;
+    std::string temporary;
 
-    std::string temporary = "";
-
-    for (int i = 0; i < src.bytes.size(); i++){
+    for (size_t i = 0; i < src.bytes.size(); ++i) {
         char ch = src.bytes[i];
 
-        if (state == START) {
-            if (std::isalpha(ch) || ch == '_') {
-                state = ABC;
-                temporary += ch;
-                continue;
-            }
-
-            if (std::isdigit(ch)) {
-                temporary += ch;
-                state = DIG;
-                continue;
-            }
-
-            if (ch == '"') {
-                temporary += ch;
-                state = LIT;
-                continue;
-            }
-
-            if (ch == '$') {
-                state = COMMENT;
-                continue;
-            }
-
-            if (isDefault(ch)) {
-                temporary += ch;
-                state = O;
-                continue;
-            }
-
-            if (!isspace(ch)) {
-                Token token = verify_token(temporary);
-                if(token.kind == Err) {
-                    Error error(i, token);
-                    result.errors.push_back(error);
+        switch (state) {
+            case START:
+                if (std::isalpha(ch) || ch == '_') {
+                    state = ABC;
+                } else if (std::isdigit(ch)) {
+                    state = DIG;
+                } else if (ch == '"') {
+                    state = LIT;
+                } else if (ch == '$') {
+                    state = COMMENT;
+                } else if (isDefault(ch)) {
+                    state = O;
+                } else if (!isspace(ch)) {
+                    state = START;
                 }
-                result.tokens.push_back(token);
-                temporary = "";
-                state = START;
-                continue;
-            }
 
-        }
+                if (state != START) temporary += ch;
+                break;
 
-        if (state == COMMENT) {
-            if (ch == '\n') {
-                temporary = "";
-                state = START;
-                continue;
-            }
-        }
+            case COMMENT:
+                if (ch == '\n') state = START;
+                break;
 
-        if (state == O) {
-            if (ch == '=' || ch == '-') {
-                temporary += ch;
-            }
-            Token token = verify_token(temporary);
-            if(token.kind == Err) {
-                Error error(i, token);
-                result.errors.push_back(error);
-            }
-            result.tokens.push_back(token);
-            temporary = "";
-            state = START;
-            continue;
-        }
-
-        if (state == LIT) {
-            if (ch == '"') {
-                temporary += ch;
-                Token token = verify_token(temporary);
-                if(token.kind == Err) {
-                    Error error(i, token);
-                    result.errors.push_back(error);
+            case O:
+                if (ch == '=' || ch == '-') {
+                    temporary += ch;
                 }
-                result.tokens.push_back(token);
-                temporary = "";
+
+                result.tokens.push_back(verify_token(temporary));
+                temporary.clear();
                 state = START;
-                continue;
-            } else {
-                temporary += ch;
-                continue;
-            }
-        }
+                break;
 
-        if(state == DIG) {
-           if (std::isdigit(ch)) {
-               temporary += ch;
-               continue;
-           } else if (ch == ',') {
-               state = DEC;
-               temporary += ch;
-               continue;
-           } else {
-               Token token = verify_token(temporary);
-               if(token.kind == Err) {
-                   Error error(i, token);
-                   result.errors.push_back(error);
-               }
-               i--;
-               result.tokens.push_back(token);
-               temporary = "";
-               state = START;
-               continue;
-           }
-        }
-
-        if(state == DEC) {
-            if (std::isdigit(ch)) {
+            case LIT:
                 temporary += ch;
-                continue;
-            } else {
-                Token token = verify_token(temporary);
-                if(token.kind == Err) {
-                    Error error(i, token);
-                    result.errors.push_back(error);
+                if (ch == '"') {
+                    result.tokens.push_back(verify_token(temporary));
+                    temporary.clear();
+                    state = START;
                 }
-                i--;
-                result.tokens.push_back(token);
-                temporary = "";
-                state = START;
-                continue;
-            }
-        }
+                break;
 
-        if (state == ABC) {
-           if(std::isalnum(ch)) {
-              temporary += ch;
-              continue;
-           } else {
-               Token token = verify_token(temporary);
-               if(token.kind == Err) {
-                   Error error(i, token);
-                   result.errors.push_back(error);
-               }
-               i--;
-               result.tokens.push_back(token);
-               temporary = "";
-               state = START;
-               continue;
-           }
+            case DIG:
+                if (std::isdigit(ch)) {
+                    temporary += ch;
+                } else if (ch == ',') {
+                    state = DEC;
+                    temporary += ch;
+                } else {
+                    result.tokens.push_back(verify_token(temporary));
+                    temporary.clear();
+                    state = START;
+                    --i; // re-evaluate current character
+                }
+                break;
+
+            case DEC:
+                if (std::isdigit(ch)) {
+                    temporary += ch;
+                } else {
+                    result.tokens.push_back(verify_token(temporary));
+                    temporary.clear();
+                    state = START;
+                    --i; // re-evaluate current character
+                }
+                break;
+
+            case ABC:
+                if (std::isalnum(ch)) {
+                    temporary += ch;
+                } else {
+                    result.tokens.push_back(verify_token(temporary));
+                    temporary.clear();
+                    state = START;
+                    --i; // re-evaluate current character
+                }
+                break;
         }
     }
-    return result;
 
+    if (!temporary.empty()) {
+        result.tokens.push_back(verify_token(temporary));
+    }
+
+    return result;
 }
