@@ -59,7 +59,7 @@ Token Lexer::verify_token(const std::string& str) {
     if (std::regex_match(str, die_regex)) return Token(Tok_Die);
     if (std::regex_match(str, assign_regex)) return Token(Tok_Assign);
     if (std::regex_match(str, literal_string_regex)) return Token(Tok_LitStr, TokenData());
-    if (std::regex_match(str, lit_int_regex)) return Token(Tok_LitInt, std::stoll(str));
+    if (std::regex_match(str, lit_int_regex)) return Token(Tok_LitInt, int64_t(std::stoll(str)));
 
     if (std::regex_match(str, lit_real_regex)) {
         std::string modified_str = str;
