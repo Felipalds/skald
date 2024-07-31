@@ -47,6 +47,8 @@ const char *op_logic_sym(OpLogic op) {
             return "&";
         case Op_Or:
             return "|";
+        case Op_Not:
+            return "!";
         default:
              return "??";
     }
@@ -114,9 +116,11 @@ void Token::printf_fmt(Src src) {
             break;
         case Tok_Ident:
             printf("[ident; (%zu..%zu)]", data.span.first, data.span.second);
+	    printf(" '");
             for (size_t i = data.span.first; i <= data.span.second; i++) {
                 printf("%c", src.bytes[i]);
             }
+	    printf("'");
             break;
         case Tok_Assign:
             printf("[<-; ]");
@@ -126,9 +130,6 @@ void Token::printf_fmt(Src src) {
             break;
         case Tok_OpLogic:
             printf("[logic; %s]", op_logic_sym(data.op_logic));
-            break;
-        case Tok_OpUnaryNot:
-            printf("[!; ]");
             break;
         case Tok_OpRel:
             printf("[rel; %s]", op_rel_sym(data.op_rel));
@@ -144,6 +145,7 @@ void Token::printf_fmt(Src src) {
             break;
         case Tok_LitStr:
             printf("[str; (%zu..%zu)]", data.span.first, data.span.second);
+	    printf(" ");
             for (size_t i = data.span.first; i <= data.span.second; i++) {
                 printf("%c", src.bytes[i]);
             }

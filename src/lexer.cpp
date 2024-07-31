@@ -201,10 +201,10 @@ LexResult Lexer::lex() {
                 break;
 
             case ABC:
-                if (std::isalnum(ch)) {
+                if (std::isalnum(ch) || ch == '_') {
                     temporary += ch;
                 } else {
-                    span.second = i;
+                    span.second = i - 1;
                     result.tokens.push_back(verify_token(temporary));
                     if(result.tokens.back().kind == Tok_Ident)
                         result.tokens.back().data = TokenData(span);

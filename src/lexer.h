@@ -25,7 +25,6 @@ enum TokenKind {
     Tok_Assign,
     Tok_OpArit,
     Tok_OpLogic,
-    Tok_OpUnaryNot,
     Tok_OpRel,
     Tok_ParOpen,
     Tok_ParClose,
