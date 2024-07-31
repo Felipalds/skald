@@ -12,6 +12,9 @@ static const std::regex main_regex("^main$");
 static const std::regex niam_regex("^niam$");
 static const std::regex loop_regex("^loop$");
 static const std::regex pool_regex("^pool$");
+static const std::regex int_regex("^int$");
+static const std::regex real_regex("^real$");
+static const std::regex str_regex("^str$");
 static const std::regex if_regex("^if$");
 static const std::regex or_regex("^or$");
 static const std::regex fi_regex("^fi$");
@@ -43,6 +46,9 @@ Token Lexer::verify_token(const std::string& str) {
     if (std::regex_match(str, niam_regex)) return Token(Tok_Niam);
     if (std::regex_match(str, loop_regex)) return Token(Tok_Loop);
     if (std::regex_match(str, pool_regex)) return Token(Tok_Pool);
+    if (std::regex_match(str, int_regex)) return Token(Tok_Type, TokenData(Type_Int));
+    if (std::regex_match(str, real_regex)) return Token(Tok_Type, TokenData(Type_Real));
+    if (std::regex_match(str, str_regex)) return Token(Tok_Type, TokenData(Type_Str));
     if (std::regex_match(str, if_regex)) return Token(Tok_If);
     if (std::regex_match(str, or_regex)) return Token(Tok_Or);
     if (std::regex_match(str, fi_regex)) return Token(Tok_Fi);
@@ -200,7 +206,8 @@ LexResult Lexer::lex() {
                 } else {
                     span.second = i;
                     result.tokens.push_back(verify_token(temporary));
-                    result.tokens.back().data = TokenData(span);
+                    if(result.tokens.back().kind == Tok_Ident)
+                        result.tokens.back().data = TokenData(span);
                     temporary.clear();
                     state = START;
                     --i; // re-evaluate current character
