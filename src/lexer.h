@@ -115,7 +115,7 @@ struct Token {
         : kind(kind)
         , data(data) {}
 
-    void printf_fmt();
+    void printf_fmt(Src src);
 };
 
 struct Error {

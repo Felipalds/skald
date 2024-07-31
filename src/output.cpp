@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include <cstdio>
 #include <cinttypes>
+#include "input.h"
 
 const char *op_rel_sym(OpRel op) {
     switch (op) {
@@ -51,7 +52,7 @@ const char *op_logic_sym(OpLogic op) {
     }
 }
 
-void Token::printf_fmt() {
+void Token::printf_fmt(Src src) {
     switch(kind) {
         case Tok_Var:
             printf("[var; ]");
@@ -97,6 +98,9 @@ void Token::printf_fmt() {
             break;
         case Tok_Ident:
             printf("[ident; (%zu..%zu)]", data.span.first, data.span.second);
+            for (size_t i = data.span.first; i <= data.span.second; i++) {
+                printf("%c", src.bytes[i]);
+            }
             break;
         case Tok_Assign:
             printf("[<-; ]");
@@ -124,6 +128,9 @@ void Token::printf_fmt() {
             break;
         case Tok_LitStr:
             printf("[str; (%zu..%zu)]", data.span.first, data.span.second);
+            for (size_t i = data.span.first; i <= data.span.second; i++) {
+                printf("%c", src.bytes[i]);
+            }
             break;
         case Tok_LitReal:
             printf("[real; %lf]", data.lit_real);

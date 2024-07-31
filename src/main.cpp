@@ -28,7 +28,7 @@ int main(int argc, const char **argv) {
   LexResult result = lexer.lex();
 
   for (Token token : result.tokens) {
-     token.printf_fmt();
+     token.printf_fmt(src);
      printf("\n");
   }
 

@@ -118,6 +118,7 @@ LexResult Lexer::lex() {
     State state = START;
     LexResult result;
     std::string temporary;
+    Span span = {0, 0};
 
     for (size_t i = 0; i < src.bytes.size(); ++i) {
         char ch = src.bytes[i];
@@ -125,10 +126,12 @@ LexResult Lexer::lex() {
         switch (state) {
             case START:
                 if (std::isalpha(ch) || ch == '_') {
+                    span.first = i;
                     state = ABC;
                 } else if (std::isdigit(ch)) {
                     state = DIG;
                 } else if (ch == '"') {
+                    span.first = i;
                     state = LIT;
                 } else if (ch == '$') {
                     state = COMMENT;
@@ -158,7 +161,9 @@ LexResult Lexer::lex() {
             case LIT:
                 temporary += ch;
                 if (ch == '"') {
+                    span.second = i;
                     result.tokens.push_back(verify_token(temporary));
+                    result.tokens.back().data = TokenData(span);
                     temporary.clear();
                     state = START;
                 }
@@ -193,7 +198,9 @@ LexResult Lexer::lex() {
                 if (std::isalnum(ch)) {
                     temporary += ch;
                 } else {
+                    span.second = i;
                     result.tokens.push_back(verify_token(temporary));
+                    result.tokens.back().data = TokenData(span);
                     temporary.clear();
                     state = START;
                     --i; // re-evaluate current character
