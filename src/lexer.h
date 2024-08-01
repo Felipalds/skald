@@ -21,6 +21,9 @@ enum TokenKind {
     Tok_Out,
     Tok_Stop,
     Tok_Die,
+    Tok_Int,
+    Tok_Real,
+    Tok_Str,
     Tok_Ident,
     Tok_Assign,
     Tok_OpArit,
@@ -32,8 +35,7 @@ enum TokenKind {
     Tok_LitStr,
     Tok_LitReal,
     Tok_LitInt,
-    Tok_Type,
-    Err
+    Tok_Err,
 };
 
 enum OpArit {
@@ -60,12 +62,6 @@ enum OpRel {
     Op_Neq,
 };
 
-enum Type {
-    Type_Int,
-    Type_Str,
-    Type_Real,
-};
-
 struct Span {
     size_t first, second;
 };
@@ -77,7 +73,6 @@ union TokenData {
     OpArit op_arit;
     OpLogic op_logic;
     OpRel op_rel;
-    Type type;
 
     TokenData() {}
 
@@ -98,11 +93,7 @@ union TokenData {
 
     TokenData(OpRel x)
         : op_rel(x) {}
-
-    TokenData(Type x)
-        : type(x) {}
 };
-
 
 struct Token {
     TokenKind kind;
@@ -118,22 +109,13 @@ struct Token {
     void printf_fmt(Src src);
 };
 
-struct Error {
-    size_t index;
-    Token token;
-    public: Error(size_t index, Token token): index(index), token(token) {}
-};
-
 struct LexResult {
     std::list<Token> tokens;
-    std::list<Error> errors;
+    std::list<Token> errors;
 };
 
 struct Lexer {
-    Src src;
-    Lexer(Src src): src(src) {}
-    LexResult lex();
-    Token verify_token(const std::string& str);
+    LexResult lex(Src &src);
 };
 
 #endif

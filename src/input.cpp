@@ -1,6 +1,6 @@
 #include "input.h"
 #include <cstdio>
-#include <cinttypes>
+
 
 Src::Src(FILE *src_file) {
     char buf[SRC_BUF_SIZE];
