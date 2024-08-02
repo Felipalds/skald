@@ -19,11 +19,13 @@ Src::Src(FILE *src_file) {
     }
 }
 
-size_t Src::which_line(size_t index) {
+Span Src::which_line(size_t index, size_t &line_num) {
     for (size_t i = 0; i < lines.size(); i++) {
         if (index < lines[i]) {
-            return i;
+            line_num = i;
+            return { lines[i - 1], lines[i] };
         }
     }
-    return lines.size();
+    printf("UNREACHABLE!!!");
+    return Span();
 }

@@ -54,18 +54,6 @@ const char *op_logic_sym(OpLogic op) {
     }
 }
 
-const char *type_sym(Type type) {
-    switch (type) {
-        case Type_Int:
-            return "int";
-        case Type_Real:
-            return "real";
-        case Type_Str:
-            return "str";
-        default:
-            return "??";
-    }
-}
 
 void Token::printf_fmt(Src src) {
     switch(kind) {
@@ -87,8 +75,14 @@ void Token::printf_fmt(Src src) {
         case Tok_Pool:
             printf("[pool; ]");
             break;
-        case Tok_Type:
-            printf("[type; %s]", type_sym(data.type));
+	case Tok_Int:
+            printf("[int; ]");
+            break;
+	case Tok_Real:
+            printf("[real; ]");
+            break;
+	case Tok_Str:
+            printf("[str; ]");
             break;
         case Tok_If:
             printf("[if; ]");
@@ -155,9 +149,6 @@ void Token::printf_fmt(Src src) {
             break;
         case Tok_LitInt:
             printf("[int; %" PRId64 "]", data.lit_int);
-            break;
-        case Err:
-            printf("[invalid token; ]");
             break;
         default:
             printf("[??; ]");

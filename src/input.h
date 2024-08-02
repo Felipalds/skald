@@ -6,12 +6,16 @@
 
 #define SRC_BUF_SIZE 1024
 
+struct Span {
+    size_t first, second;
+};
+
 struct Src {
     std::vector<char> bytes;
     std::vector<size_t> lines;
 
     Src(FILE *src_file);
-    size_t which_line(size_t index);
+    Span which_line(size_t index, size_t &line);
 };
 
  #endif

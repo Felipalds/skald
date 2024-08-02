@@ -35,7 +35,6 @@ enum TokenKind {
     Tok_LitStr,
     Tok_LitReal,
     Tok_LitInt,
-    Tok_Err,
 };
 
 enum OpArit {
@@ -62,9 +61,6 @@ enum OpRel {
     Op_Neq,
 };
 
-struct Span {
-    size_t first, second;
-};
 
 union TokenData {
     double lit_real;
@@ -109,13 +105,30 @@ struct Token {
     void printf_fmt(Src src);
 };
 
-struct LexResult {
-    std::list<Token> tokens;
-    std::list<Token> errors;
+enum LexErrKind {
+    LexErr_BadChar,
+    LexErr_UnknownOp,
+};
+
+struct LexErr {
+    LexErrKind kind;
+    Span span;
+
+    LexErr(LexErrKind k)
+	: kind(k) {}
+
+    LexErr(LexErrKind k, Span s)
+	: kind(k)
+	, span(s) {}
 };
 
 struct Lexer {
-    LexResult lex(Src &src);
+    std::list<Token> tokens;
+    std::list<LexErr> errors;
+
+    Lexer(Src &src);
+    void add_ident_or_kw(std::string &tmp, Span span);
+    void add_op_or_symbol(std::string &tmp, Span span);
 };
 
 #endif
