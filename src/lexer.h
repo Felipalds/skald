@@ -1,10 +1,10 @@
 #ifndef lexer_h
 #define lexer_h
 
+#include "input.h"
 #include <cstdint>
 #include <list>
 #include <string>
-#include "input.h"
 
 enum TokenKind {
     Tok_Var,
@@ -46,11 +46,7 @@ enum OpArit {
     Op_Pow,
 };
 
-enum OpLogic {
-    Op_And,
-    Op_Or,
-    Op_Not
-};
+enum OpLogic { Op_And, Op_Or, Op_Not };
 
 enum OpRel {
     Op_Less,
@@ -61,7 +57,6 @@ enum OpRel {
     Op_Neq,
 };
 
-
 union TokenData {
     double lit_real;
     int64_t lit_int;
@@ -71,55 +66,42 @@ union TokenData {
     OpRel op_rel;
 
     TokenData() {}
-
-    TokenData(double x)
-        : lit_real(x) {}
-
-    TokenData(int64_t x)
-        : lit_int(x) {}
-
-    TokenData(Span x)
-        : span(x) {}
-
-    TokenData(OpArit x)
-        : op_arit(x) {}
-
-    TokenData(OpLogic x)
-        : op_logic(x) {}
-
-    TokenData(OpRel x)
-        : op_rel(x) {}
+    TokenData(double x) : lit_real(x) {}
+    TokenData(int64_t x) : lit_int(x) {}
+    TokenData(OpArit x) : op_arit(x) {}
+    TokenData(OpLogic x) : op_logic(x) {}
+    TokenData(OpRel x) : op_rel(x) {}
 };
 
 struct Token {
     TokenKind kind;
     TokenData data;
+    Span span;
 
-    Token(TokenKind kind)
-        : kind(kind) {}
+    Token(TokenKind kind, Span span) : kind(kind), span(span) {}
 
-    Token(TokenKind kind, TokenData data)
-        : kind(kind)
-        , data(data) {}
+    Token(TokenKind kind, TokenData data, Span span)
+        : kind(kind), data(data), span(span) {}
 
+    // implementado em output.cpp
     void printf_fmt(Src src);
 };
 
 enum LexErrKind {
     LexErr_BadChar,
     LexErr_UnknownOp,
+    LexErr_UnexpectedEOF,
 };
 
 struct LexErr {
     LexErrKind kind;
     Span span;
 
-    LexErr(LexErrKind k)
-	: kind(k) {}
+    LexErr(LexErrKind k) : kind(k) {}
+    LexErr(LexErrKind k, Span s) : kind(k), span(s) {}
 
-    LexErr(LexErrKind k, Span s)
-	: kind(k)
-	, span(s) {}
+    // implementado em output.cpp
+    void printf_fmt(Src src);
 };
 
 struct Lexer {
@@ -129,6 +111,10 @@ struct Lexer {
     Lexer(Src &src);
     void add_ident_or_kw(std::string &tmp, Span span);
     void add_op_or_symbol(std::string &tmp, Span span);
+    void add_int(std::string &tmp, Span span);
+    void add_float(std::string &tmp, Span span);
+    void add_string(Span span);
+    void add_err(LexErrKind kind, Span span);
 };
 
 #endif

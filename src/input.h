@@ -4,10 +4,8 @@
 #include <cstdio>
 #include <vector>
 
-#define SRC_BUF_SIZE 1024
-
 struct Span {
-    size_t first, second;
+    size_t first, second, line;
 };
 
 struct Src {
@@ -15,7 +13,8 @@ struct Src {
     std::vector<size_t> lines;
 
     Src(FILE *src_file);
-    Span which_line(size_t index, size_t &line);
+
+    Span line_span(size_t line);
 };
 
- #endif
+#endif

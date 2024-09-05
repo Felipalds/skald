@@ -12,12 +12,12 @@
 
 ### `output`:
 - [x] exibir token
-- [ ] reportar erro com highlight na a linha de origem
+- [x] reportar erro com highlight na a linha de origem
 
 ### `lexer`:
 - [x] definir formato `Token`
-- [ ] definir formato `LexResult`
-- [ ] implementar lexer
+- [x] definir formato `LexResult`
+- [x] implementar lexer
 
 ### `tests`:
 - [ ] fazer testes

@@ -6,8 +6,8 @@
 void usage() { fprintf(stderr, "USAGE: skald /path/to/src.skald\n"); }
 
 void no_such_file(const char *exe, const char *path) {
-  fprintf(stderr, "%s: cannot open '%s': No such file or directory\n", exe,
-          path);
+    fprintf(stderr, "%s: cannot open '%s': No such file or directory\n", exe,
+            path);
 }
 
 int main(int argc, const char **argv) {
@@ -30,33 +30,18 @@ int main(int argc, const char **argv) {
     }
 
     Src src(src_file);
-
     Lexer lexer(src);
 
-    for (Token token: lexer.tokens) {
+    for (Token token : lexer.tokens) {
         token.printf_fmt(src);
         printf("\n");
     }
+    printf("\n");
 
-    for (LexErr err: lexer.errors) {
-        size_t line_num;
-        Span line = src.which_line(err.span.first, line_num);
-
-        printf("%zu: ", line_num);
-        if (err.kind == LexErr_BadChar) {
-            printf("BAD CHAR: ");
-        } else if (err.kind == LexErr_UnknownOp) {
-            printf("BAD OPER: ");
-        }
-        for (size_t i = line.first; i < line.second; i++) {
-            if (i > err.span.second) {
-                printf("\033[0m");
-            } else if (i >= err.span.first) {
-                printf("\033[31m");
-            }
-            printf("%c", src.bytes[i]);
-        }
+    for (LexErr err : lexer.errors) {
+        err.printf_fmt(src);
     }
+    printf("\n");
 
     return 0;
 }
