@@ -18,6 +18,8 @@
 - [x] definir formato `Token`
 - [x] definir formato `LexResult`
 - [x] implementar lexer
+- [ ] separar Tok_OpArit em Tok_OpAdd (+, -), Tok_OpMul (\*, /, %)
+- [ ] separar Tok_OpLogic em Tok_OpOr (|), Tok_OpAnd (&), Tok_OpNot(!)
 
 ### `tests`:
 - [ ] fazer testes
