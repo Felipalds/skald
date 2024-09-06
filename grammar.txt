@@ -1,17 +1,68 @@
+[program]       -> [var_block] [main_block]
 
-[program] -> [var_block] [main_block]
 
-[var_block] -> var [var_stm_arr] rav
-[var_stm_arr] -> [var_stm] [var_stm_arr] | null
-[var_stm] -> id type .
+[var_block]     -> var [var_stm_arr] rav
 
-[main_block] -> main [main_stm] niam
-[main_stm] -> [declar_stm] | [loop_stm] | [if_stm] | [in_stm] | [out_stm] | [stop_stm] | [die_stm] | [comment_stm] | [assign_stm] | [main_stm]
+[decl_list]     -> {}
+[decl_list]     -> [decl]
+[decl_list]     -> [decl] [decl_list]
 
-[declar_stm] -. id <- [val] .
-[val] -> num | id | str
+[decl]          -> [id] type .
 
-[loop_stm] -> loop [cond] do [main_stm] pool
-[if_stm] -> if [cond] do [main_stm] fi
-[cond] -> [val] [rel_op] [val]
-[rel_op] -> < | <= | >= | > | = | !=
+
+[main_block]    -> main [stmt_list] niam
+
+[stmt_list]     -> {}
+[stmt_list]     -> [stmt]
+[stmt_list]     -> [stmt] [var_stm_list]
+
+[stmt]	        -> [expr_stmt]
+[stmt]	        -> [loop_stmt]
+[stmt]	        -> [if_stmt]
+[stmt]	        -> [assign_stmt]
+[stmt]	        -> [out_stmt]
+[stmt]	        -> [stop_stmt]
+[stmt]	        -> [die_stmt]
+
+[expr_stmt]     -> [expr] .
+[loop_stmt]     -> loop [cond] do [stmt_list] pool
+[if_stmt]       -> if [bool] do [stmt_list] fi
+[if_stmt]       -> if [bool] do [stmt_list] or [stmt_list] fi
+[assign_stmt]   -> id <- [expr] .
+[out_stmt]      -> out [expr] .
+[die_stmt]      -> die .
+[stop_stmt]     -> stop .
+
+
+[bool]          -> [bool] | [and_bool]
+[bool]          -> [and_bool]
+[bool]          -> in [id]
+
+[and_bool]      -> [and_bool] & [rel_bool]
+[and_bool]      -> [and_bool]
+
+[atom_bool]     -> [expr]  < [expr]
+[atom_bool]     -> [expr] <= [expr]
+[atom_bool]     -> [expr]  > [expr]
+[atom_bool]     -> [expr] >= [expr]
+[atom_bool]     -> [expr]  = [expr]
+[atom_bool]     -> [expr] != [expr]
+[atom_bool]     -> ( [bool] )
+[atom_bool]     -> ! ( [bool] )
+
+
+[expr]          -> [expr] + [mul_expr]
+[expr]          -> [expr] - [mul_expr]
+[expr]          -> [mul_expr]
+[expr]          -> [mul_expr]
+
+[mul_expr]      -> [mul_expr] * [atom_expr]
+[mul_expr]      -> [mul_expr] / [atom_expr]
+[mul_expr]      -> [mul_expr] % [atom_expr]
+[mul_expr]      -> [atom_expr]
+
+[atom_expr]     -> ( [expr] )
+[atom_expr]     -> [id]
+[atom_expr]     -> [lit_int]
+[atom_expr]     -> [lit_str]
+[atom_expr]     -> [lit_real]
