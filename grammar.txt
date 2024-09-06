@@ -38,7 +38,7 @@
 [bool]          -> [and_bool]
 [bool]          -> in [id]
 
-[and_bool]      -> [and_bool] & [rel_bool]
+[and_bool]      -> [and_bool] & [atom_bool]
 [and_bool]      -> [and_bool]
 
 [atom_bool]     -> [expr]  < [expr]
