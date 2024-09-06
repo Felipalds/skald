@@ -4,30 +4,38 @@
 
 #define SRC_BUF_SIZE 1024
 
+// lê arquivo, lembrando posicao do inicio das linhas
 Src::Src(FILE *src_file) {
     char buf[SRC_BUF_SIZE];
     lines.push_back(0);
-    printf("LINE:   1 | ");
     for (;;) {
-        size_t read_bytes =
+        size_t num_read_bytes =
             fread(&buf[0], sizeof(char), SRC_BUF_SIZE, src_file);
-        if (read_bytes == 0) {
+
+        printf("got %zu bytes\n", num_read_bytes);
+
+        if (num_read_bytes == 0) {
             lines.push_back(bytes.size());
-            printf("\n================================\n");
             return;
         }
-        for (size_t i = 0; i < read_bytes; i++) {
-            bool newline = false;
+
+        for (size_t i = 0; i < num_read_bytes; i++) {
             if (buf[i] == '\n') {
-                // nao adicionar indice -1 se arquivo começa com '\n'
                 lines.push_back(i + 1);
-                newline = true;
+            }
+            bytes.push_back(buf[i]);
+
+            if (buf[i] == '\n') {
+                printf("\\n");
+                continue;
+            }
+            if (buf[i] == ' ') {
+                printf("\\s");
+                continue;
             }
             printf("%c", buf[i]);
-            if (newline)
-                printf("LINE: %3zu | ", lines.size());
-            bytes.push_back(buf[i]);
         }
+        break;
     }
 }
 

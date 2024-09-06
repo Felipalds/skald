@@ -1,186 +1,156 @@
 #include "input.h"
 #include "lexer.h"
-#include <cinttypes>
 #include <cstdio>
 
-const char *op_rel_sym(OpRel op) {
-    switch (op) {
-    case Op_Less:
-        return "<";
-    case Op_LessEq:
-        return "<=";
-    case Op_Greater:
-        return ">";
-    case Op_GreaterEq:
-        return ">=";
-    case Op_Eq:
-        return "=";
-    case Op_Neq:
-        return "!=";
-    default:
-        return "??";
+void Src::print() {
+    size_t line = 1;
+    printf("  1 | ");
+
+    for (size_t i = 0; i < bytes.size(); i++) {
+        if (bytes[i] == '\n') {
+            line++;
+            printf("\n%3zu | ", line);
+            continue;
+        }
+        printf("%c", bytes[i]);
     }
 }
 
-const char *op_arit_sym(OpArit op) {
-    switch (op) {
-    case Op_Add:
-        return "+";
-    case Op_Sub:
-        return "-";
-    case Op_Mul:
-        return "*";
-    case Op_Div:
-        return "/";
-    case Op_Mod:
-        return "%";
-    case Op_Pow:
-        return "^";
-    default:
-        return "??";
-    }
-}
-
-const char *op_logic_sym(OpLogic op) {
-    switch (op) {
-    case Op_And:
-        return "&";
-    case Op_Or:
-        return "|";
-    case Op_Not:
-        return "!";
-    default:
-        return "??";
-    }
-}
-
-void print_span(Src src, Span span) {
+void Src::print_span(Span span) {
     for (size_t i = span.first; i <= span.second; i++) {
-        printf("%c", src.bytes[i]);
+        printf("%c", bytes[i]);
     }
-    printf("\t\t");
 }
 
-void Token::printf_fmt(Src src) {
-    print_span(src, span);
+// avanca cursor para `column`
+void term_goto_column(unsigned int column) { printf("\e[%uG", column); }
+
+void Token::print(Src src) {
     switch (kind) {
     case Tok_Var:
-        printf("[var; ]");
+        printf("[var]");
         break;
     case Tok_Rav:
-        printf("[rav; ]");
+        printf("[rav]");
         break;
     case Tok_Main:
-        printf("[main; ]");
+        printf("[main]");
         break;
     case Tok_Niam:
-        printf("[niam; ]");
+        printf("[niam]");
         break;
     case Tok_Loop:
-        printf("[loop; ]");
+        printf("[loop]");
         break;
     case Tok_Pool:
-        printf("[pool; ]");
+        printf("[pool]");
         break;
     case Tok_Int:
-        printf("[int; ]");
+        printf("[int]");
         break;
     case Tok_Real:
-        printf("[real; ]");
+        printf("[real]");
         break;
     case Tok_Str:
-        printf("[str; ]");
+        printf("[str]");
         break;
     case Tok_If:
-        printf("[if; ]");
+        printf("[if]");
         break;
     case Tok_Or:
-        printf("[or; ]");
+        printf("[or]");
         break;
     case Tok_Fi:
-        printf("[fi; ]");
+        printf("[fi]");
         break;
     case Tok_Do:
-        printf("[do; ]");
+        printf("[do]");
         break;
     case Tok_In:
-        printf("[in; ]");
+        printf("[in]");
         break;
     case Tok_Out:
-        printf("[out; ]");
+        printf("[out]");
         break;
     case Tok_Stop:
-        printf("[stop; ]");
+        printf("[stop]");
         break;
     case Tok_Die:
-        printf("[die; ]");
+        printf("[die]");
         break;
     case Tok_Ident:
-        printf("[ident; (%zu..%zu)]", span.first, span.second);
+        printf("[ident]");
         break;
     case Tok_Assign:
-        printf("[<-; ]");
+        printf("[<-]");
         break;
-    case Tok_OpArit:
-        printf("[arit; %s]", op_arit_sym(data.op_arit));
+    case Tok_OpMul:
+        printf("[arit-mul]");
         break;
-    case Tok_OpLogic:
-        printf("[logic; %s]", op_logic_sym(data.op_logic));
+    case Tok_OpSum:
+        printf("[arit-sum]");
         break;
     case Tok_OpRel:
-        printf("[rel; %s]", op_rel_sym(data.op_rel));
+        printf("[rel]");
+        break;
+    case Tok_OpAnd:
+        printf("[&]");
+        break;
+    case Tok_OpOr:
+        printf("[|]");
+        break;
+    case Tok_OpNot:
+        printf("[!]");
         break;
     case Tok_ParOpen:
-        printf("[(; ]");
+        printf("[(]");
         break;
     case Tok_ParClose:
-        printf("[); ]");
+        printf("[)]");
         break;
     case Tok_Period:
-        printf("[.; ]");
+        printf("[.]");
         break;
     case Tok_LitStr:
-        printf("[str; (%zu..%zu)]", span.first, span.second);
+        printf("[str]");
         break;
     case Tok_LitReal:
-        printf("[real; %lf]", data.lit_real);
+        printf("[real]");
         break;
     case Tok_LitInt:
-        printf("[int; %" PRId64 "]", data.lit_int);
+        printf("[int]");
         break;
     default:
-        printf("[??; ]");
+        printf("[??]");
     }
+    term_goto_column(11);
+    printf(" | ");
+    src.print_span(span);
 }
 
-void LexErr::printf_fmt(Src src) {
-    printf("Line %zu: ", span.line);
+void LexErr::print(Src src) {
+    printf("line %zu: ", span.line + 1);
     switch (kind) {
     case LexErr_BadChar:
-        printf("BAD CHAR");
+        printf("(bad char)");
         break;
     case LexErr_UnknownOp:
-        printf("BAD OPERATOR");
+        printf("(unknown operator)");
         break;
     case LexErr_UnexpectedEOF:
-        printf("UNEXPECTED EOF");
+        printf("(unexpected EOF)");
         break;
     }
     printf("\n");
 
     Span line_span = src.line_span(span.line);
-    for (size_t i = line_span.first; i < line_span.second; i++) {
-        printf("%c", src.bytes[i]);
-    }
+    src.print_span(line_span);
     printf("\n");
+
+    term_goto_column(span.first - line_span.first);
     size_t i = line_span.first;
-    while (i++ < span.first) {
-        printf(" ");
-    }
     while (i++ < span.second) {
         printf("^");
     }
-    while (i++ < line_span.second) {
-        printf(" ");
-    }
+    printf("\n");
 }

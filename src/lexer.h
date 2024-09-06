@@ -26,8 +26,11 @@ enum TokenKind {
     Tok_Str,
     Tok_Ident,
     Tok_Assign,
-    Tok_OpArit,
-    Tok_OpLogic,
+    Tok_OpMul,
+    Tok_OpSum,
+    Tok_OpAnd,
+    Tok_OpOr,
+    Tok_OpNot,
     Tok_OpRel,
     Tok_ParOpen,
     Tok_ParClose,
@@ -46,8 +49,6 @@ enum OpArit {
     Op_Pow,
 };
 
-enum OpLogic { Op_And, Op_Or, Op_Not };
-
 enum OpRel {
     Op_Less,
     Op_LessEq,
@@ -62,14 +63,12 @@ union TokenData {
     int64_t lit_int;
     Span span;
     OpArit op_arit;
-    OpLogic op_logic;
     OpRel op_rel;
 
     TokenData() {}
     TokenData(double x) : lit_real(x) {}
     TokenData(int64_t x) : lit_int(x) {}
     TokenData(OpArit x) : op_arit(x) {}
-    TokenData(OpLogic x) : op_logic(x) {}
     TokenData(OpRel x) : op_rel(x) {}
 };
 
@@ -84,7 +83,7 @@ struct Token {
         : kind(kind), data(data), span(span) {}
 
     // implementado em output.cpp
-    void printf_fmt(Src src);
+    void print(Src src);
 };
 
 enum LexErrKind {
@@ -101,7 +100,7 @@ struct LexErr {
     LexErr(LexErrKind k, Span s) : kind(k), span(s) {}
 
     // implementado em output.cpp
-    void printf_fmt(Src src);
+    void print(Src src);
 };
 
 struct Lexer {

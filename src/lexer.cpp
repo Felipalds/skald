@@ -13,17 +13,21 @@ enum LexState {
 };
 
 void Lexer::add_ident_or_kw(std::string &tmp, Span span) {
-    const char *keywords[] = {"var",  "rav", "main", "niam", "loop", "pool",
-                              "if",   "or",  "fi",   "do",   "in",   "out",
-                              "stop", "die", "int",  "real", "str"};
-    const TokenKind kinds[]{Tok_Var,  Tok_Rav, Tok_Main, Tok_Niam, Tok_Loop,
-                            Tok_Pool, Tok_If,  Tok_Or,   Tok_Fi,   Tok_Do,
-                            Tok_In,   Tok_Out, Tok_Stop, Tok_Die,  Tok_Int,
-                            Tok_Real, Tok_Str};
+    struct {
+        const char *word;
+        TokenKind kind;
+    } table[] = {
+        {"var", Tok_Var},   {"rav", Tok_Rav},   {"main", Tok_Main},
+        {"niam", Tok_Niam}, {"loop", Tok_Loop}, {"pool", Tok_Pool},
+        {"if", Tok_If},     {"or", Tok_Or},     {"fi", Tok_Fi},
+        {"do", Tok_Do},     {"in", Tok_In},     {"out", Tok_Out},
+        {"stop", Tok_Stop}, {"die", Tok_Die},   {"int", Tok_Int},
+        {"real", Tok_Real}, {"str", Tok_Str},
+    };
 
-    for (size_t i = 0; i < sizeof(keywords) / sizeof(*keywords); i++) {
-        if (tmp == keywords[i]) {
-            tokens.push_back(Token(kinds[i], span));
+    for (size_t i = 0; i < sizeof(table) / sizeof(*table); i++) {
+        if (tmp == table[i].word) {
+            tokens.push_back(Token(table[i].kind, span));
             return;
         }
     }
@@ -31,32 +35,39 @@ void Lexer::add_ident_or_kw(std::string &tmp, Span span) {
 }
 
 void Lexer::add_op_or_symbol(std::string &tmp, Span span) {
-    const char *symbols[]{
-        "+", "-",  "*", "/", "%", "^", "<", "<=", ">", ">=",
-        "=", "!=", "&", "|", "!", ")", "(", "<-", ".",
-    };
-    const TokenKind kinds[] = {
-        Tok_OpArit,  Tok_OpArit,   Tok_OpArit,  Tok_OpArit,  Tok_OpArit,
-        Tok_OpArit,  Tok_OpRel,    Tok_OpRel,   Tok_OpRel,   Tok_OpRel,
-        Tok_OpRel,   Tok_OpRel,    Tok_OpLogic, Tok_OpLogic, Tok_OpLogic,
-        Tok_ParOpen, Tok_ParClose, Tok_Assign,  Tok_Period,
-    };
-    const TokenData data[] = {
-        TokenData(Op_Add),     TokenData(Op_Sub),
-        TokenData(Op_Mul),     TokenData(Op_Div),
-        TokenData(Op_Mod),     TokenData(Op_Pow),
-        TokenData(Op_Less),    TokenData(Op_LessEq),
-        TokenData(Op_Greater), TokenData(Op_GreaterEq),
-        TokenData(Op_Eq),      TokenData(Op_Neq),
-        TokenData(Op_And),     TokenData(Op_Or),
-        TokenData(Op_Not),     TokenData(),
-        TokenData(),           TokenData(),
-        TokenData(),
+    struct {
+        const char *sym;
+        TokenKind kind;
+        TokenData data;
+    } table[] = {
+        {"*", Tok_OpMul, TokenData(Op_Mul)},
+        {"/", Tok_OpMul, TokenData(Op_Div)},
+        {"%", Tok_OpMul, TokenData(Op_Mod)},
+        {"^", Tok_OpMul, TokenData(Op_Pow)},
+
+        {"+", Tok_OpSum, TokenData(Op_Add)},
+        {"-", Tok_OpSum, TokenData(Op_Sub)},
+
+        {"<", Tok_OpRel, TokenData(Op_Less)},
+        {"<=", Tok_OpRel, TokenData(Op_LessEq)},
+        {">", Tok_OpRel, TokenData(Op_Greater)},
+        {">=", Tok_OpRel, TokenData(Op_GreaterEq)},
+        {"=", Tok_OpRel, TokenData(Op_Eq)},
+        {"!=", Tok_OpRel, TokenData(Op_Neq)},
+
+        {"&", Tok_OpAnd, TokenData()},
+        {"|", Tok_OpOr, TokenData()},
+        {"!", Tok_OpNot, TokenData()},
+
+        {"(", Tok_ParOpen, TokenData()},
+        {")", Tok_ParClose, TokenData()},
+        {"<-", Tok_Assign, TokenData()},
+        {".", Tok_Period, TokenData()},
     };
 
-    for (size_t i = 0; i < sizeof(symbols) / sizeof(*symbols); i++) {
-        if (tmp == symbols[i]) {
-            Token token(kinds[i], data[i], span);
+    for (size_t i = 0; i < sizeof(table) / sizeof(*table); i++) {
+        if (tmp == table[i].sym) {
+            Token token(table[i].kind, table[i].data, span);
             tokens.push_back(token);
             return;
         }
@@ -88,6 +99,7 @@ void Lexer::add_err(LexErrKind kind, Span span) {
 #define SINGLE_CHAR "+-*/%^()&|.="
 #define PREFIX "!<>"
 #define SUFFIX "=-"
+// ilegais: !- >-
 
 Lexer::Lexer(Src &src) {
     LexState state = State_Start;

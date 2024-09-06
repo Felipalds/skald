@@ -3,9 +3,9 @@
 CPP=src/lexer.cpp src/output.cpp src/input.cpp
 
 main:
-	g++ -g -o skald src/main.cpp $(CPP)
+	g++ -g -Wall -Wextra -o skald src/main.cpp $(CPP)
 
 test:
-	g++ -g -o test src/tests.cpp $(CPP)
+	g++ -g -Wall -Wextra -o test src/tests.cpp $(CPP)
 	./test
 

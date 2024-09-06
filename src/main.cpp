@@ -32,14 +32,17 @@ int main(int argc, const char **argv) {
     Src src(src_file);
     Lexer lexer(src);
 
+    src.print();
+    printf("\n\n");
+
     for (Token token : lexer.tokens) {
-        token.printf_fmt(src);
+        token.print(src);
         printf("\n");
     }
     printf("\n");
 
     for (LexErr err : lexer.errors) {
-        err.printf_fmt(src);
+        err.print(src);
     }
     printf("\n");
 
