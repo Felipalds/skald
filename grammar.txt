@@ -1,0 +1,68 @@
+[program]       -> [var_block] [main_block]
+
+
+[var_block]     -> var [var_stm_arr] rav
+
+[decl_list]     -> {}
+[decl_list]     -> [decl]
+[decl_list]     -> [decl] [decl_list]
+
+[decl]          -> [id] type .
+
+
+[main_block]    -> main [stmt_list] niam
+
+[stmt_list]     -> {}
+[stmt_list]     -> [stmt]
+[stmt_list]     -> [stmt] [var_stm_list]
+
+[stmt]	        -> [expr_stmt]
+[stmt]	        -> [loop_stmt]
+[stmt]	        -> [if_stmt]
+[stmt]	        -> [assign_stmt]
+[stmt]	        -> [out_stmt]
+[stmt]	        -> [stop_stmt]
+[stmt]	        -> [die_stmt]
+
+[expr_stmt]     -> [expr] .
+[loop_stmt]     -> loop [cond] do [stmt_list] pool
+[if_stmt]       -> if [bool] do [stmt_list] fi
+[if_stmt]       -> if [bool] do [stmt_list] or [stmt_list] fi
+[assign_stmt]   -> id <- [expr] .
+[out_stmt]      -> out [expr] .
+[die_stmt]      -> die .
+[stop_stmt]     -> stop .
+
+
+[bool]          -> [bool] | [and_bool]
+[bool]          -> [and_bool]
+[bool]          -> in [id]
+
+[and_bool]      -> [and_bool] & [atom_bool]
+[and_bool]      -> [and_bool]
+
+[atom_bool]     -> [expr]  < [expr]
+[atom_bool]     -> [expr] <= [expr]
+[atom_bool]     -> [expr]  > [expr]
+[atom_bool]     -> [expr] >= [expr]
+[atom_bool]     -> [expr]  = [expr]
+[atom_bool]     -> [expr] != [expr]
+[atom_bool]     -> ( [bool] )
+[atom_bool]     -> ! ( [bool] )
+
+
+[expr]          -> [expr] + [mul_expr]
+[expr]          -> [expr] - [mul_expr]
+[expr]          -> [mul_expr]
+[expr]          -> [mul_expr]
+
+[mul_expr]      -> [mul_expr] * [atom_expr]
+[mul_expr]      -> [mul_expr] / [atom_expr]
+[mul_expr]      -> [mul_expr] % [atom_expr]
+[mul_expr]      -> [atom_expr]
+
+[atom_expr]     -> ( [expr] )
+[atom_expr]     -> [id]
+[atom_expr]     -> [lit_int]
+[atom_expr]     -> [lit_str]
+[atom_expr]     -> [lit_real]
