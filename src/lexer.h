@@ -46,7 +46,11 @@ enum OpArit {
     Op_Pow,
 };
 
-enum OpLogic { Op_And, Op_Or, Op_Not };
+enum OpLogic {
+    Op_And,
+    Op_Or,
+    Op_Not,
+};
 
 enum OpRel {
     Op_Less,
@@ -116,5 +120,4 @@ struct Lexer {
     void add_string(Span span);
     void add_err(LexErrKind kind, Span span);
 };
-
 #endif

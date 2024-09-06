@@ -1,11 +1,9 @@
 .PHONY: main test
 
-CPP=src/lexer.cpp src/output.cpp src/input.cpp
-
 main:
-	g++ -g -o skald src/main.cpp $(CPP)
+	g++ -g -o skald src/*.cpp
 
 test:
-	g++ -g -o test src/tests.cpp $(CPP)
+	g++ -g -o test tests/*.cpp src/!(main).cpp
 	./test
 
