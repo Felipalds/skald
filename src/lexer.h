@@ -98,7 +98,6 @@ struct LexErr {
     LexErrKind kind;
     Span span;
 
-    LexErr(LexErrKind k) : kind(k) {}
     LexErr(LexErrKind k, Span s) : kind(k), span(s) {}
 
     // implementado em output.cpp

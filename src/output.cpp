@@ -145,11 +145,12 @@ void LexErr::print(Src src) {
     printf("\n");
 
     Span line_span = src.line_span(span.line);
+
     src.print_span(line_span);
     printf("\n");
 
-    term_goto_column(span.first - line_span.first);
-    for (size_t i = span.first; i < span.second; i++) {
+    term_goto_column(span.first - line_span.first + 1);
+    for (size_t i = span.first; i <= span.second; i++) {
         printf("^");
     }
     printf("\n");

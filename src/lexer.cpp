@@ -181,6 +181,8 @@ Lexer::Lexer(Src &src) {
             // newline termina comentario
             if (ch == '\n') {
                 state = State_Start;
+                // incrementa contador de linha aq tambem
+                span.line++;
             }
             break;
         case State_Int:
