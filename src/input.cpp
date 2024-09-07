@@ -24,7 +24,6 @@ Src::Src(FILE *src_file) {
             }
             bytes.push_back(buf[i]);
         }
-        break;
     }
 }
 
