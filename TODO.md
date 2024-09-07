@@ -23,6 +23,7 @@
 - [x] implementar lexer
 - [x] separar Tok_OpArit em Tok_OpAdd (+, -), Tok_OpMul (\*, /, %)
 - [x] separar Tok_OpLogic em Tok_OpOr (|), Tok_OpAnd (&), Tok_OpNot(!)
+- [x] implementar TokenData como bitset? ex. real = Tok_Type | Type_Real
 
 ### `ast`:
 - [ ] implementar analisador sintatico
