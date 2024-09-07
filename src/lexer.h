@@ -3,8 +3,8 @@
 
 #include "input.h"
 #include <cstdint>
-#include <list>
 #include <string>
+#include <vector>
 
 enum TokenKind {
     Tok_Var,
@@ -105,8 +105,8 @@ struct LexErr {
 };
 
 struct Lexer {
-    std::list<Token> tokens;
-    std::list<LexErr> errors;
+    std::vector<Token> tokens;
+    std::vector<LexErr> errors;
 
     Lexer(Src &src);
     void add_ident_or_kw(std::string &tmp, Span span);
