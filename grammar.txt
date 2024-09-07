@@ -41,13 +41,13 @@
 [and_bool]      -> [and_bool] & [atom_bool]
 [and_bool]      -> [and_bool]
 
+
 [atom_bool]     -> [expr] [rel_op] [expr]
 [atom_bool]     -> ( [bool] )
 [atom_bool]     -> ! ( [bool] )
 
 
 [expr]          -> [expr] [sum_op] [mul_expr]
-[expr]          -> [mul_expr]
 [expr]          -> [mul_expr]
 
 [mul_expr]      -> [mul_expr] [mul_op] [atom_expr]
