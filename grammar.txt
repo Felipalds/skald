@@ -42,9 +42,11 @@
 [and_bool]      -> [atom_bool]
 
 [atom_bool]     -> [expr] rel_op [expr]
-[atom_bool]     -> in id
+[atom_bool]     -> [input]
 [atom_bool]     -> ( [bool] )
 [atom_bool]     -> ! ( [bool] )
+
+[input]         -> in id
 
 
 [expr]          -> [expr] sum_op [mul_expr]
