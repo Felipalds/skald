@@ -1,13 +1,13 @@
 [program]       -> [var_block] [main_block]
 
 
-[var_block]     -> var [var_stm_arr] rav
+[var_block]     -> var [decl_list] rav
 
 [decl_list]     -> {}
 [decl_list]     -> [decl]
 [decl_list]     -> [decl] [decl_list]
 
-[decl]          -> [id] type .
+[decl]          -> id type .
 
 
 [main_block]    -> main [stmt_list] niam
@@ -25,6 +25,7 @@
 [stmt]	        -> [die_stmt]
 
 [expr_stmt]     -> [expr] .
+[bool_stmt]     -> [bool] .
 [loop_stmt]     -> loop [cond] do [stmt_list] pool
 [if_stmt]       -> if [bool] do [stmt_list] fi
 [if_stmt]       -> if [bool] do [stmt_list] or [stmt_list] fi
@@ -36,25 +37,25 @@
 
 [bool]          -> [bool] | [and_bool]
 [bool]          -> [and_bool]
-[bool]          -> in [id]
+[bool]          -> in id
 
 [and_bool]      -> [and_bool] & [atom_bool]
 [and_bool]      -> [and_bool]
 
 
-[atom_bool]     -> [expr] [rel_op] [expr]
+[atom_bool]     -> [expr] rel_op [expr]
 [atom_bool]     -> ( [bool] )
 [atom_bool]     -> ! ( [bool] )
 
 
-[expr]          -> [expr] [sum_op] [mul_expr]
+[expr]          -> [expr] sum_op [mul_expr]
 [expr]          -> [mul_expr]
 
-[mul_expr]      -> [mul_expr] [mul_op] [atom_expr]
+[mul_expr]      -> [mul_expr] mul_op [atom_expr]
 [mul_expr]      -> [atom_expr]
 
 [atom_expr]     -> ( [expr] )
-[atom_expr]     -> [id]
-[atom_expr]     -> [lit_int]
-[atom_expr]     -> [lit_str]
-[atom_expr]     -> [lit_real]
+[atom_expr]     -> id
+[atom_expr]     -> lit_int
+[atom_expr]     -> lit_str
+[atom_expr]     -> lit_real
