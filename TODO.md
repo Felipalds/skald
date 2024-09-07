@@ -13,7 +13,8 @@
 
 ### `output`:
 - [x] exibir token
-- [ ] (bugado) reportar erro com highlight na a linha de origem
+- [x] (bugado) reportar erro com highlight na a linha de origem
+- [ ] (seria bonito) deduplicar erros na mesma linha
 
 ### `lexer`:
 - [x] definir formato `Token`
