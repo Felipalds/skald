@@ -46,5 +46,8 @@ int main(int argc, const char **argv) {
     }
     printf("\n");
 
+    if (src_file != stdin) {
+        fclose(src_file);
+    }
     return 0;
 }

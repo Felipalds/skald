@@ -59,15 +59,11 @@ enum OpRel {
 };
 
 union TokenData {
-    double lit_real;
-    int64_t lit_int;
     Span span;
     OpArit op_arit;
     OpRel op_rel;
 
     TokenData() {}
-    TokenData(double x) : lit_real(x) {}
-    TokenData(int64_t x) : lit_int(x) {}
     TokenData(OpArit x) : op_arit(x) {}
     TokenData(OpRel x) : op_rel(x) {}
 };
@@ -110,8 +106,8 @@ struct Lexer {
     Lexer(Src &src);
     void add_ident_or_kw(std::string &tmp, Span span);
     void add_op_or_symbol(std::string &tmp, Span span);
-    void add_int(std::string &tmp, Span span);
-    void add_float(std::string &tmp, Span span);
+    void add_int(Span span);
+    void add_float(Span span);
     void add_string(Span span);
     void add_err(LexErrKind kind, Span span);
 };

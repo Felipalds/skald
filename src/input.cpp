@@ -1,4 +1,5 @@
 #include "input.h"
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 
@@ -12,8 +13,6 @@ Src::Src(FILE *src_file) {
         size_t num_read_bytes =
             fread(&buf[0], sizeof(char), SRC_BUF_SIZE, src_file);
 
-        printf("got %zu bytes\n", num_read_bytes);
-
         if (num_read_bytes == 0) {
             lines.push_back(bytes.size());
             return;
@@ -24,16 +23,6 @@ Src::Src(FILE *src_file) {
                 lines.push_back(i + 1);
             }
             bytes.push_back(buf[i]);
-
-            if (buf[i] == '\n') {
-                printf("\\n");
-                continue;
-            }
-            if (buf[i] == ' ') {
-                printf("\\s");
-                continue;
-            }
-            printf("%c", buf[i]);
         }
         break;
     }
@@ -41,11 +30,12 @@ Src::Src(FILE *src_file) {
 
 // span da linha `line`, _sem_ incluir '\n' no final
 Span Src::line_span(size_t line) {
-    Span span = {0, 0, line};
+    Span span = {SIZE_MAX, SIZE_MAX, SIZE_MAX};
     for (size_t i = 0; i < lines.size(); i++) {
         if (lines[i] > line) {
             span.first = lines[i - 1];
             span.second = lines[i] - 1;
+            break;
         }
     }
     return span;

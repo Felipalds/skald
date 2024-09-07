@@ -75,14 +75,12 @@ void Lexer::add_op_or_symbol(std::string &tmp, Span span) {
     errors.push_back(LexErr(LexErr_UnknownOp, span));
 }
 
-void Lexer::add_int(std::string &tmp, Span span) {
-    int64_t data = std::stoll(tmp);
-    Token token(Tok_LitInt, TokenData(data), span);
+void Lexer::add_int(Span span) {
+    Token token(Tok_LitInt, TokenData(), span);
     tokens.push_back(token);
 }
-void Lexer::add_float(std::string &tmp, Span span) {
-    double data = std::stod(tmp);
-    Token token(Tok_LitInt, TokenData(data), span);
+void Lexer::add_float(Span span) {
+    Token token(Tok_LitInt, TokenData(), span);
     tokens.push_back(token);
 }
 
@@ -102,6 +100,7 @@ void Lexer::add_err(LexErrKind kind, Span span) {
 // ilegais: !- >-
 
 Lexer::Lexer(Src &src) {
+    src.bytes.push_back(' ');
     LexState state = State_Start;
     std::string tmp;
     Span span = {0, 0, 0};
@@ -122,7 +121,6 @@ Lexer::Lexer(Src &src) {
             } else if (isdigit(ch)) {
                 // 0-9, inicia inteiro ou float
                 span.first = i;
-                tmp += ch;
                 state = State_Int;
             } else if (strchr(SINGLE_CHAR, ch) != NULL) {
                 // chars que ja terminam um token
@@ -143,7 +141,6 @@ Lexer::Lexer(Src &src) {
                 // " inicia string
                 span.first = i;
                 state = State_Str;
-                tmp += "#"; // marcador
                 escape = false;
             } else if (ch == '\n') {
                 // incrementa contador de linha
@@ -175,32 +172,23 @@ Lexer::Lexer(Src &src) {
             }
             break;
         case State_Int:
-            if (isdigit(ch)) {
-                // continue adicionando digitos
-                tmp += ch;
-            } else if (ch == ',') {
+            if (ch == ',') {
                 // não eh mais inteiro
-                tmp += '.';
                 state = State_Real;
             } else {
                 // terminou inteiro
                 i--;
                 span.second = i;
-                add_int(tmp, span);
-                tmp.clear();
+                add_int(span);
                 state = State_Start;
             }
             break;
         case State_Real:
-            if (isdigit(ch)) {
-                // continua adiconando digitos
-                tmp += ch;
-            } else {
+            if (!isdigit(ch)) {
                 // terminou float
                 i--;
                 span.second = i;
-                add_float(tmp, span);
-                tmp.clear();
+                add_float(span);
                 state = State_Start;
             }
             break;
@@ -221,7 +209,6 @@ Lexer::Lexer(Src &src) {
             if (ch == '"' && !escape) {
                 span.second = i;
                 add_string(span);
-                tmp.clear();
                 state = State_Start;
             } else {
                 // _TODO? escapar outros chars
@@ -230,7 +217,7 @@ Lexer::Lexer(Src &src) {
             break;
         }
     }
-    if (!tmp.empty()) {
+    if (state != State_Start && state != State_Comment) {
         span.second = std::max(i, size_t(1)) - 1;
         add_err(LexErr_UnexpectedEOF, span);
     }

@@ -4,26 +4,34 @@
 
 void Src::print() {
     size_t line = 1;
-    printf("  1 | ");
+    /*printf("  1 | ");*/
 
+    bool newline = true;
     for (size_t i = 0; i < bytes.size(); i++) {
-        if (bytes[i] == '\n') {
-            line++;
-            printf("\n%3zu | ", line);
-            continue;
+        if (newline) {
+            printf("%3zu | ", line);
         }
+        newline = bytes[i] == '\n';
+        line += newline;
         printf("%c", bytes[i]);
     }
 }
 
 void Src::print_span(Span span) {
-    for (size_t i = span.first; i <= span.second; i++) {
+    if (span.first >= lines.size()) {
+        return;
+    }
+    size_t limit = std::min(lines.size(), span.second + 1);
+    for (size_t i = span.first; i < limit; i++) {
         printf("%c", bytes[i]);
     }
 }
 
+#define GOTO_COLUMN_TERM_ESCAPE "\e[%uG"
 // avanca cursor para `column`
-void term_goto_column(unsigned int column) { printf("\e[%uG", column); }
+void term_goto_column(unsigned int column) {
+    printf(GOTO_COLUMN_TERM_ESCAPE, column);
+}
 
 void Token::print(Src src) {
     switch (kind) {
@@ -148,8 +156,7 @@ void LexErr::print(Src src) {
     printf("\n");
 
     term_goto_column(span.first - line_span.first);
-    size_t i = line_span.first;
-    while (i++ < span.second) {
+    for (size_t i = span.first; i < span.second; i++) {
         printf("^");
     }
     printf("\n");
