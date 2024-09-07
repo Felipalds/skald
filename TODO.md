@@ -15,6 +15,7 @@
 - [x] exibir token
 - [x] (bugado) reportar erro com highlight na a linha de origem
 - [ ] (seria bonito) deduplicar erros na mesma linha
+- [ ] unificar aviso de erros em Src::report_errors
 
 ### `lexer`:
 - [x] definir formato `Token`
