@@ -4,14 +4,22 @@
 #include <cstdio>
 #include <vector>
 
-#define SRC_BUF_SIZE 1024
+struct Span {
+    size_t first, second, line;
+};
 
 struct Src {
     std::vector<char> bytes;
     std::vector<size_t> lines;
 
+    // implementado em output.cpp
+    void print();
+    // implementado em output.cpp
+    void print_span(Span span);
+
     Src(FILE *src_file);
-    size_t which_line(size_t index);
+
+    Span line_span(size_t line);
 };
 
- #endif
+#endif

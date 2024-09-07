@@ -1,10 +1,10 @@
 #ifndef lexer_h
 #define lexer_h
 
+#include "input.h"
 #include <cstdint>
 #include <list>
 #include <string>
-#include "input.h"
 
 enum TokenKind {
     Tok_Var,
@@ -21,10 +21,16 @@ enum TokenKind {
     Tok_Out,
     Tok_Stop,
     Tok_Die,
+    Tok_Int,
+    Tok_Real,
+    Tok_Str,
     Tok_Ident,
     Tok_Assign,
-    Tok_OpArit,
-    Tok_OpLogic,
+    Tok_OpMul,
+    Tok_OpSum,
+    Tok_OpAnd,
+    Tok_OpOr,
+    Tok_OpNot,
     Tok_OpRel,
     Tok_ParOpen,
     Tok_ParClose,
@@ -32,8 +38,6 @@ enum TokenKind {
     Tok_LitStr,
     Tok_LitReal,
     Tok_LitInt,
-    Tok_Type,
-    Err
 };
 
 enum OpArit {
@@ -45,12 +49,6 @@ enum OpArit {
     Op_Pow,
 };
 
-enum OpLogic {
-    Op_And,
-    Op_Or,
-    Op_Not
-};
-
 enum OpRel {
     Op_Less,
     Op_LessEq,
@@ -60,80 +58,57 @@ enum OpRel {
     Op_Neq,
 };
 
-enum Type {
-    Type_Int,
-    Type_Str,
-    Type_Real,
-};
-
-struct Span {
-    size_t first, second;
-};
-
 union TokenData {
-    double lit_real;
-    int64_t lit_int;
     Span span;
     OpArit op_arit;
-    OpLogic op_logic;
     OpRel op_rel;
-    Type type;
 
     TokenData() {}
-
-    TokenData(double x)
-        : lit_real(x) {}
-
-    TokenData(int64_t x)
-        : lit_int(x) {}
-
-    TokenData(Span x)
-        : span(x) {}
-
-    TokenData(OpArit x)
-        : op_arit(x) {}
-
-    TokenData(OpLogic x)
-        : op_logic(x) {}
-
-    TokenData(OpRel x)
-        : op_rel(x) {}
-
-    TokenData(Type x)
-        : type(x) {}
+    TokenData(OpArit x) : op_arit(x) {}
+    TokenData(OpRel x) : op_rel(x) {}
 };
-
 
 struct Token {
     TokenKind kind;
     TokenData data;
+    Span span;
 
-    Token(TokenKind kind)
-        : kind(kind) {}
+    Token(TokenKind kind, Span span) : kind(kind), span(span) {}
 
-    Token(TokenKind kind, TokenData data)
-        : kind(kind)
-        , data(data) {}
+    Token(TokenKind kind, TokenData data, Span span)
+        : kind(kind), data(data), span(span) {}
 
-    void printf_fmt(Src src);
+    // implementado em output.cpp
+    void print(Src src);
 };
 
-struct Error {
-    size_t index;
-    Token token;
-    public: Error(size_t index, Token token): index(index), token(token) {}
+enum LexErrKind {
+    LexErr_BadChar,
+    LexErr_UnknownOp,
+    LexErr_UnexpectedEOF,
 };
 
-struct LexResult {
-    std::list<Token> tokens;
-    std::list<Error> errors;
+struct LexErr {
+    LexErrKind kind;
+    Span span;
+
+    LexErr(LexErrKind k) : kind(k) {}
+    LexErr(LexErrKind k, Span s) : kind(k), span(s) {}
+
+    // implementado em output.cpp
+    void print(Src src);
 };
 
 struct Lexer {
-    Src src;
-    Lexer(Src src): src(src) {}
-    LexResult lex();
-    Token verify_token(const std::string& str);
-};
+    std::list<Token> tokens;
+    std::list<LexErr> errors;
 
+    Lexer(Src &src);
+    void add_ident_or_kw(std::string &tmp, Span span);
+    void add_op_or_symbol(std::string &tmp, Span span);
+    void add_int(Span span);
+    void add_float(Span span);
+    void add_string(Span span);
+    void add_err(LexErrKind kind, Span span);
+};
 #endif
