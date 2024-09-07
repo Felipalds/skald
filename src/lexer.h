@@ -111,5 +111,4 @@ struct Lexer {
     void add_string(Span span);
     void add_err(LexErrKind kind, Span span);
 };
-
 #endif
