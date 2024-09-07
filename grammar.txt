@@ -14,9 +14,10 @@
 
 [stmt_list]     -> {}
 [stmt_list]     -> [stmt]
-[stmt_list]     -> [stmt] [var_stm_list]
+[stmt_list]     -> [stmt] [decl_list]
 
 [stmt]	        -> [expr_stmt]
+[stmt]	        -> [bool_stmt]
 [stmt]	        -> [loop_stmt]
 [stmt]	        -> [if_stmt]
 [stmt]	        -> [assign_stmt]
@@ -31,17 +32,18 @@
 [if_stmt]       -> if [bool] do [stmt_list] or [stmt_list] fi
 [assign_stmt]   -> id <- [expr] .
 [out_stmt]      -> out [expr] .
-[die_stmt]      -> die .
 [stop_stmt]     -> stop .
+[die_stmt]      -> die .
 
+
+[input]         -> in id
 
 [bool]          -> [bool] | [and_bool]
 [bool]          -> [and_bool]
-[bool]          -> in id
+[bool]          -> [input]
 
 [and_bool]      -> [and_bool] & [atom_bool]
-[and_bool]      -> [and_bool]
-
+[and_bool]      -> [atom_bool]
 
 [atom_bool]     -> [expr] rel_op [expr]
 [atom_bool]     -> ( [bool] )
@@ -57,5 +59,5 @@
 [atom_expr]     -> ( [expr] )
 [atom_expr]     -> id
 [atom_expr]     -> lit_int
-[atom_expr]     -> lit_str
 [atom_expr]     -> lit_real
+[atom_expr]     -> lit_str
