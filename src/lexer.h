@@ -21,9 +21,7 @@ enum TokenKind {
     Tok_Out,
     Tok_Stop,
     Tok_Die,
-    Tok_Int,
-    Tok_Real,
-    Tok_Str,
+    Tok_Type,
     Tok_Ident,
     Tok_Assign,
     Tok_OpMul,
@@ -58,14 +56,22 @@ enum OpRel {
     Op_Neq,
 };
 
+enum Type {
+    Type_Int,
+    Type_Real,
+    Type_Str,
+};
+
 union TokenData {
     Span span;
     OpArit op_arit;
     OpRel op_rel;
+    Type type;
 
     TokenData() {}
     TokenData(OpArit x) : op_arit(x) {}
     TokenData(OpRel x) : op_rel(x) {}
+    TokenData(Type x) : type(x) {}
 };
 
 struct Token {

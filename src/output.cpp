@@ -18,11 +18,10 @@ void Src::print() {
 }
 
 void Src::print_span(Span span) {
-    if (span.first >= lines.size()) {
-        return;
+    if (span.first >= bytes.size() || span.second >= bytes.size()) {
+        printf("[span OOB]");
     }
-    size_t limit = std::min(lines.size(), span.second + 1);
-    for (size_t i = span.first; i < limit; i++) {
+    for (size_t i = span.first; i <= span.second; i++) {
         printf("%c", bytes[i]);
     }
 }
@@ -53,14 +52,8 @@ void Token::print(Src src) {
     case Tok_Pool:
         printf("[pool]");
         break;
-    case Tok_Int:
-        printf("[int]");
-        break;
-    case Tok_Real:
-        printf("[real]");
-        break;
-    case Tok_Str:
-        printf("[str]");
+    case Tok_Type:
+        printf("[type]");
         break;
     case Tok_If:
         printf("[if]");

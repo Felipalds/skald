@@ -16,13 +16,25 @@ void Lexer::add_ident_or_kw(std::string &tmp, Span span) {
     struct {
         const char *word;
         TokenKind kind;
+        TokenData data;
     } table[] = {
-        {"var", Tok_Var},   {"rav", Tok_Rav},   {"main", Tok_Main},
-        {"niam", Tok_Niam}, {"loop", Tok_Loop}, {"pool", Tok_Pool},
-        {"if", Tok_If},     {"or", Tok_Or},     {"fi", Tok_Fi},
-        {"do", Tok_Do},     {"in", Tok_In},     {"out", Tok_Out},
-        {"stop", Tok_Stop}, {"die", Tok_Die},   {"int", Tok_Int},
-        {"real", Tok_Real}, {"str", Tok_Str},
+        {"var", Tok_Var, TokenData()},
+        {"rav", Tok_Rav, TokenData()},
+        {"main", Tok_Main, TokenData()},
+        {"niam", Tok_Niam, TokenData()},
+        {"loop", Tok_Loop, TokenData()},
+        {"pool", Tok_Pool, TokenData()},
+        {"if", Tok_If, TokenData()},
+        {"or", Tok_Or, TokenData()},
+        {"fi", Tok_Fi, TokenData()},
+        {"do", Tok_Do, TokenData()},
+        {"in", Tok_In, TokenData()},
+        {"out", Tok_Out, TokenData()},
+        {"stop", Tok_Stop, TokenData()},
+        {"die", Tok_Die, TokenData()},
+        {"int", Tok_Type, TokenData(Type_Int)},
+        {"real", Tok_Type, TokenData(Type_Real)},
+        {"str", Tok_Type, TokenData(Type_Str)},
     };
 
     for (size_t i = 0; i < sizeof(table) / sizeof(*table); i++) {
