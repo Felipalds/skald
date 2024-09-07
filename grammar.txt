@@ -35,17 +35,14 @@
 [stop_stmt]     -> stop .
 [die_stmt]      -> die .
 
-
-[input]         -> in id
-
 [bool]          -> [bool] | [and_bool]
 [bool]          -> [and_bool]
-[bool]          -> [input]
 
 [and_bool]      -> [and_bool] & [atom_bool]
 [and_bool]      -> [atom_bool]
 
 [atom_bool]     -> [expr] rel_op [expr]
+[atom_bool]     -> in id
 [atom_bool]     -> ( [bool] )
 [atom_bool]     -> ! ( [bool] )
 
