@@ -4,7 +4,6 @@
 [var_block]     -> var [decl_list] rav
 
 [decl_list]     -> {}
-[decl_list]     -> [decl]
 [decl_list]     -> [decl] [decl_list]
 
 [decl]          -> id type .
@@ -13,7 +12,6 @@
 [main_block]    -> main [stmt_list] niam
 
 [stmt_list]     -> {}
-[stmt_list]     -> [stmt]
 [stmt_list]     -> [stmt] [decl_list]
 
 [stmt]	        -> [expr_stmt]
@@ -29,7 +27,7 @@
 [bool_stmt]     -> [bool] .
 [loop_stmt]     -> loop [cond] do [stmt_list] pool
 [if_stmt]       -> if [bool] do [stmt_list] fi
-[if_stmt]       -> if [bool] do [stmt_list] or [stmt_list] fi
+[if_or_stmt]    -> if [bool] do [stmt_list] or [stmt_list] fi
 [assign_stmt]   -> id <- [expr] .
 [out_stmt]      -> out [expr] .
 [stop_stmt]     -> stop .
