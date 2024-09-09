@@ -18,6 +18,7 @@
 [stmt]	        -> [bool_stmt]
 [stmt]	        -> [loop_stmt]
 [stmt]	        -> [if_stmt]
+[stmt]	        -> [if_or_stmt]
 [stmt]	        -> [assign_stmt]
 [stmt]	        -> [out_stmt]
 [stmt]	        -> [stop_stmt]
