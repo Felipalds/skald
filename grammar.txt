@@ -12,7 +12,7 @@
 [main_block]    -> main [stmt_list] niam
 
 [stmt_list]     -> {}
-[stmt_list]     -> [stmt] [decl_list]
+[stmt_list]     -> [stmt] [stmt_list]
 
 [stmt]	        -> [expr_stmt]
 [stmt]	        -> [bool_stmt]
