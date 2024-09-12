@@ -41,8 +41,17 @@ int main(int argc, const char **argv) {
     }
     printf("\n");
 
+    size_t current_line = SIZE_MAX;
     for (LexErr err : lexer.errors) {
+        if (err.span.line != current_line) {
+            Span line_span = src.line_span(err.span.line);
+            printf("line %3zu:\n", err.span.line);
+            src.print_span(line_span);
+            printf("\n");
+            current_line = err.span.line;
+        }
         err.print(src);
+        printf("\n");
     }
     printf("\n");
 

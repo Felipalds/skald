@@ -23,6 +23,8 @@ main
     fi
 
     "string com \" escape de aspas!"
+        
+    linha com caracteres proibidos ?????? $ mas não em comentários ?????? (somente ascii)
 
     iter <- 0.
     iterf <- 1,0.

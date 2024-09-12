@@ -29,13 +29,10 @@ Src::Src(FILE *src_file) {
 
 // span da linha `line`, _sem_ incluir '\n' no final
 Span Src::line_span(size_t line) {
-    Span span = {SIZE_MAX, SIZE_MAX, SIZE_MAX};
-    for (size_t i = 0; i < lines.size(); i++) {
-        if (lines[i] > line) {
-            span.first = lines[i - 1];
-            span.second = lines[i] - 1;
-            break;
-        }
+    if (line > lines.size() - 1) {
+        return {SIZE_MAX, SIZE_MAX, SIZE_MAX};
     }
-    return span;
+    size_t start = lines[line];
+    size_t end = lines[line + 1] - 2;
+    return {start, end, line};
 }

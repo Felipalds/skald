@@ -3,8 +3,8 @@
 
 #include "input.h"
 #include <cstdint>
-#include <list>
 #include <string>
+#include <vector>
 
 enum TokenKind {
     Tok_Var,
@@ -21,9 +21,7 @@ enum TokenKind {
     Tok_Out,
     Tok_Stop,
     Tok_Die,
-    Tok_Int,
-    Tok_Real,
-    Tok_Str,
+    Tok_Type,
     Tok_Ident,
     Tok_Assign,
     Tok_OpMul,
@@ -58,14 +56,22 @@ enum OpRel {
     Op_Neq,
 };
 
+enum Type {
+    Type_Int,
+    Type_Real,
+    Type_Str,
+};
+
 union TokenData {
     Span span;
     OpArit op_arit;
     OpRel op_rel;
+    Type type;
 
     TokenData() {}
     TokenData(OpArit x) : op_arit(x) {}
     TokenData(OpRel x) : op_rel(x) {}
+    TokenData(Type x) : type(x) {}
 };
 
 struct Token {
@@ -92,7 +98,6 @@ struct LexErr {
     LexErrKind kind;
     Span span;
 
-    LexErr(LexErrKind k) : kind(k) {}
     LexErr(LexErrKind k, Span s) : kind(k), span(s) {}
 
     // implementado em output.cpp
@@ -100,8 +105,8 @@ struct LexErr {
 };
 
 struct Lexer {
-    std::list<Token> tokens;
-    std::list<LexErr> errors;
+    std::vector<Token> tokens;
+    std::vector<LexErr> errors;
 
     Lexer(Src &src);
     void add_ident_or_kw(std::string &tmp, Span span);
