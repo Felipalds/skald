@@ -1,0 +1,10 @@
+        +---------------------------+-----------------------------------------+
+        | first                     | follow                                  |
++-------+---------------------------+-----------------------------------------+
+| skald | var                       | $                                       |
+| decls | ϵ id                      | rav                                     |
+| stmts | ϵ die id if loop out stop | fi niam or pool                         |
+| stmt  | die id if loop out stop   | die fi id if loop niam or out pool stop |
+| expr  | ! ( id in lit             | ) .                                     |
+| val   | ! ( id in lit             | ) . op                                  |
++-------+---------------------------+-----------------------------------------+
