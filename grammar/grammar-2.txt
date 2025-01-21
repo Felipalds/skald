@@ -1,0 +1,19 @@
+skald -> var decls rav main stmts niam
+decls -> ϵ
+decls -> id type . decls
+stmts -> ϵ
+stmts -> stmt stmts
+stmt  -> stop .
+stmt  -> die .
+stmt  -> if id do stmts fi
+stmt  -> if id do stmts or stmts fi
+stmt  -> loop stmts pool
+stmt  -> out id .
+stmt  -> id assign expr .
+expr  -> val
+expr  -> val op expr
+val   -> ( expr )
+val   -> ! val
+val   -> in id
+val   -> lit
+val   -> id
