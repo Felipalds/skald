@@ -18,11 +18,10 @@ void Src::print() {
 }
 
 void Src::print_span(Span span) {
-    if (span.first >= lines.size()) {
+    if (span.line >= lines.size()) {
         return;
     }
-    size_t limit = std::min(lines.size(), span.second + 1);
-    for (size_t i = span.first; i < limit; i++) {
+    for (size_t i = span.first; i <= span.second; i++) {
         printf("%c", bytes[i]);
     }
 }
