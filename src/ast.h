@@ -25,12 +25,42 @@ enum Rule {
 enum StackElemKind {
     StackElem_Token,
     StackElem_Rule,
+    StackElem_State,
+};
+
+union StackElemData {
+    Token token;
+    Rule rule;
+    int state;
+
+    StackElemData(Token _token) : token(_token) {}
+    StackElemData(Rule _rule) : rule(_rule) {}
+    StackElemData(int _state) : state(_state) {}
 };
 
 struct StackElem {
     StackElemKind kind;
-    union {
-        Token token;
-        Rule rule;
-    };
+    StackElemData data;
+
+    StackElem(StackElemKind _kind, Token token) : kind(_kind), data(token) {}
+    StackElem(StackElemKind _kind, Rule rule) : kind(_kind), data(rule) {}
+    StackElem(StackElemKind _kind, int state) : kind(_kind), data(state) {}
+};
+
+enum ParseErrKind {};
+
+struct ParseErr {
+    ParseErrKind kind;
+    Span span;
+};
+
+class Parser {
+    std::vector<StackElem> stack;
+    std::vector<ParseErr> errors;
+
+    void parse(std::vector<Token> &tokens);
+    void push_token(Token token);
+    void push_state(int state);
+    void push_rule(Rule rule);
+    void pop_reduce(Rule rule);
 };
