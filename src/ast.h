@@ -58,9 +58,7 @@ class Parser {
     std::vector<StackElem> stack;
     std::vector<ParseErr> errors;
 
+    int state();
     void parse(std::vector<Token> &tokens);
-    void push_token(Token token);
-    void push_state(int state);
-    void push_rule(Rule rule);
     void pop_reduce(Rule rule);
 };

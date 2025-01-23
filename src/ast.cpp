@@ -1,22 +1,14 @@
 #include "ast.h"
+#include <cassert>
 #include <vector>
 
-void Parser::push_token(Token token) {
-    StackElem elem(StackElem_Token, token);
-    stack.push_back(elem);
+int Parser::state() {
+    assert(stack.size() > 0);
+    assert(stack.back().kind == StackElem_State);
+    return stack.back().data.state;
 }
 
-void Parser::push_state(int state) {
-    StackElem elem(StackElem_State, state);
-    stack.push_back(elem);
-}
-
-void Parser::push_rule(Rule rule) {
-    /*StackElem elem(StackElem_Rule, rule);*/
-    stack.push_back({StackElem_Rule, rule});
-}
-
-void pop_reduce(Rule rule) {
+void Parser::pop_reduce(Rule rule) {
     /* busca qual é o comprimento da produção para remover 2*|prod| da pilha */
 }
 
@@ -29,7 +21,7 @@ void Parser::parse(std::vector<Token> &tokens) {
     /*temp*/
 
     while (true) {
-        int state = stack.back().data.state;
+        int c_state = state();
         Token token = tokens[ip];
 
         if (false /* tabela(state, token) = empilhar p_state */) {
@@ -38,7 +30,7 @@ void Parser::parse(std::vector<Token> &tokens) {
             ip++;
         } else if (false /* tabela(state, token) = reduzir rule->prod */) {
             pop_reduce(rule); // aqui incorpora analisador semantico
-            int n_state = stack.back().data.state;
+            int n_state = state();
             stack.push_back({StackElem_Rule, rule});
         } else if (false /* tabela(state, token) = aceitar */) {
             return;
