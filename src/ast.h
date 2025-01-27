@@ -22,6 +22,28 @@ enum Rule {
     Rule_Val_Id,
 };
 
+const int RULE_LEN[] = {
+    6, // Rule_Skald
+    0, // Rule_Decls
+    4, // Rule_Decls_IdType
+    0, // Rule_Stmts
+    2, // Rule_Stmts_Stmt
+    2, // Rule_Stmt_Stop
+    2, // Rule_Stmt_Die
+    5, // Rule_Stmt_If
+    7, // Rule_Stmt_IfOr
+    3, // Rule_Stmt_Loop
+    3, // Rule_Stmt_Out
+    4, // Rule_Stmt_Assign
+    1, // Rule_Expr_Val
+    3, // Rule_Expr_ValOpExpr
+    3, // Rule_Val_ParExpr
+    2, // Rule_Val_NotVal
+    2, // Rule_Val_InId
+    1, // Rule_Val_Lit
+    1, // Rule_Val_Id
+};
+
 enum StackElemKind {
     StackElem_Token,
     StackElem_Rule,

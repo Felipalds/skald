@@ -9,7 +9,12 @@ int Parser::state() {
 }
 
 void Parser::pop_reduce(Rule rule) {
-    /* busca qual é o comprimento da produção para remover 2*|prod| da pilha */
+    int rule_len = RULE_LEN[rule];
+    /* análise semantica e geração de código */
+
+    for (int i = 0; i < 2*rule_len; i++) {
+        stack.pop_back();
+    }
 }
 
 void Parser::parse(std::vector<Token> &tokens) {
@@ -17,7 +22,7 @@ void Parser::parse(std::vector<Token> &tokens) {
 
     /*temp*/
     int p_state = 0;
-    Rule rule = Rule_Decls;
+    Rule rule = Rule_Skald;
     /*temp*/
 
     while (true) {
