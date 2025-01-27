@@ -38,31 +38,22 @@ void Lexer::add_op_or_symbol(std::string &tmp, Span span) {
     struct {
         const char *sym;
         TokenKind kind;
-        TokenData data;
+        OperKind data;
     } table[] = {
-        {"*", Tok_OpMul, TokenData(Op_Mul)},
-        {"/", Tok_OpMul, TokenData(Op_Div)},
-        {"%", Tok_OpMul, TokenData(Op_Mod)},
-        {"^", Tok_OpMul, TokenData(Op_Pow)},
+        {"*", Tok_Oper, Op_Mul},     {"/", Tok_Oper, Op_Div},
+        {"%", Tok_Oper, Op_Mod},     {"^", Tok_Oper, Op_Pow},
 
-        {"+", Tok_OpSum, TokenData(Op_Add)},
-        {"-", Tok_OpSum, TokenData(Op_Sub)},
+        {"+", Tok_Oper, Op_Add},     {"-", Tok_Oper, Op_Sub},
 
-        {"<", Tok_OpRel, TokenData(Op_Less)},
-        {"<=", Tok_OpRel, TokenData(Op_LessEq)},
-        {">", Tok_OpRel, TokenData(Op_Greater)},
-        {">=", Tok_OpRel, TokenData(Op_GreaterEq)},
-        {"=", Tok_OpRel, TokenData(Op_Eq)},
-        {"!=", Tok_OpRel, TokenData(Op_Neq)},
+        {"<", Tok_Oper, Op_Less},    {"<=", Tok_Oper, Op_LessEq},
+        {">", Tok_Oper, Op_Greater}, {">=", Tok_Oper, Op_GreaterEq},
+        {"=", Tok_Oper, Op_Eq},      {"!=", Tok_Oper, Op_Neq},
 
-        {"&", Tok_OpAnd, TokenData()},
-        {"|", Tok_OpOr, TokenData()},
-        {"!", Tok_OpNot, TokenData()},
+        {"&", Tok_Oper, Op_None},    {"|", Tok_Oper, Op_None},
+        {"!", Tok_Not, Op_None},
 
-        {"(", Tok_ParOpen, TokenData()},
-        {")", Tok_ParClose, TokenData()},
-        {"<-", Tok_Assign, TokenData()},
-        {".", Tok_Period, TokenData()},
+        {"(", Tok_ParOpen, Op_None}, {")", Tok_ParClose, Op_None},
+        {"<-", Tok_Assign, Op_None}, {".", Tok_Period, Op_None},
     };
 
     for (size_t i = 0; i < sizeof(table) / sizeof(*table); i++) {
@@ -76,11 +67,11 @@ void Lexer::add_op_or_symbol(std::string &tmp, Span span) {
 }
 
 void Lexer::add_int(Span span) {
-    Token token(Tok_LitInt, TokenData(), span);
+    Token token(Tok_LitInt, Op_None, span);
     tokens.push_back(token);
 }
 void Lexer::add_float(Span span) {
-    Token token(Tok_LitInt, TokenData(), span);
+    Token token(Tok_LitInt, Op_None, span);
     tokens.push_back(token);
 }
 

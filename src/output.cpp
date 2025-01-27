@@ -91,22 +91,10 @@ void Token::print(Src src) {
     case Tok_Assign:
         printf("[<-]");
         break;
-    case Tok_OpMul:
-        printf("[arit-mul]");
+    case Tok_Oper:
+        printf("[op]");
         break;
-    case Tok_OpSum:
-        printf("[arit-sum]");
-        break;
-    case Tok_OpRel:
-        printf("[rel]");
-        break;
-    case Tok_OpAnd:
-        printf("[&]");
-        break;
-    case Tok_OpOr:
-        printf("[|]");
-        break;
-    case Tok_OpNot:
+    case Tok_Not:
         printf("[!]");
         break;
     case Tok_ParOpen:
