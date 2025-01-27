@@ -1,4 +1,4 @@
-#include "ast.h"
+#include "parser.h"
 #include <cassert>
 #include <vector>
 
@@ -12,7 +12,7 @@ void Parser::pop_reduce(Rule rule) {
     int rule_len = RULE_LEN[rule];
     /* análise semantica e geração de código */
 
-    for (int i = 0; i < 2*rule_len; i++) {
+    for (int i = 0; i < 2 * rule_len; i++) {
         stack.pop_back();
     }
 }
