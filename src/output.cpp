@@ -18,7 +18,7 @@ void Src::print() {
 }
 
 void Src::print_span(Span span) {
-    if (span.line >= lines.size()) {
+    if (span.line + 1 > lines.size()) {
         return;
     }
     for (size_t i = span.first; i <= span.second; i++) {
@@ -124,7 +124,7 @@ void Token::print(Src src) {
 }
 
 void LexErr::print(Src src) {
-    printf("line %zu: ", span.line + 1);
+    printf("line %zu [%zu %zu]: ", span.line + 1, span.first, span.second);
     switch (kind) {
     case LexErr_BadChar:
         printf("(bad char)");
@@ -140,10 +140,9 @@ void LexErr::print(Src src) {
 
     Span line_span = src.line_span(span.line);
     src.print_span(line_span);
-    printf("\n");
 
-    term_goto_column(span.first - line_span.first);
-    for (size_t i = span.first; i < span.second; i++) {
+    term_goto_column(span.first - line_span.first + 1);
+    for (size_t i = span.first; i <= span.second; i++) {
         printf("^");
     }
     printf("\n");
