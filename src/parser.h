@@ -64,10 +64,11 @@ struct StackElem {
     StackElemKind kind;
     StackElemData data;
 
-    StackElem(StackElemKind _kind, Token token) : kind(_kind), data(token) {}
-    StackElem(StackElemKind _kind, Rule rule) : kind(_kind), data(rule) {}
-    StackElem(StackElemKind _kind, int state) : kind(_kind), data(state) {}
+    StackElem(Token token) : kind(StackElem_Token), data(token) {}
+    StackElem(Rule rule) : kind(StackElem_Rule), data(rule) {}
+    StackElem(int state) : kind(StackElem_State), data(state) {}
 };
+
 
 enum ParseErrKind {};
 

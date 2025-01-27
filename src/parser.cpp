@@ -30,13 +30,13 @@ void Parser::parse(std::vector<Token> &tokens) {
         Token token = tokens[ip];
 
         if (false /* tabela(state, token) = empilhar p_state */) {
-            stack.push_back({StackElem_Token, token});
-            stack.push_back({StackElem_State, p_state});
+            stack.push_back({token});
+            stack.push_back({p_state});
             ip++;
         } else if (false /* tabela(state, token) = reduzir rule->prod */) {
-            pop_reduce(rule); // aqui incorpora analisador semantico
+            pop_reduce(rule);
             int n_state = state();
-            stack.push_back({StackElem_Rule, rule});
+            stack.push_back({rule});
         } else if (false /* tabela(state, token) = aceitar */) {
             return;
         } else {
