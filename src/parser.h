@@ -69,7 +69,6 @@ struct StackElem {
     StackElem(int state) : kind(StackElem_State), data(state) {}
 };
 
-
 enum ParseErrKind {};
 
 struct ParseErr {

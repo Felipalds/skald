@@ -208,8 +208,10 @@ Lexer::Lexer(Src &src) {
             break;
         }
     }
+    span.second = std::max(i, size_t(1)) - 1;
     if (state != State_Start && state != State_Comment) {
-        span.second = std::max(i, size_t(1)) - 1;
         add_err(LexErr_UnexpectedEOF, span);
+    } else {
+        tokens.push_back({Tok_Eof, span});
     }
 }

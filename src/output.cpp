@@ -115,6 +115,9 @@ void Token::print(Src src) {
     case Tok_LitInt:
         printf("[int]");
         break;
+    case Tok_Eof:
+        printf("[eof]");
+        break;
     default:
         printf("[??]");
     }

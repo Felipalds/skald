@@ -34,6 +34,7 @@ enum TokenKind {
     Tok_LitStr,
     Tok_LitReal,
     Tok_LitInt,
+    Tok_Eof,
 };
 
 enum OperKind {
