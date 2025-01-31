@@ -35,6 +35,7 @@ enum TokenKind {
     Tok_LitReal,
     Tok_LitInt,
     Tok_Eof,
+    Tok_None = -1,
 };
 
 enum OperKind {
@@ -53,15 +54,19 @@ enum OperKind {
     Op_None = -1,
 };
 
+void TokenKind_print(TokenKind kind);
+
 struct Token {
     TokenKind kind;
     OperKind oper;
     Span span;
 
-    Token(TokenKind kind, Span span) : kind(kind), span(span) {}
+    Token(TokenKind kind, Span span) : kind(kind), span(span) {
+    }
 
     Token(TokenKind kind, OperKind oper, Span span)
-        : kind(kind), oper(oper), span(span) {}
+        : kind(kind), oper(oper), span(span) {
+    }
 
     // implementado em output.cpp
     void print(Src src);
@@ -77,8 +82,10 @@ struct LexErr {
     LexErrKind kind;
     Span span;
 
-    LexErr(LexErrKind k) : kind(k) {}
-    LexErr(LexErrKind k, Span s) : kind(k), span(s) {}
+    LexErr(LexErrKind k) : kind(k) {
+    }
+    LexErr(LexErrKind k, Span s) : kind(k), span(s) {
+    }
 
     // implementado em output.cpp
     void print(Src src);

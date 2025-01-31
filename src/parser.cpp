@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "table.h"
 #include <cassert>
 #include <vector>
 
@@ -18,29 +19,49 @@ void Parser::pop_reduce(Rule rule) {
 }
 
 void Parser::parse(std::vector<Token> &tokens) {
+    Table table;
     size_t ip = 0;
 
-    /*temp*/
-    int p_state = 0;
-    Rule rule = Rule_Skald;
-    /*temp*/
+    stack.push_back({0});
 
     while (true) {
-        int c_state = state();
+        int curr_state = state();
         Token token = tokens[ip];
 
-        if (false /* tabela(state, token) = empilhar p_state */) {
-            stack.push_back({token});
-            stack.push_back({p_state});
-            ip++;
-        } else if (false /* tabela(state, token) = reduzir rule->prod */) {
-            pop_reduce(rule);
-            int n_state = state();
-            stack.push_back({rule});
-        } else if (false /* tabela(state, token) = aceitar */) {
-            return;
-        } else {
-            /* lidar com erro usando first/follow */
+        printf("(%d ", curr_state);
+        TokenKind_print(token.kind);
+        printf(")\t: ");
+        for (StackElem elem : stack) {
+            elem.print();
         }
+        printf("\n");
+
+        int push_state = table.push(curr_state, token.kind);
+        if (push_state != -1) {
+            stack.push_back({token});
+            stack.push_back({push_state});
+            ip++;
+            printf("push\n");
+            continue;
+        }
+
+        Rule rule = table.reduce(curr_state, token.kind);
+        if (rule != Rule_None) {
+            pop_reduce(rule);
+            int goto_ = table.goto_(state(), rule);
+            stack.push_back({rule});
+            printf("reduce\n");
+            stack.push_back({goto_});
+            printf("goto\n");
+            continue;
+        }
+
+        if (table.accept(state(), token.kind)) {
+            printf("accept\n");
+            return;
+        }
+        /* lidar com erros */
+        printf("PARSE ERROR\n");
+        return;
     }
 }

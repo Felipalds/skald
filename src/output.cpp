@@ -1,5 +1,6 @@
 #include "input.h"
 #include "lexer.h"
+#include "parser.h"
 #include <cstdio>
 
 void Src::print() {
@@ -32,7 +33,7 @@ void term_goto_column(unsigned int column) {
     printf(GOTO_COLUMN_TERM_ESCAPE, column);
 }
 
-void Token::print(Src src) {
+void TokenKind_print(TokenKind kind) {
     switch (kind) {
     case Tok_Var:
         printf("[var]");
@@ -121,6 +122,10 @@ void Token::print(Src src) {
     default:
         printf("[??]");
     }
+}
+
+void Token::print(Src src) {
+    TokenKind_print(kind);
     term_goto_column(11);
     printf(" | ");
     src.print_span(span);
@@ -149,4 +154,19 @@ void LexErr::print(Src src) {
         printf("^");
     }
     printf("\n");
+}
+
+void StackElem::print() {
+    switch (kind) {
+    case StackElem_Token:
+        TokenKind_print(data.token.kind);
+        break;
+    case StackElem_Rule:
+        printf("[Rule %d]", data.rule);
+        break;
+    case StackElem_State:
+        printf("[State %d]", data.state);
+        break;
+    }
+        printf(" ");
 }

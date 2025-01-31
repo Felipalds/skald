@@ -1,3 +1,5 @@
+#ifndef LEXER_H
+#define LEXER_H
 #include "lexer.h"
 
 enum Rule {
@@ -20,6 +22,7 @@ enum Rule {
     Rule_Val_InId,
     Rule_Val_Lit,
     Rule_Val_Id,
+    Rule_None = -1,
 };
 
 const int RULE_LEN[] = {
@@ -55,18 +58,26 @@ union StackElemData {
     Rule rule;
     int state;
 
-    StackElemData(Token _token) : token(_token) {}
-    StackElemData(Rule _rule) : rule(_rule) {}
-    StackElemData(int _state) : state(_state) {}
+    StackElemData(Token _token) : token(_token) {
+    }
+    StackElemData(Rule _rule) : rule(_rule) {
+    }
+    StackElemData(int _state) : state(_state) {
+    }
 };
 
 struct StackElem {
     StackElemKind kind;
     StackElemData data;
 
-    StackElem(Token token) : kind(StackElem_Token), data(token) {}
-    StackElem(Rule rule) : kind(StackElem_Rule), data(rule) {}
-    StackElem(int state) : kind(StackElem_State), data(state) {}
+    StackElem(Token token) : kind(StackElem_Token), data(token) {
+    }
+    StackElem(Rule rule) : kind(StackElem_Rule), data(rule) {
+    }
+    StackElem(int state) : kind(StackElem_State), data(state) {
+    }
+
+    void print();
 };
 
 enum ParseErrKind {};
@@ -81,6 +92,9 @@ class Parser {
     std::vector<ParseErr> errors;
 
     int state();
-    void parse(std::vector<Token> &tokens);
     void pop_reduce(Rule rule);
+
+  public:
+    void parse(std::vector<Token> &tokens);
 };
+#endif

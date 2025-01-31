@@ -1,9 +1,12 @@
 #include "input.h"
 #include "lexer.h"
+#include "parser.h"
 #include <cstdio>
 #include <cstring>
 
-void usage() { fprintf(stderr, "USAGE: skald /path/to/src.skald\n"); }
+void usage() {
+    fprintf(stderr, "USAGE: skald /path/to/src.skald\n");
+}
 
 void no_such_file(const char *exe, const char *path) {
     fprintf(stderr, "%s: cannot open '%s': No such file or directory\n", exe,
@@ -45,6 +48,10 @@ int main(int argc, const char **argv) {
         err.print(src);
     }
     printf("\n");
+
+    Parser parser;
+    parser.parse(lexer.tokens);
+    printf("parsed!\n");
 
     if (src_file != stdin) {
         fclose(src_file);
