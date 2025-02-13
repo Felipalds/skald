@@ -6,30 +6,41 @@ var
     x real.
     xpow real.
     y real.
+    s str.
+    newline str.
+    cond int.
 rav
 
 main
-    out "valor x: ".
-    in x.
-    out "\n".
+    newline <- "\n".
 
-    out "numero de iteracoes: ".
+    s <- "valor x: ".
+    out s.
+    in x.
+    out newline.
+
+    s <- "numero de iteracoes: ".
+    out s.
     in max_iter.
-    out "\n".
+    out newline.
     
-    if max_iter < 0 do
-        out "numero de iteracoes deve ser positivo".
+    cond <- max_iter < 0.
+    if cond do
+        s <- "numero de iteracoes deve ser positivo".
+        out s.
         die.
     fi
-
-    "string com \" escape de aspas!"
 
     iter <- 0.
     iterf <- 1,0.
     factorial <- 1,0.
     xpow <- 1,0.
     y <- 1,0.
-    loop iter < max_iter do
+    loop
+        cond <- iter < max_iter.
+        if cond do
+            stop.
+        fi
         y <- y + (xpow / factorial).
         xpow <- xpow * x.
         factorial <- factorial * iterf.
@@ -37,9 +48,11 @@ main
         iterf <- iterf + 1,0.
     pool
 
-    out "exp(".
+    s <- "exp(".
+    out s.
     out x.
-    out ") = ".
+    s <- ") = ".
+    out s.
     out y.
-    out "\n".
+    out newline.
 niam

@@ -4,9 +4,13 @@ Table::Table() {
     table_push[{0, Tok_Var}] = 2;
     table_goto[{0, Rule_Skald}] = 1;
 
+    // {1, Tok_Eof} = Accept
+
     table_push[{2, Tok_Ident}] = 4;
     table_goto[{2, Rule_Decls}] = 3;
     table_goto[{2, Rule_Decls_IdType}] = 3;
+    // GAMBIARRA
+    table_reduce[{2, Tok_Rav}] = Rule_Decls;
 
     table_push[{3, Tok_Rav}] = 5;
 
@@ -26,12 +30,21 @@ Table::Table() {
     table_push[{7, Tok_Stop}] = 11;
     table_goto[{7, Rule_Stmts}] = 9;
     table_goto[{7, Rule_Stmts_Stmt}] = 9;
-    table_goto[{7, Rule_Expr_Val}] = 10;
-    table_goto[{7, Rule_Expr_ValOpExpr}] = 10;
+    table_goto[{7, Rule_Stmt_If}] = 10;
+    table_goto[{7, Rule_Stmt_Die}] = 10;
+    table_goto[{7, Rule_Stmt_Out}] = 10;
+    table_goto[{7, Rule_Stmt_IfOr}] = 10;
+    table_goto[{7, Rule_Stmt_Loop}] = 10;
+    table_goto[{7, Rule_Stmt_Stop}] = 10;
+    table_goto[{7, Rule_Stmt_Assign}] = 10;
+    // GAMBIARRA
+    table_reduce[{7, Tok_Niam}] = Rule_Stmts;
 
     table_push[{8, Tok_Ident}] = 4;
     table_goto[{8, Rule_Decls}] = 17;
     table_goto[{8, Rule_Decls_IdType}] = 17;
+    // GAMBIARRA
+    table_reduce[{8, Tok_Rav}] = Rule_Decls;
 
     table_push[{9, Tok_Niam}] = 18;
 
@@ -50,6 +63,8 @@ Table::Table() {
     table_goto[{10, Rule_Stmt_Loop}] = 10;
     table_goto[{10, Rule_Stmt_Stop}] = 10;
     table_goto[{10, Rule_Stmt_Assign}] = 10;
+    // GAMBIARRA
+    table_reduce[{10, Tok_Rav}] = Rule_Decls;
 
     table_push[{11, Tok_Period}] = 20;
 
@@ -72,6 +87,8 @@ Table::Table() {
     table_goto[{14, Rule_Stmt_Loop}] = 10;
     table_goto[{14, Rule_Stmt_Stop}] = 10;
     table_goto[{14, Rule_Stmt_Assign}] = 10;
+    // GAMBIARRA
+    table_reduce[{14, Tok_Pool}] = Rule_Stmts;
 
     table_push[{15, Tok_Ident}] = 24;
 
@@ -144,6 +161,8 @@ Table::Table() {
     table_goto[{26, Rule_Stmt_Loop}] = 10;
     table_goto[{26, Rule_Stmt_Stop}] = 10;
     table_goto[{26, Rule_Stmt_Assign}] = 10;
+    // GAMBIARRA
+    table_reduce[{26, Tok_Pool}] = Rule_Stmts;
 
     table_reduce[{27, Tok_Die}] = Rule_Stmt_Loop;
     table_reduce[{27, Tok_Ident}] = Rule_Stmt_Loop;
@@ -223,6 +242,7 @@ Table::Table() {
     table_reduce[{37, Tok_Out}] = Rule_Stmt_Assign;
     table_reduce[{37, Tok_Pool}] = Rule_Stmt_Assign;
     table_reduce[{37, Tok_Stop}] = Rule_Stmt_Assign;
+    // falta GOTO para tabela 37 ?
 
     table_push[{38, Tok_Not}] = 32;
     table_push[{38, Tok_ParOpen}] = 31;
@@ -275,6 +295,8 @@ Table::Table() {
     table_goto[{43, Rule_Stmt_Loop}] = 10;
     table_goto[{43, Rule_Stmt_Stop}] = 10;
     table_goto[{43, Rule_Stmt_Assign}] = 10;
+    // GAMBIARRA
+    table_reduce[{43, Tok_Pool}] = Rule_Stmts;
 
     table_reduce[{44, Tok_ParClose}] = Rule_Expr_ValOpExpr;
     table_reduce[{44, Tok_Period}] = Rule_Expr_ValOpExpr;

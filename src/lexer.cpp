@@ -209,6 +209,7 @@ Lexer::Lexer(Src &src) {
         }
     }
     span.second = std::max(i, size_t(1)) - 1;
+    span.first = span.second;
     if (state != State_Start && state != State_Comment) {
         add_err(LexErr_UnexpectedEOF, span);
     } else {

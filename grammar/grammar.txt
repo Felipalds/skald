@@ -1,6 +1,19 @@
 skald -> var decls rav main stmts niam
-decls -> id type . decls | ϵ
-stmts -> stmt stmts | ϵ
-stmt  -> stop . | die . | if id do stmts fi | if id do stmts or stmts fi | loop stmts pool | out id . | id assign expr .
-expr  -> val | val op expr
-val   -> ( expr ) | ! val | in id | lit | id
+decls -> ϵ
+decls -> id type . decls
+stmts -> ϵ
+stmts -> stmt stmts
+stmt  -> stop .
+stmt  -> die .
+stmt  -> if id do stmts fi
+stmt  -> if id do stmts or stmts fi
+stmt  -> loop stmts pool
+stmt  -> out id .
+stmt  -> id assign expr .
+expr  -> val
+expr  -> val op expr
+val   -> ( expr )
+val   -> ! val
+val   -> in id
+val   -> lit
+val   -> id

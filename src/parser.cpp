@@ -48,7 +48,9 @@ void Parser::parse(std::vector<Token> &tokens) {
         Rule rule = table.reduce(curr_state, token.kind);
         if (rule != Rule_None) {
             pop_reduce(rule);
+            printf("reduced, state is now %d\n", state());
             int goto_ = table.goto_(state(), rule);
+            assert(goto_ >= 0);
             stack.push_back({rule});
             printf("reduce\n");
             stack.push_back({goto_});
