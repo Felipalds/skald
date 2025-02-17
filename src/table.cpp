@@ -1,322 +1,140 @@
 #include "table.h"
+#include "lexer.h"
+
+#define tpush(state, tok, dest) table_push[{state, tok}] = dest;
+#define tgoto(state, nt, dest) table_goto[{state, nt}] = dest;
+#define treduce(state, tok, dest) table_reduce[{state, tok}] = dest;
 
 Table::Table() {
-    table_push[{0, Tok_Var}] = 2;
-    table_goto[{0, Rule_Skald}] = 1;
+    tpush(0, Tok_Var, 3);
+    tgoto(0, NonTerm_Skald, 1);
+    tgoto(0, NonTerm_VarBlock, 2);
 
-    // {1, Tok_Eof} = Accept
+    // 1, Tok_Eof = Accept
+    
+    tpush(2, Tok_Main, 4);
 
-    table_push[{2, Tok_Ident}] = 4;
-    table_goto[{2, Rule_Decls}] = 3;
-    table_goto[{2, Rule_Decls_IdType}] = 3;
-    // GAMBIARRA
-    table_reduce[{2, Tok_Rav}] = Rule_Decls;
+    tpush(3, Tok_Ident, 7);
+    tgoto(3, NonTerm_Decls, 5);
+    tgoto(3, NonTerm_Decl, 6);
 
-    table_push[{3, Tok_Rav}] = 5;
+    tpush(4, Tok_Die, 11);
+    tpush(4, Tok_Ident, 14);
+    tpush(4, Tok_If, 15);
+    tpush(4, Tok_In, 13);
+    tpush(4, Tok_Loop, 16);
+    tpush(4, Tok_Out, 12);
+    tpush(4, Tok_Stop, 10);
+    tgoto(4, NonTerm_Stmts, 8);
+    tgoto(4, NonTerm_Stmt, 9);
 
-    table_push[{4, Tok_Int}] = 6;
-    table_push[{4, Tok_Real}] = 6;
-    table_push[{4, Tok_Str}] = 6;
+    tpush(5, Tok_Rav, 17);
 
-    table_push[{5, Tok_Main}] = 7;
+    tpush(6, Tok_Ident, 7);
+    treduce(6, Tok_Rav, Rule_Decls_Decl);
+    tgoto(6, NonTerm_Decls, 18);
+    tgoto(6, NonTerm_Decl, 6);
 
-    table_push[{6, Tok_Period}] = 8;
+    tpush(7, Tok_Str, 19);
+    tpush(7, Tok_Int, 19);
+    tpush(7, Tok_Real, 19);
 
-    table_push[{7, Tok_Die}] = 12;
-    table_push[{7, Tok_Ident}] = 16;
-    table_push[{7, Tok_If}] = 13;
-    table_push[{7, Tok_Loop}] = 14;
-    table_push[{7, Tok_Out}] = 15;
-    table_push[{7, Tok_Stop}] = 11;
-    table_goto[{7, Rule_Stmts}] = 9;
-    table_goto[{7, Rule_Stmts_Stmt}] = 9;
-    table_goto[{7, Rule_Stmt_If}] = 10;
-    table_goto[{7, Rule_Stmt_Die}] = 10;
-    table_goto[{7, Rule_Stmt_Out}] = 10;
-    table_goto[{7, Rule_Stmt_IfOr}] = 10;
-    table_goto[{7, Rule_Stmt_Loop}] = 10;
-    table_goto[{7, Rule_Stmt_Stop}] = 10;
-    table_goto[{7, Rule_Stmt_Assign}] = 10;
-    // GAMBIARRA
-    table_reduce[{7, Tok_Niam}] = Rule_Stmts;
+    tpush(8, Tok_Niam, 20);
 
-    table_push[{8, Tok_Ident}] = 4;
-    table_goto[{8, Rule_Decls}] = 17;
-    table_goto[{8, Rule_Decls_IdType}] = 17;
-    // GAMBIARRA
-    table_reduce[{8, Tok_Rav}] = Rule_Decls;
+    tpush(9, Tok_Die, 11);
+    treduce(9, Tok_Fi, Rule_Stmts_Stmt);
+    tpush(9, Tok_Ident, 14);
+    tpush(9, Tok_If, 15);
+    tpush(9, Tok_In, 13);
+    tpush(9, Tok_Loop, 16);
+    treduce(9, Tok_Niam, Rule_Stmts_Stmt);
+    treduce(9, Tok_Or, Rule_Stmts_Stmt);
+    tpush(9, Tok_Out, 12);
+    treduce(9, Tok_Pool, Rule_Stmts_Stmt);
+    tpush(9, Tok_Stop, 10);
+    tgoto(9, NonTerm_Stmts, 21);
+    tgoto(9, NonTerm_Stmt, 9);
 
-    table_push[{9, Tok_Niam}] = 18;
+    tpush(10, Tok_Period, 22);
 
-    table_push[{10, Tok_Die}] = 12;
-    table_push[{10, Tok_Ident}] = 16;
-    table_push[{10, Tok_If}] = 13;
-    table_push[{10, Tok_Loop}] = 14;
-    table_push[{10, Tok_Out}] = 15;
-    table_push[{10, Tok_Stop}] = 11;
-    table_goto[{10, Rule_Stmts}] = 19;
-    table_goto[{10, Rule_Stmts_Stmt}] = 19;
-    table_goto[{10, Rule_Stmt_If}] = 10;
-    table_goto[{10, Rule_Stmt_Die}] = 10;
-    table_goto[{10, Rule_Stmt_Out}] = 10;
-    table_goto[{10, Rule_Stmt_IfOr}] = 10;
-    table_goto[{10, Rule_Stmt_Loop}] = 10;
-    table_goto[{10, Rule_Stmt_Stop}] = 10;
-    table_goto[{10, Rule_Stmt_Assign}] = 10;
-    // GAMBIARRA
-    table_reduce[{10, Tok_Rav}] = Rule_Decls;
+    tpush(11, Tok_Period, 23);
 
-    table_push[{11, Tok_Period}] = 20;
+    tpush(12, Tok_Ident, 24);
 
-    table_push[{12, Tok_Period}] = 21;
+    tpush(13, Tok_Ident, 25);
 
-    table_push[{13, Tok_Ident}] = 22;
+    tpush(14, Tok_Assign, 26);
 
-    table_push[{14, Tok_Die}] = 12;
-    table_push[{14, Tok_Ident}] = 16;
-    table_push[{14, Tok_If}] = 13;
-    table_push[{14, Tok_Loop}] = 14;
-    table_push[{14, Tok_Out}] = 15;
-    table_push[{14, Tok_Stop}] = 11;
-    table_goto[{14, Rule_Stmts}] = 23;
-    table_goto[{14, Rule_Stmts_Stmt}] = 23;
-    table_goto[{14, Rule_Stmt_If}] = 10;
-    table_goto[{14, Rule_Stmt_Die}] = 10;
-    table_goto[{14, Rule_Stmt_Out}] = 10;
-    table_goto[{14, Rule_Stmt_IfOr}] = 10;
-    table_goto[{14, Rule_Stmt_Loop}] = 10;
-    table_goto[{14, Rule_Stmt_Stop}] = 10;
-    table_goto[{14, Rule_Stmt_Assign}] = 10;
-    // GAMBIARRA
-    table_reduce[{14, Tok_Pool}] = Rule_Stmts;
+    tpush(15, Tok_Ident, 27);
 
-    table_push[{15, Tok_Ident}] = 24;
+    tpush(16, Tok_Die, 11);
+    tpush(16, Tok_Ident, 14);
+    tpush(16, Tok_If, 15);
+    tpush(16, Tok_In, 13);
+    tpush(16, Tok_Loop, 16);
+    tpush(16, Tok_Out, 12);
+    tpush(16, Tok_Stop, 10);
+    tgoto(16, NonTerm_Stmts, 28);
+    tgoto(16, NonTerm_Stmt, 9);
 
-    table_push[{16, Tok_Assign}] = 25;
+    treduce(17, Tok_Main, Rule_VarBlock);
 
-    table_reduce[{17, Tok_Rav}] = Rule_Decls_IdType;
+    treduce(18, Tok_Rav, Rule_Decls_DeclDecls);
 
-    table_reduce[{18, Tok_Eof}] = Rule_Skald;
+    tpush(19, Tok_Period, 29);
 
-    table_reduce[{19, Tok_Fi}] = Rule_Stmts_Stmt;
-    table_reduce[{19, Tok_Niam}] = Rule_Stmts_Stmt;
-    table_reduce[{19, Tok_Or}] = Rule_Stmts_Stmt;
-    table_reduce[{19, Tok_Pool}] = Rule_Stmts_Stmt;
+    treduce(20, Tok_Eof, Rule_Skald);
 
-    table_reduce[{20, Tok_Die}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_Fi}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_Ident}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_If}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_Loop}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_Niam}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_Or}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_Out}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_Pool}] = Rule_Stmt_Stop;
-    table_reduce[{20, Tok_Stop}] = Rule_Stmt_Stop;
+    treduce(21, Tok_Fi, Rule_Stmts_StmtStmts);
+    treduce(21, Tok_Niam, Rule_Stmts_StmtStmts);
+    treduce(21, Tok_Or, Rule_Stmts_StmtStmts);
+    treduce(21, Tok_Pool, Rule_Stmts_StmtStmts);
 
-    table_reduce[{21, Tok_Die}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_Fi}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_Ident}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_If}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_Loop}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_Niam}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_Or}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_Out}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_Pool}] = Rule_Stmt_Die;
-    table_reduce[{21, Tok_Stop}] = Rule_Stmt_Die;
+    treduce(22, Tok_Die, Rule_Stmt_Stop);
+    treduce(22, Tok_Fi, Rule_Stmt_Stop);
+    treduce(22, Tok_Ident, Rule_Stmt_Stop);
+    treduce(22, Tok_If, Rule_Stmt_Stop);
+    treduce(22, Tok_In, Rule_Stmt_Stop);
+    treduce(22, Tok_Loop, Rule_Stmt_Stop);
+    treduce(22, Tok_Niam, Rule_Stmt_Stop);
+    treduce(22, Tok_Or, Rule_Stmt_Stop);
+    treduce(22, Tok_Out, Rule_Stmt_Stop);
+    treduce(22, Tok_Pool, Rule_Stmt_Stop);
+    treduce(22, Tok_Stop, Rule_Stmt_Stop);
 
-    table_push[{22, Tok_Do}] = 26;
+    treduce(23, Tok_Die, Rule_Stmt_Die);
+    treduce(23, Tok_Fi, Rule_Stmt_Die);
+    treduce(23, Tok_Ident, Rule_Stmt_Die);
+    treduce(23, Tok_If, Rule_Stmt_Die);
+    treduce(23, Tok_In, Rule_Stmt_Die);
+    treduce(23, Tok_Loop, Rule_Stmt_Die);
+    treduce(23, Tok_Niam, Rule_Stmt_Die);
+    treduce(23, Tok_Or, Rule_Stmt_Die);
+    treduce(23, Tok_Out, Rule_Stmt_Die);
+    treduce(23, Tok_Pool, Rule_Stmt_Die);
+    treduce(23, Tok_Stop, Rule_Stmt_Die);
 
-    table_push[{23, Tok_Pool}] = 27;
+    tpush(24, Tok_Period, 30);
 
-    table_push[{24, Tok_Period}] = 28;
+    tpush(25, Tok_Period, 31);
 
-    table_push[{25, Tok_Not}] = 32;
-    table_push[{25, Tok_ParOpen}] = 31;
-    table_push[{25, Tok_Ident}] = 35;
-    table_push[{25, Tok_In}] = 33;
-    table_push[{25, Tok_LitInt}] = 34;
-    table_push[{25, Tok_LitStr}] = 34;
-    table_push[{25, Tok_LitReal}] = 34;
-    table_goto[{25, Rule_Expr_Val}] = 29;
-    table_goto[{25, Rule_Expr_ValOpExpr}] = 29;
-    table_goto[{25, Rule_Val_Id}] = 30;
-    table_goto[{25, Rule_Val_Lit}] = 30;
-    table_goto[{25, Rule_Val_InId}] = 30;
-    table_goto[{25, Rule_Val_NotVal}] = 30;
-    table_goto[{25, Rule_Val_ParExpr}] = 30;
+    tpush(26, Tok_Not, 35);
+    tpush(26, Tok_ParOpen, 34);
+    tpush(26, Tok_Ident, 37);
+    tpush(26, Tok_LitInt, 36);
+    tpush(26, Tok_LitStr, 36);
+    tpush(26, Tok_LitReal, 36);
+    tgoto(26, NonTerm_Expr, 32);
+    tgoto(26, NonTerm_Val, 33);
 
-    table_push[{26, Tok_Die}] = 12;
-    table_push[{26, Tok_Ident}] = 16;
-    table_push[{26, Tok_If}] = 13;
-    table_push[{26, Tok_Loop}] = 14;
-    table_push[{26, Tok_Out}] = 15;
-    table_push[{26, Tok_Stop}] = 11;
-    table_goto[{26, Rule_Stmts}] = 36;
-    table_goto[{26, Rule_Stmts_Stmt}] = 36;
-    table_goto[{26, Rule_Stmt_If}] = 10;
-    table_goto[{26, Rule_Stmt_Die}] = 10;
-    table_goto[{26, Rule_Stmt_Out}] = 10;
-    table_goto[{26, Rule_Stmt_IfOr}] = 10;
-    table_goto[{26, Rule_Stmt_Loop}] = 10;
-    table_goto[{26, Rule_Stmt_Stop}] = 10;
-    table_goto[{26, Rule_Stmt_Assign}] = 10;
-    // GAMBIARRA
-    table_reduce[{26, Tok_Pool}] = Rule_Stmts;
+    tpush(27, Tok_Do, 38);
 
-    table_reduce[{27, Tok_Die}] = Rule_Stmt_Loop;
-    table_reduce[{27, Tok_Ident}] = Rule_Stmt_Loop;
-    table_reduce[{27, Tok_If}] = Rule_Stmt_Loop;
-    table_reduce[{27, Tok_Loop}] = Rule_Stmt_Loop;
-    table_reduce[{27, Tok_Niam}] = Rule_Stmt_Loop;
-    table_reduce[{27, Tok_Or}] = Rule_Stmt_Loop;
-    table_reduce[{27, Tok_Out}] = Rule_Stmt_Loop;
-    table_reduce[{27, Tok_Pool}] = Rule_Stmt_Loop;
-    table_reduce[{27, Tok_Stop}] = Rule_Stmt_Loop;
+    tpush(28, Tok_Pool, 39);
 
-    table_reduce[{28, Tok_Die}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_Fi}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_Ident}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_If}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_Loop}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_Niam}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_Or}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_Out}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_Pool}] = Rule_Stmt_Out;
-    table_reduce[{28, Tok_Stop}] = Rule_Stmt_Out;
+    treduce(29, Tok_Ident, Rule_Decl);
+    treduce(29, Tok_Rav, Rule_Decl);
 
-    table_push[{29, Tok_Period}] = 37;
-
-    table_reduce[{30, Tok_ParClose}] = Rule_Expr_Val;
-    table_reduce[{30, Tok_Period}] = Rule_Expr_Val;
-    table_push[{30, Tok_Oper}] = 38;
-
-    table_push[{31, Tok_Not}] = 32;
-    table_push[{31, Tok_ParOpen}] = 31;
-    table_push[{31, Tok_Ident}] = 35;
-    table_push[{31, Tok_In}] = 33;
-    table_push[{31, Tok_LitReal}] = 34;
-    table_push[{31, Tok_LitInt}] = 34;
-    table_push[{31, Tok_LitStr}] = 34;
-    table_goto[{31, Rule_Expr_Val}] = 39;
-    table_goto[{31, Rule_Expr_ValOpExpr}] = 39;
-    table_goto[{31, Rule_Val_Id}] = 30;
-    table_goto[{31, Rule_Val_Lit}] = 30;
-    table_goto[{31, Rule_Val_InId}] = 30;
-    table_goto[{31, Rule_Val_NotVal}] = 30;
-    table_goto[{31, Rule_Val_ParExpr}] = 30;
-
-    table_push[{32, Tok_Not}] = 32;
-    table_push[{32, Tok_ParOpen}] = 31;
-    table_push[{32, Tok_Ident}] = 35;
-    table_push[{32, Tok_In}] = 33;
-    table_push[{32, Tok_LitReal}] = 34;
-    table_push[{32, Tok_LitInt}] = 34;
-    table_push[{32, Tok_LitStr}] = 34;
-    table_goto[{32, Rule_Val_Id}] = 40;
-    table_goto[{32, Rule_Val_Lit}] = 40;
-    table_goto[{32, Rule_Val_InId}] = 40;
-    table_goto[{32, Rule_Val_NotVal}] = 40;
-    table_goto[{32, Rule_Val_ParExpr}] = 40;
-
-    table_push[{33, Tok_Ident}] = 41;
-
-    table_reduce[{34, Tok_ParClose}] = Rule_Val_Lit;
-    table_reduce[{34, Tok_Period}] = Rule_Val_Lit;
-    table_reduce[{34, Tok_Oper}] = Rule_Val_Lit;
-
-    table_reduce[{35, Tok_ParClose}] = Rule_Val_Id;
-    table_reduce[{35, Tok_Period}] = Rule_Val_Id;
-    table_reduce[{35, Tok_Oper}] = Rule_Val_Id;
-
-    table_push[{36, Tok_Fi}] = 42;
-    table_push[{36, Tok_Or}] = 43;
-
-    table_reduce[{37, Tok_Die}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_Fi}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_Ident}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_If}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_Loop}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_Niam}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_Or}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_Out}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_Pool}] = Rule_Stmt_Assign;
-    table_reduce[{37, Tok_Stop}] = Rule_Stmt_Assign;
-    // falta GOTO para tabela 37 ?
-
-    table_push[{38, Tok_Not}] = 32;
-    table_push[{38, Tok_ParOpen}] = 31;
-    table_push[{38, Tok_Ident}] = 35;
-    table_push[{38, Tok_In}] = 33;
-    table_push[{38, Tok_LitStr}] = 34;
-    table_push[{38, Tok_LitInt}] = 34;
-    table_push[{38, Tok_LitReal}] = 34;
-    table_goto[{38, Rule_Expr_Val}] = 44;
-    table_goto[{38, Rule_Expr_ValOpExpr}] = 44;
-    table_goto[{38, Rule_Val_Id}] = 30;
-    table_goto[{38, Rule_Val_Lit}] = 30;
-    table_goto[{38, Rule_Val_InId}] = 30;
-    table_goto[{38, Rule_Val_NotVal}] = 30;
-    table_goto[{38, Rule_Val_ParExpr}] = 30;
-
-    table_push[{39, Tok_ParClose}] = 45;
-
-    table_reduce[{40, Tok_ParClose}] = Rule_Val_NotVal;
-    table_reduce[{40, Tok_Period}] = Rule_Val_NotVal;
-    table_reduce[{40, Tok_Oper}] = Rule_Val_NotVal;
-
-    table_reduce[{41, Tok_ParClose}] = Rule_Val_InId;
-    table_reduce[{41, Tok_Period}] = Rule_Val_InId;
-    table_reduce[{41, Tok_Oper}] = Rule_Val_InId;
-
-    table_reduce[{42, Tok_Die}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_Fi}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_Ident}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_If}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_Loop}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_Niam}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_Or}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_Out}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_Pool}] = Rule_Stmt_If;
-    table_reduce[{42, Tok_Stop}] = Rule_Stmt_If;
-
-    table_push[{43, Tok_Die}] = 12;
-    table_push[{43, Tok_Ident}] = 16;
-    table_push[{43, Tok_If}] = 13;
-    table_push[{43, Tok_Loop}] = 14;
-    table_push[{43, Tok_Out}] = 15;
-    table_push[{43, Tok_Stop}] = 11;
-    table_goto[{43, Rule_Stmts}] = 46;
-    table_goto[{43, Rule_Stmts_Stmt}] = 46;
-    table_goto[{43, Rule_Stmt_If}] = 10;
-    table_goto[{43, Rule_Stmt_Die}] = 10;
-    table_goto[{43, Rule_Stmt_Out}] = 10;
-    table_goto[{43, Rule_Stmt_IfOr}] = 10;
-    table_goto[{43, Rule_Stmt_Loop}] = 10;
-    table_goto[{43, Rule_Stmt_Stop}] = 10;
-    table_goto[{43, Rule_Stmt_Assign}] = 10;
-    // GAMBIARRA
-    table_reduce[{43, Tok_Pool}] = Rule_Stmts;
-
-    table_reduce[{44, Tok_ParClose}] = Rule_Expr_ValOpExpr;
-    table_reduce[{44, Tok_Period}] = Rule_Expr_ValOpExpr;
-
-    table_reduce[{45, Tok_ParClose}] = Rule_Val_ParExpr;
-    table_reduce[{45, Tok_Period}] = Rule_Val_ParExpr;
-    table_reduce[{45, Tok_Oper}] = Rule_Val_ParExpr;
-
-    table_push[{46, Tok_Fi}] = 47;
-
-    table_reduce[{47, Tok_Die}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_Fi}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_Ident}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_If}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_Loop}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_Niam}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_Or}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_Out}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_Pool}] = Rule_Stmt_IfOr;
-    table_reduce[{47, Tok_Stop}] = Rule_Stmt_IfOr;
+    treduce(30, )
 }
 
 bool Table::accept(int state, TokenKind token) {
@@ -342,7 +160,8 @@ Rule Table::reduce(int state, TokenKind token) {
 }
 
 int Table::goto_(int state, Rule rule) {
-    auto goto_state = table_goto.find({state, rule});
+    NonTerm non_term = NonTerm(rule >> RULE_SHIFT);
+    auto goto_state = table_goto.find({state, non_term});
     if (goto_state == table_goto.end()) {
         return -1;
     } else {

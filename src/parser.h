@@ -2,35 +2,63 @@
 #define LEXER_H
 #include "lexer.h"
 
+#define RULE_SHIFT 4
+
+// clang-format off
+enum NonTerm {
+    NonTerm_Skald       = 1 << 0,
+    NonTerm_VarBlock    = 1 << 1,
+    NonTerm_MainBlock   = 1 << 2,
+    NonTerm_Decls       = 1 << 3,
+    NonTerm_Decl        = 1 << 4,
+    NonTerm_Stmts       = 1 << 5,
+    NonTerm_Stmt        = 1 << 6,
+    NonTerm_Expr        = 1 << 7,
+    NonTerm_Val         = 1 << 8,
+};
+// rule >> RULE_SHIFT retorna o nao terminal dono da regra
 enum Rule {
-    Rule_Skald,
-    Rule_Decls,
-    Rule_Decls_IdType,
-    Rule_Stmts,
-    Rule_Stmts_Stmt,
-    Rule_Stmt_Stop,
-    Rule_Stmt_Die,
-    Rule_Stmt_If,
-    Rule_Stmt_IfOr,
-    Rule_Stmt_Loop,
-    Rule_Stmt_Out,
-    Rule_Stmt_Assign,
-    Rule_Expr_Val,
-    Rule_Expr_ValOpExpr,
-    Rule_Val_ParExpr,
-    Rule_Val_NotVal,
-    Rule_Val_InId,
-    Rule_Val_Lit,
-    Rule_Val_Id,
+    Rule_Skald              = NonTerm_Skald     << RULE_SHIFT | 1,
+
+    Rule_VarBlock           = NonTerm_VarBlock  << RULE_SHIFT | 1,
+
+    Rule_Decls_Decl         = NonTerm_Decls     << RULE_SHIFT | 1,
+    Rule_Decls_DeclDecls    = NonTerm_Decls     << RULE_SHIFT | 2,
+
+    Rule_Decl               = NonTerm_Decl      << RULE_SHIFT | 1,
+
+    Rule_Stmts_Stmt         = NonTerm_Stmts     << RULE_SHIFT | 1,
+    Rule_Stmts_StmtStmts    = NonTerm_Stmts     << RULE_SHIFT | 2,
+
+    Rule_Stmt_Stop          = NonTerm_Stmt      << RULE_SHIFT | 1,
+    Rule_Stmt_Die           = NonTerm_Stmt      << RULE_SHIFT | 2,
+    Rule_Stmt_If            = NonTerm_Stmt      << RULE_SHIFT | 3,
+    Rule_Stmt_IfOr          = NonTerm_Stmt      << RULE_SHIFT | 4,
+    Rule_Stmt_Loop          = NonTerm_Stmt      << RULE_SHIFT | 5,
+    Rule_Stmt_Out           = NonTerm_Stmt      << RULE_SHIFT | 6,
+    Rule_Stmt_Assign        = NonTerm_Stmt      << RULE_SHIFT | 7,
+    Rule_Stmt_InId          = NonTerm_Stmt      << RULE_SHIFT | 8,
+
+    Rule_Expr_Val           = NonTerm_Expr      << RULE_SHIFT | 1,
+    Rule_Expr_ValOpExpr     = NonTerm_Expr      << RULE_SHIFT | 2,
+
+    Rule_Val_ParExpr        = NonTerm_Val       << RULE_SHIFT | 1,
+    Rule_Val_NotVal         = NonTerm_Val       << RULE_SHIFT | 2,
+    Rule_Val_Lit            = NonTerm_Val       << RULE_SHIFT | 3,
+    Rule_Val_Id             = NonTerm_Val       << RULE_SHIFT | 4,
+
     Rule_None = -1,
 };
+// clang-format on
 
 const int RULE_LEN[] = {
-    6, // Rule_Skald
-    0, // Rule_Decls
-    4, // Rule_Decls_IdType
-    0, // Rule_Stmts
-    2, // Rule_Stmts_Stmt
+    4, // Rule_Skald
+    2, // Rule_VarBlock_VarRav
+    3, // Rule_VarBlock_VarDecRav
+    3, // Rule_Decls_IdType
+    4, // Rule_Decls_IdTypeDecls
+    1, // Rule_Stmts_Stmt
+    2, // Rule_Stmts_StmtStmts
     2, // Rule_Stmt_Stop
     2, // Rule_Stmt_Die
     5, // Rule_Stmt_If
@@ -38,11 +66,11 @@ const int RULE_LEN[] = {
     3, // Rule_Stmt_Loop
     3, // Rule_Stmt_Out
     4, // Rule_Stmt_Assign
+    3, // Rule_Stmt_InId
     1, // Rule_Expr_Val
     3, // Rule_Expr_ValOpExpr
     3, // Rule_Val_ParExpr
     2, // Rule_Val_NotVal
-    2, // Rule_Val_InId
     1, // Rule_Val_Lit
     1, // Rule_Val_Id
 };

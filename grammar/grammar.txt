@@ -1,19 +1,30 @@
-skald -> var decls rav main stmts niam
-decls -> ϵ
-decls -> id type . decls
-stmts -> ϵ
-stmts -> stmt stmts
-stmt  -> stop .
-stmt  -> die .
-stmt  -> if id do stmts fi
-stmt  -> if id do stmts or stmts fi
-stmt  -> loop stmts pool
-stmt  -> out id .
-stmt  -> id assign expr .
+skald -> varblk mainblk
+
+varblk -> var decls rav
+
+mainblk -> main stms niam
+
+decls -> decl
+       | decl decls
+
+decl  -> id type period
+
+stmts -> stmt
+       | stmt stmts
+
+stmt  -> stop period
+       | die period
+       | out id period
+       | in id period
+       | id assign expr period
+       | if id do stmts fi
+       | if id do stmts or stmts fi
+       | loop stmts pool
+
 expr  -> val
-expr  -> val op expr
+       | val op expr
+
 val   -> ( expr )
-val   -> ! val
-val   -> in id
-val   -> lit
-val   -> id
+       | ! val
+       | lit
+       | id

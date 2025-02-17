@@ -7,7 +7,7 @@
 class Table {
     std::map<std::pair<int, TokenKind>, int> table_push;
     std::map<std::pair<int, TokenKind>, Rule> table_reduce;
-    std::map<std::pair<int, Rule>, int> table_goto;
+    std::map<std::pair<int, NonTerm>, int> table_goto;
 
   public:
     Table();
