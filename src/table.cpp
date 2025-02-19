@@ -1,5 +1,6 @@
 #include "table.h"
 #include "lexer.h"
+#include "parser.h"
 
 #define tpush(state, tok, dest) table_push[{state, tok}] = dest;
 #define tgoto(state, nt, dest) table_goto[{state, nt}] = dest;
@@ -13,6 +14,8 @@ Table::Table() {
     // 1, Tok_Eof = Accept
     
     tpush(2, Tok_Main, 4);
+    // gambiarra
+    tgoto(2, NonTerm_MainBlock, 1);
 
     tpush(3, Tok_Ident, 7);
     tgoto(3, NonTerm_Decls, 5);
@@ -83,7 +86,9 @@ Table::Table() {
 
     tpush(19, Tok_Period, 29);
 
-    treduce(20, Tok_Eof, Rule_Skald);
+    // gambiarra
+    /*treduce(20, Tok_Eof, Rule_Skald);*/
+    treduce(20, Tok_Eof, Rule_MainBlock);
 
     treduce(21, Tok_Fi, Rule_Stmts_StmtStmts);
     treduce(21, Tok_Niam, Rule_Stmts_StmtStmts);
@@ -134,7 +139,155 @@ Table::Table() {
     treduce(29, Tok_Ident, Rule_Decl);
     treduce(29, Tok_Rav, Rule_Decl);
 
-    treduce(30, )
+    treduce(30, Tok_Die, Rule_Stmt_Out);
+    treduce(30, Tok_Fi, Rule_Stmt_Out);
+    treduce(30, Tok_Ident, Rule_Stmt_Out);
+    treduce(30, Tok_If, Rule_Stmt_Out);
+    treduce(30, Tok_In, Rule_Stmt_Out);
+    treduce(30, Tok_Loop, Rule_Stmt_Out);
+    treduce(30, Tok_Niam, Rule_Stmt_Out);
+    treduce(30, Tok_Or, Rule_Stmt_Out);
+    treduce(30, Tok_Out, Rule_Stmt_Out);
+    treduce(30, Tok_Pool, Rule_Stmt_Out);
+    treduce(30, Tok_Stop, Rule_Stmt_Out);
+
+    treduce(31, Tok_Die, Rule_Stmt_InId);
+    treduce(31, Tok_Fi, Rule_Stmt_InId);
+    treduce(31, Tok_Ident, Rule_Stmt_InId);
+    treduce(31, Tok_If, Rule_Stmt_InId);
+    treduce(31, Tok_In, Rule_Stmt_InId);
+    treduce(31, Tok_Loop, Rule_Stmt_InId);
+    treduce(31, Tok_Niam, Rule_Stmt_InId);
+    treduce(31, Tok_Or, Rule_Stmt_InId);
+    treduce(31, Tok_Out, Rule_Stmt_InId);
+    treduce(31, Tok_Pool, Rule_Stmt_InId);
+    treduce(31, Tok_Stop, Rule_Stmt_InId);
+    
+    tpush(32, Tok_Period, 40);
+
+    treduce(33, Tok_ParClose, Rule_Expr_Val);
+    tpush(33, Tok_Oper, 41);
+    treduce(33, Tok_Period, Rule_Expr_Val);
+
+    tpush(34, Tok_Not, 35);
+    tpush(34, Tok_ParOpen, 34);
+    tpush(34, Tok_Ident, 37);
+    tpush(34, Tok_LitInt, 36);
+    tpush(34, Tok_LitStr, 36);
+    tpush(34, Tok_LitReal, 36);
+    tgoto(34, NonTerm_Expr, 42);
+    tgoto(34, NonTerm_Val, 33);
+
+    tpush(35, Tok_Not, 35);
+    tpush(35, Tok_ParOpen, 34);
+    tpush(35, Tok_Ident, 37);
+    tpush(35, Tok_LitInt, 36);
+    tpush(35, Tok_LitStr, 36);
+    tpush(35, Tok_LitReal, 36);
+    tgoto(35, NonTerm_Val, 43);
+
+    treduce(36, Tok_ParClose, Rule_Val_Lit);
+    treduce(36, Tok_Oper, Rule_Val_Lit);
+    treduce(36, Tok_Period, Rule_Val_Lit);
+
+    treduce(37, Tok_ParClose, Rule_Val_Id);
+    treduce(37, Tok_Oper, Rule_Val_Id);
+    treduce(37, Tok_Period, Rule_Val_Id);
+
+    tpush(38, Tok_Die, 11);
+    tpush(38, Tok_Ident, 14);
+    tpush(38, Tok_If, 15);
+    tpush(38, Tok_In, 13);
+    tpush(38, Tok_Loop, 16);
+    tpush(38, Tok_Out, 12);
+    tpush(38, Tok_Stop, 10);
+    tgoto(38, NonTerm_Stmts, 44);
+    tgoto(38, NonTerm_Stmt, 9);
+
+    treduce(39, Tok_Die, Rule_Stmt_Loop);
+    treduce(39, Tok_Fi, Rule_Stmt_Loop);
+    treduce(39, Tok_Ident, Rule_Stmt_Loop);
+    treduce(39, Tok_If, Rule_Stmt_Loop);
+    treduce(39, Tok_In, Rule_Stmt_Loop);
+    treduce(39, Tok_Loop, Rule_Stmt_Loop);
+    treduce(39, Tok_Niam, Rule_Stmt_Loop);
+    treduce(39, Tok_Or, Rule_Stmt_Loop);
+    treduce(39, Tok_Out, Rule_Stmt_Loop);
+    treduce(39, Tok_Pool, Rule_Stmt_Loop);
+    treduce(39, Tok_Stop, Rule_Stmt_Loop);
+
+    treduce(40, Tok_Die, Rule_Stmt_Assign);
+    treduce(40, Tok_Fi, Rule_Stmt_Assign);
+    treduce(40, Tok_Ident, Rule_Stmt_Assign);
+    treduce(40, Tok_If, Rule_Stmt_Assign);
+    treduce(40, Tok_In, Rule_Stmt_Assign);
+    treduce(40, Tok_Loop, Rule_Stmt_Assign);
+    treduce(40, Tok_Niam, Rule_Stmt_Assign);
+    treduce(40, Tok_Or, Rule_Stmt_Assign);
+    treduce(40, Tok_Out, Rule_Stmt_Assign);
+    treduce(40, Tok_Pool, Rule_Stmt_Assign);
+    treduce(40, Tok_Stop, Rule_Stmt_Assign);
+
+    tpush(41, Tok_Not, 35);
+    tpush(41, Tok_ParOpen, 34);
+    tpush(41, Tok_Ident, 37);
+    tpush(41, Tok_LitInt, 36);
+    tpush(41, Tok_LitStr, 36);
+    tpush(41, Tok_LitReal, 36);
+    tgoto(41, NonTerm_Expr, 45);
+    tgoto(41, NonTerm_Val, 33);
+
+    tpush(42, Tok_ParClose, 46);
+
+    treduce(43, Tok_ParClose, Rule_Val_NotVal);
+    treduce(43, Tok_Oper, Rule_Val_NotVal);
+    treduce(43, Tok_Period, Rule_Val_NotVal);
+
+    tpush(44, Tok_Fi, 47);
+    tpush(44, Tok_Or, 48);
+    
+    treduce(45, Tok_ParClose, Rule_Expr_ValOpExpr);
+    treduce(45, Tok_Period, Rule_Expr_ValOpExpr);
+
+    treduce(46, Tok_ParClose, Rule_Val_ParExpr);
+    treduce(46, Tok_Oper, Rule_Val_ParExpr);
+    treduce(46, Tok_Period, Rule_Val_ParExpr);
+
+    treduce(47, Tok_Die, Rule_Stmt_If);
+    treduce(47, Tok_Fi, Rule_Stmt_If);
+    treduce(47, Tok_Ident, Rule_Stmt_If);
+    treduce(47, Tok_If, Rule_Stmt_If);
+    treduce(47, Tok_In, Rule_Stmt_If);
+    treduce(47, Tok_Loop, Rule_Stmt_If);
+    treduce(47, Tok_Niam, Rule_Stmt_If);
+    treduce(47, Tok_Or, Rule_Stmt_If);
+    treduce(47, Tok_Out, Rule_Stmt_If);
+    treduce(47, Tok_Pool, Rule_Stmt_If);
+    treduce(47, Tok_Stop, Rule_Stmt_If);
+    
+    tpush(48, Tok_Die, 11);
+    tpush(48, Tok_Ident, 14);
+    tpush(48, Tok_If, 15);
+    tpush(48, Tok_In, 13);
+    tpush(48, Tok_Loop, 16);
+    tpush(48, Tok_Out, 12);
+    tpush(48, Tok_Stop, 10);
+    tgoto(48, NonTerm_Stmts, 49);
+    tgoto(48, NonTerm_Stmt, 9);
+
+    tpush(49, Tok_Fi, 50);
+    
+    treduce(50, Tok_Die, Rule_Stmt_IfOr);
+    treduce(50, Tok_Fi, Rule_Stmt_IfOr);
+    treduce(50, Tok_Ident, Rule_Stmt_IfOr);
+    treduce(50, Tok_If, Rule_Stmt_IfOr);
+    treduce(50, Tok_In, Rule_Stmt_IfOr);
+    treduce(50, Tok_Loop, Rule_Stmt_IfOr);
+    treduce(50, Tok_Niam, Rule_Stmt_IfOr);
+    treduce(50, Tok_Or, Rule_Stmt_IfOr);
+    treduce(50, Tok_Out, Rule_Stmt_IfOr);
+    treduce(50, Tok_Pool, Rule_Stmt_IfOr);
+    treduce(50, Tok_Stop, Rule_Stmt_IfOr);
 }
 
 bool Table::accept(int state, TokenKind token) {
@@ -160,7 +313,7 @@ Rule Table::reduce(int state, TokenKind token) {
 }
 
 int Table::goto_(int state, Rule rule) {
-    NonTerm non_term = NonTerm(rule >> RULE_SHIFT);
+    NonTerm non_term = Parser::get_nonterm(rule);
     auto goto_state = table_goto.find({state, non_term});
     if (goto_state == table_goto.end()) {
         return -1;

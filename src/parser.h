@@ -1,8 +1,9 @@
 #ifndef LEXER_H
 #define LEXER_H
 #include "lexer.h"
+#include <unordered_map>
 
-#define RULE_SHIFT 4
+#define RULE_SHIFT 8
 
 // clang-format off
 enum NonTerm {
@@ -15,48 +16,43 @@ enum NonTerm {
     NonTerm_Stmt        = 1 << 6,
     NonTerm_Expr        = 1 << 7,
     NonTerm_Val         = 1 << 8,
+    NonTerm_None        = -1,
 };
-// rule >> RULE_SHIFT retorna o nao terminal dono da regra
 enum Rule {
-    Rule_Skald              = NonTerm_Skald     << RULE_SHIFT | 1,
-
-    Rule_VarBlock           = NonTerm_VarBlock  << RULE_SHIFT | 1,
-
-    Rule_Decls_Decl         = NonTerm_Decls     << RULE_SHIFT | 1,
-    Rule_Decls_DeclDecls    = NonTerm_Decls     << RULE_SHIFT | 2,
-
-    Rule_Decl               = NonTerm_Decl      << RULE_SHIFT | 1,
-
-    Rule_Stmts_Stmt         = NonTerm_Stmts     << RULE_SHIFT | 1,
-    Rule_Stmts_StmtStmts    = NonTerm_Stmts     << RULE_SHIFT | 2,
-
-    Rule_Stmt_Stop          = NonTerm_Stmt      << RULE_SHIFT | 1,
-    Rule_Stmt_Die           = NonTerm_Stmt      << RULE_SHIFT | 2,
-    Rule_Stmt_If            = NonTerm_Stmt      << RULE_SHIFT | 3,
-    Rule_Stmt_IfOr          = NonTerm_Stmt      << RULE_SHIFT | 4,
-    Rule_Stmt_Loop          = NonTerm_Stmt      << RULE_SHIFT | 5,
-    Rule_Stmt_Out           = NonTerm_Stmt      << RULE_SHIFT | 6,
-    Rule_Stmt_Assign        = NonTerm_Stmt      << RULE_SHIFT | 7,
-    Rule_Stmt_InId          = NonTerm_Stmt      << RULE_SHIFT | 8,
-
-    Rule_Expr_Val           = NonTerm_Expr      << RULE_SHIFT | 1,
-    Rule_Expr_ValOpExpr     = NonTerm_Expr      << RULE_SHIFT | 2,
-
-    Rule_Val_ParExpr        = NonTerm_Val       << RULE_SHIFT | 1,
-    Rule_Val_NotVal         = NonTerm_Val       << RULE_SHIFT | 2,
-    Rule_Val_Lit            = NonTerm_Val       << RULE_SHIFT | 3,
-    Rule_Val_Id             = NonTerm_Val       << RULE_SHIFT | 4,
+    Rule_Skald              = 0,
+    Rule_VarBlock           = 1,
+    Rule_MainBlock          = 2,
+    Rule_Decls_Decl         = 3,
+    Rule_Decls_DeclDecls    = 4,
+    Rule_Decl               = 5,
+    Rule_Stmts_Stmt         = 6,
+    Rule_Stmts_StmtStmts    = 7,
+    Rule_Stmt_Stop          = 8,
+    Rule_Stmt_Die           = 9,
+    Rule_Stmt_If            = 10,
+    Rule_Stmt_IfOr          = 11,
+    Rule_Stmt_Loop          = 12,
+    Rule_Stmt_Out           = 13,
+    Rule_Stmt_Assign        = 14,
+    Rule_Stmt_InId          = 15,
+    Rule_Expr_Val           = 16,
+    Rule_Expr_ValOpExpr     = 17,
+    Rule_Val_ParExpr        = 18,
+    Rule_Val_NotVal         = 19,
+    Rule_Val_Lit            = 20,
+    Rule_Val_Id             = 21,
 
     Rule_None = -1,
 };
 // clang-format on
 
-const int RULE_LEN[] = {
-    4, // Rule_Skald
-    2, // Rule_VarBlock_VarRav
-    3, // Rule_VarBlock_VarDecRav
-    3, // Rule_Decls_IdType
-    4, // Rule_Decls_IdTypeDecls
+const int RULE_LEN[22] = {
+    3, // Rule_Skald
+    3, // Rule_VarBlock
+    3, // Rule_MainBlock
+    1, // Rule_Decls_Decl
+    2, // Rule_Decls_DeclDecls
+    3, // Rule_Decl
     1, // Rule_Stmts_Stmt
     2, // Rule_Stmts_StmtStmts
     2, // Rule_Stmt_Stop
@@ -123,6 +119,7 @@ class Parser {
     void pop_reduce(Rule rule);
 
   public:
+    static NonTerm get_nonterm(Rule rule);
     void parse(std::vector<Token> &tokens);
 };
 #endif

@@ -1,5 +1,7 @@
 var
+    a int.
 rav
 
 main
+    out a.
 niam

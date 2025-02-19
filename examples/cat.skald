@@ -1,14 +1,13 @@
 var
     input str.
-    io_err int.
     linebreak str.
 rav
 
 main
     linebreak <- "\n".
     loop
-        io_err <- !(in input).
-        if io_err do
+        in input.
+        if _IO_ERR do
             die.
         fi
         out input.
