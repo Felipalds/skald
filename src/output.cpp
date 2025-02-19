@@ -131,6 +131,80 @@ void Token::print(Src src) {
     src.print_span(span);
 }
 
+void rule_print(Rule rule) {
+    switch (rule) {
+    case Rule_Skald:
+        printf("[Skald -> VarBlock MainBlock]");
+        break;
+    case Rule_VarBlock:
+        printf("[VarBlock -> var Decls rav]");
+        break;
+    case Rule_MainBlock:
+        printf("[MainBlock -> main Stmts niam]");
+        break;
+    case Rule_Decls_Decl:
+        printf("[Decls -> Decl]");
+        break;
+    case Rule_Decls_DeclDecls:
+        printf("[Decls -> Decl Decls]");
+        break;
+    case Rule_Decl:
+        printf("[Decl -> id type.]");
+        break;
+    case Rule_Stmts_Stmt:
+        printf("[Stmts -> Stmt]");
+        break;
+    case Rule_Stmts_StmtStmts:
+        printf("[Stmts -> Stmt Stmts]");
+        break;
+    case Rule_Stmt_Stop:
+        printf("[Stmt -> stop.]");
+        break;
+    case Rule_Stmt_Die:
+        printf("[Stmt -> die.]");
+        break;
+    case Rule_Stmt_If:
+        printf("[Stmt -> if id do Stmts fi]");
+        break;
+    case Rule_Stmt_IfOr:
+        printf("[Stmt -> if id do Stmts or Stmts fi]");
+        break;
+    case Rule_Stmt_Loop:
+        printf("[Stmt -> loop Stmts pool]");
+        break;
+    case Rule_Stmt_Out:
+        printf("[Stmt -> out id.]");
+        break;
+    case Rule_Stmt_Assign:
+        printf("[Stmt -> id <- Expr.]");
+        break;
+    case Rule_Stmt_InId:
+        printf("[Stmt -> in id.]");
+        break;
+    case Rule_Expr_Val:
+        printf("[Expr -> Val]");
+        break;
+    case Rule_Expr_ValOpExpr:
+        printf("[Expr -> Val op Expr]");
+        break;
+    case Rule_Val_ParExpr:
+        printf("[Val -> (Expr)]");
+        break;
+    case Rule_Val_NotVal:
+        printf("[Val -> !Val]");
+        break;
+    case Rule_Val_Lit:
+        printf("[Val -> lit]");
+        break;
+    case Rule_Val_Id:
+        printf("[Val -> id]");
+        break;
+    case Rule_None:
+        printf("[?? -> ??]");
+        break;
+    }
+}
+
 void LexErr::print(Src src) {
     printf("line %zu [%zu %zu]: ", span.line + 1, span.first, span.second);
     switch (kind) {
@@ -162,11 +236,11 @@ void StackElem::print() {
         TokenKind_print(data.token.kind);
         break;
     case StackElem_Rule:
-        printf("[Rule %d]", data.rule);
+        rule_print(data.rule);
         break;
     case StackElem_State:
         printf("[State %d]", data.state);
         break;
     }
-        printf(" ");
+    printf(" ");
 }
