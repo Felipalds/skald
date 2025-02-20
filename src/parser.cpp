@@ -1,5 +1,4 @@
 #include "parser.h"
-#include "table.h"
 #include <cassert>
 #include <vector>
 
@@ -67,23 +66,21 @@ void Parser::pop_reduce(Rule rule) {
     }
 }
 
-void Parser::parse(std::vector<Token> &tokens) {
-    Table table;
+void Parser::parse(std::vector<Token> &tokens, Table &table) {
     size_t ip = 0;
-
     stack.push_back({0});
 
     while (true) {
         int curr_state = state();
         Token token = tokens[ip];
 
-        printf("(%d ", curr_state);
-        TokenKind_print(token.kind);
-        printf(")\t: ");
-        for (StackElem elem : stack) {
-            elem.print();
-        }
-        printf("\n\n");
+        /*printf("(%d ", curr_state);*/
+        /*TokenKind_print(token.kind);*/
+        /*printf(")\t: ");*/
+        /*for (StackElem elem : stack) {*/
+        /*    elem.print();*/
+        /*}*/
+        /*printf("\n\n");*/
 
         int push_state = table.push(curr_state, token.kind);
         if (push_state != -1) {
@@ -111,8 +108,17 @@ void Parser::parse(std::vector<Token> &tokens) {
             return;
         }
 
-        /* lidar com erros */
-        errors.push_back({ParseErr_Error, token.span});
+        // armazena erro, tabela estava vazia
+        errors.push_back({state(), token});
+
+        // tenta reduzir para detectar mais erros
+        Rule err_reduce = table.err_reduce(state());
+        if (err_reduce != Rule_None) {
+            pop_reduce(err_reduce);
+            continue;
+        }
+
+        // senão, somente desiste
 
         return;
     }

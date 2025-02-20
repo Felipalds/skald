@@ -1,7 +1,7 @@
-#ifndef LEXER_H
-#define LEXER_H
+#ifndef parser_h
+#define parser_h
 #include "lexer.h"
-#include <unordered_map>
+#include <map>
 
 #define RULE_SHIFT 8
 
@@ -71,6 +71,33 @@ const int RULE_LEN[22] = {
     1, // Rule_Val_Id
 };
 
+class Table {
+    std::map<std::pair<int, TokenKind>, int> table_push;
+    std::map<std::pair<int, TokenKind>, Rule> table_reduce;
+    std::map<std::pair<int, NonTerm>, int> table_goto;
+    std::map<int, std::vector<TokenKind>> table_err_expect;
+    std::map<int, Rule> table_err_reduce;
+
+    void tpush(int state, TokenKind tok, int dest);
+    void treduce(int state, TokenKind tok, Rule rule);
+    void tgoto(int state, NonTerm nt, int dest);
+
+  public:
+    Table();
+
+    bool accept(int state, TokenKind token);
+
+    int push(int state, TokenKind token);
+
+    Rule reduce(int state, TokenKind token);
+
+    int goto_(int state, Rule rule);
+
+    std::vector<TokenKind> &err_expect(int state);
+
+    Rule err_reduce(int state);
+};
+
 enum StackElemKind {
     StackElem_Token,
     StackElem_Rule,
@@ -104,15 +131,11 @@ struct StackElem {
     void print();
 };
 
-enum ParseErrKind {
-    ParseErr_Error,
-};
-
 struct ParseErr {
-    ParseErrKind kind;
-    Span span;
+    int state;
+    Token token;
 
-    void print(Src &src);
+    void print(Src &src, Table &table);
 };
 
 class Parser {
@@ -124,6 +147,6 @@ class Parser {
   public:
     std::vector<ParseErr> errors;
     static NonTerm get_nonterm(Rule rule);
-    void parse(std::vector<Token> &tokens);
+    void parse(std::vector<Token> &tokens, Table &table);
 };
 #endif

@@ -43,20 +43,27 @@ int main(int argc, const char **argv) {
         printf("\n");
     }
     printf("\n");
+    bool lex_errors = !lexer.errors.empty();
 
     for (LexErr err : lexer.errors) {
         err.print(src);
     }
     printf("\n");
 
+    if (lex_errors) {
+        return 1;
+    }
+
+    Table table;
     Parser parser;
-    parser.parse(lexer.tokens);
-    if (parser.errors.empty()) {
-        printf("parsed!\n");
-    } else {
+    parser.parse(lexer.tokens, table);
+    bool parse_errors = !parser.errors.empty();
+
+    if (parse_errors) {
         for (ParseErr err : parser.errors) {
-            err.print(src);
+            err.print(src, table);
         }
+        return 1;
     }
 
     if (src_file != stdin) {

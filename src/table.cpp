@@ -1,10 +1,55 @@
-#include "table.h"
 #include "lexer.h"
 #include "parser.h"
+#include <cassert>
 
-#define tpush(state, tok, dest) table_push[{state, tok}] = dest;
-#define tgoto(state, nt, dest) table_goto[{state, nt}] = dest;
-#define treduce(state, tok, dest) table_reduce[{state, tok}] = dest;
+/*#define tpush(state, tok, dest) table_push[{state, tok}] = dest;*/
+/*#define treduce(state, tok, dest) table_reduce[{state, tok}] = dest;*/
+/*#define tgoto(state, nt, dest) table_goto[{state, nt}] = dest;*/
+/*#define texpect(state, tokens) table_err_expect[state] = tokens;*/
+
+void Table::tpush(int state, TokenKind tok, int dest) {
+    table_push[{state, tok}] = dest;
+
+    auto find = table_err_expect.find(state);
+    if (find == table_err_expect.end()) {
+        table_err_expect[state] = {tok};
+    } else {
+        std::vector<TokenKind> &tokens = find->second;
+        tokens.push_back(tok);
+    }
+}
+
+void Table::treduce(int state, TokenKind tok, Rule rule) {
+    table_reduce[{state, tok}] = rule;
+
+    auto find = table_err_expect.find(state);
+    if (find == table_err_expect.end()) {
+        table_err_expect[state] = {tok};
+    } else {
+        std::vector<TokenKind> &tokens = find->second;
+        tokens.push_back(tok);
+    }
+    table_err_reduce[state] = rule;
+}
+
+void Table::tgoto(int state, NonTerm nt, int dest) {
+    table_goto[{state, nt}] = dest;
+}
+
+std::vector<TokenKind> &Table::err_expect(int state) {
+    auto find = table_err_expect.find(state);
+    assert(find != table_err_expect.end());
+    return find->second;
+}
+
+Rule Table::err_reduce(int state) {
+    auto find = table_err_reduce.find(state);
+    if (find == table_err_reduce.end()) {
+        return Rule_None;
+    } else {
+        return find->second;
+    }
+}
 
 Table::Table() {
     tpush(0, Tok_Var, 3);
@@ -12,9 +57,8 @@ Table::Table() {
     tgoto(0, NonTerm_VarBlock, 2);
 
     // 1, Tok_Eof = Accept
-    
+
     tpush(2, Tok_Main, 4);
-    // gambiarra
     tgoto(2, NonTerm_MainBlock, 1);
 
     tpush(3, Tok_Ident, 7);
@@ -162,7 +206,7 @@ Table::Table() {
     treduce(31, Tok_Out, Rule_Stmt_InId);
     treduce(31, Tok_Pool, Rule_Stmt_InId);
     treduce(31, Tok_Stop, Rule_Stmt_InId);
-    
+
     tpush(32, Tok_Period, 40);
 
     treduce(33, Tok_ParClose, Rule_Expr_Val);
@@ -245,7 +289,7 @@ Table::Table() {
 
     tpush(44, Tok_Fi, 47);
     tpush(44, Tok_Or, 48);
-    
+
     treduce(45, Tok_ParClose, Rule_Expr_ValOpExpr);
     treduce(45, Tok_Period, Rule_Expr_ValOpExpr);
 
@@ -264,7 +308,7 @@ Table::Table() {
     treduce(47, Tok_Out, Rule_Stmt_If);
     treduce(47, Tok_Pool, Rule_Stmt_If);
     treduce(47, Tok_Stop, Rule_Stmt_If);
-    
+
     tpush(48, Tok_Die, 11);
     tpush(48, Tok_Ident, 14);
     tpush(48, Tok_If, 15);
@@ -276,7 +320,7 @@ Table::Table() {
     tgoto(48, NonTerm_Stmt, 9);
 
     tpush(49, Tok_Fi, 50);
-    
+
     treduce(50, Tok_Die, Rule_Stmt_IfOr);
     treduce(50, Tok_Fi, Rule_Stmt_IfOr);
     treduce(50, Tok_Ident, Rule_Stmt_IfOr);
