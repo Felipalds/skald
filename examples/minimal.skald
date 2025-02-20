@@ -4,5 +4,4 @@ rav
 
 main
     out a.
-    a <- 1 + 2 > 3.
 niam

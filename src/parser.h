@@ -145,6 +145,8 @@ class Parser {
     int state();
     void pop_reduce(Rule rule);
 
+    void stack_print(int curr_state, TokenKind tok);
+
   public:
     std::vector<ParseErr> errors;
     static NonTerm get_nonterm(Rule rule);

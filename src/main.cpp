@@ -51,7 +51,6 @@ int main(int argc, const char **argv) {
             printf("\n");
         }
         printf("\n");
-
         return 1;
     }
 
@@ -65,15 +64,15 @@ int main(int argc, const char **argv) {
         bool first = true;
         for (ParseErr err : parser.errors) {
             // deduplicação de erros com mesmo span
-            if (first) {
-                first = false;
-                prev_span = err.token.span;
-            } else if (prev_span.line == err.token.span.line &&
-                       prev_span.first == err.token.span.first) {
+            if (!first && prev_span.line == err.token.span.line &&
+                prev_span.first == err.token.span.first) {
                 continue;
             }
+            first = false;
+            prev_span = err.token.span;
             err.print(src, table);
         }
+        printf("\n");
         return 1;
     }
 

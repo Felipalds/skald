@@ -58,23 +58,12 @@ NonTerm Parser::get_nonterm(Rule rule) {
 
 void Parser::pop_reduce(Rule rule) {
     int rule_len = RULE_LEN[rule];
-    /*printf("len is %d\n", rule_len);*/
     /* análise semantica e geração de código */
-
     for (int i = 0; i < 2 * rule_len; i++) {
         stack.pop_back();
     }
 }
 
-void stack_print(int curr_state, TokenKind tok, std::vector<StackElem> &stack) {
-    printf("(%d ", curr_state);
-    TokenKind_print(tok);
-    printf(")\t: ");
-    for (StackElem elem : stack) {
-        elem.print();
-    }
-    printf("\n\n");
-}
 void Parser::parse(std::vector<Token> &tokens, Table &table) {
     size_t ip = 0;
     stack.push_back({0});
@@ -83,7 +72,7 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
         int curr_state = state();
         Token token = tokens[ip];
 
-        stack_print(curr_state, token.kind, stack);
+        stack_print(curr_state, token.kind);
 
         int push_state = table.push(curr_state, token.kind);
         if (push_state != -1) {

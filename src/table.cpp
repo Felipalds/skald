@@ -2,11 +2,6 @@
 #include "parser.h"
 #include <cassert>
 
-/*#define tpush(state, tok, dest) table_push[{state, tok}] = dest;*/
-/*#define treduce(state, tok, dest) table_reduce[{state, tok}] = dest;*/
-/*#define tgoto(state, nt, dest) table_goto[{state, nt}] = dest;*/
-/*#define texpect(state, tokens) table_err_expect[state] = tokens;*/
-
 void Table::tpush(int state, TokenKind tok, int dest) {
     table_push[{state, tok}] = dest;
 
@@ -129,9 +124,8 @@ Table::Table() {
     treduce(18, Tok_Rav, Rule_Decls_DeclDecls);
 
     tpush(19, Tok_Period, 29);
+    // erro customizado? reduzir 2 e continuar para outro estado?
 
-    // gambiarra
-    /*treduce(20, Tok_Eof, Rule_Skald);*/
     treduce(20, Tok_Eof, Rule_MainBlock);
 
     treduce(21, Tok_Fi, Rule_Stmts_StmtStmts);

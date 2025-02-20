@@ -5,8 +5,6 @@
 
 void Src::print() {
     size_t line = 1;
-    /*printf("  1 | ");*/
-
     bool newline = true;
     for (size_t i = 0; i < bytes.size(); i++) {
         if (newline) {
@@ -129,6 +127,7 @@ void Token::print(Src src) {
     term_goto_column(11);
     printf(" | ");
     src.print_span(span);
+    printf("\n");
 }
 
 void rule_print(Rule rule) {
@@ -275,6 +274,18 @@ void ParseErr::print(Src &src, Table &table) {
     term_goto_column(token.span.first - line_span.first + 1 + 5);
     for (size_t i = token.span.first; i <= token.span.second; i++) {
         printf("^");
+    }
+    printf("\n");
+}
+
+void Parser::stack_print(int curr_state, TokenKind tok) {
+    printf("(%d ", curr_state);
+    TokenKind_print(tok);
+    printf(")");
+    term_goto_column(13);
+    printf(": ");
+    for (StackElem elem : stack) {
+        elem.print();
     }
     printf("\n");
 }
