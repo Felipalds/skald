@@ -64,6 +64,13 @@ void Parser::pop_reduce(Rule rule) {
     }
 }
 
+void Parser::err_reduce(Rule rule) {
+    int rule_len = RULE_LEN[rule] - 1;
+    for (int i = 0; i < 2 * rule_len; i++) {
+        stack.pop_back();
+    }
+}
+
 void Parser::parse(std::vector<Token> &tokens, Table &table) {
     size_t ip = 0;
     stack.push_back({0});
@@ -101,9 +108,14 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
         errors.push_back({state(), tokens[prev_token], tokens[ip]});
 
         // tenta reduzir para detectar mais erros
-        Rule err_reduce = table.err_reduce(state());
-        if (err_reduce != Rule_None) {
-            pop_reduce(err_reduce);
+        Rule rule_err_reduce = table.err_reduce(state());
+        if (rule_err_reduce != Rule_None) {
+            err_reduce(rule_err_reduce);
+            int goto_ = table.goto_(state(), rule_err_reduce);
+            printf("no goto for %d %d\n", state(), rule_err_reduce);
+            assert(goto_ > 0);
+            stack.push_back({rule});
+            stack.push_back({goto_});
             continue;
         }
 

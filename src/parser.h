@@ -81,6 +81,7 @@ class Table {
     void tpush(int state, TokenKind tok, int dest);
     void treduce(int state, TokenKind tok, Rule rule);
     void tgoto(int state, NonTerm nt, int dest);
+    void terr(int state, Rule rule);
 
   public:
     Table();
@@ -144,6 +145,7 @@ class Parser {
 
     int state();
     void pop_reduce(Rule rule);
+    void err_reduce(Rule rule);
 
     void stack_print(int curr_state, TokenKind tok);
 

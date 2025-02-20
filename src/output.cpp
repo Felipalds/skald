@@ -19,6 +19,7 @@ void Src::print() {
 void Src::print_span(Span span) {
     if (span.first >= bytes.size() || span.second >= bytes.size()) {
         printf("[span OOB]");
+        return;
     }
     for (size_t i = span.first; i <= span.second; i++) {
         printf("%c", bytes[i]);
@@ -245,7 +246,6 @@ void StackElem::print() {
 }
 
 void ParseErr::print(Src &src, Table &table) {
-
     printf("line %zu [%zu %zu] - ", token.span.line + 1, token.span.first,
            token.span.second);
 

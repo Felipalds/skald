@@ -1,0 +1,14 @@
+var
+    a int.
+    b int.
+    c int.
+rav
+
+main
+    in a
+    b <- 2,0
+    c <- (a + b) * 2,0
+    out a
+    out b
+    out c
+niam
