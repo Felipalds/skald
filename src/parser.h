@@ -104,21 +104,25 @@ struct StackElem {
     void print();
 };
 
-enum ParseErrKind {};
+enum ParseErrKind {
+    ParseErr_Error,
+};
 
 struct ParseErr {
     ParseErrKind kind;
     Span span;
+
+    void print(Src &src);
 };
 
 class Parser {
     std::vector<StackElem> stack;
-    std::vector<ParseErr> errors;
 
     int state();
     void pop_reduce(Rule rule);
 
   public:
+    std::vector<ParseErr> errors;
     static NonTerm get_nonterm(Rule rule);
     void parse(std::vector<Token> &tokens);
 };

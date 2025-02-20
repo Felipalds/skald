@@ -205,7 +205,7 @@ void rule_print(Rule rule) {
     }
 }
 
-void LexErr::print(Src src) {
+void LexErr::print(Src &src) {
     printf("line %zu [%zu %zu]: ", span.line + 1, span.first, span.second);
     switch (kind) {
     case LexErr_BadChar:
@@ -243,4 +243,17 @@ void StackElem::print() {
         break;
     }
     printf(" ");
+}
+
+void ParseErr::print(Src &src) {
+    printf("(error: )");
+    printf("\n");
+    Span line_span = src.line_span(span.line);
+    src.print_span(line_span);
+
+    term_goto_column(span.first - line_span.first + 1);
+    for (size_t i = span.first; i <= span.second; i++) {
+        printf("^");
+    }
+    printf("\n");
 }

@@ -88,7 +88,7 @@ struct LexErr {
     }
 
     // implementado em output.cpp
-    void print(Src src);
+    void print(Src &src);
 };
 
 struct Lexer {

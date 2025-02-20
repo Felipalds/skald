@@ -77,8 +77,8 @@ void Parser::parse(std::vector<Token> &tokens) {
         int curr_state = state();
         Token token = tokens[ip];
 
-        /*printf("(%d ", curr_state);*/
-        /*TokenKind_print(token.kind);*/
+        printf("(%d ", curr_state);
+        TokenKind_print(token.kind);
         printf(")\t: ");
         for (StackElem elem : stack) {
             elem.print();
@@ -110,8 +110,10 @@ void Parser::parse(std::vector<Token> &tokens) {
             /*printf("accept\n");*/
             return;
         }
+
         /* lidar com erros */
-        /*printf("PARSE ERROR\n");*/
+        errors.push_back({ParseErr_Error, token.span});
+
         return;
     }
 }

@@ -2,6 +2,8 @@ var
     a int.
     b real.
     counter int.
+    cond int.
+    msg str.
 rav
 
 $ este comentário será desconsiderado!
@@ -10,23 +12,36 @@ main
     b <- 1,55.
 
     in counter.
-    if counter < 0 do
-        out "Erro mortal \n".
+    cont <- counter < 0.
+    if cond do
+        msg <- "Erro mortal \n".
+        out msg.
         die.
     fi
 
-    loop counter > 0 do
-        out "fibonacci ".
-        out "\n"
+    loop
+        cond <- counter <= 0.
+        if cond do
+            stop.
+        fi
+
+        msg <- "fibonacci ".
+        out msg.
+        out c.
+        msg <- "\n".
+        out msg.
 
         c <- a + b.
         counter <- counter - 1.
 
-        if counter = 1 do
-            out "Acabando \n".
+        cond <- counter = 1.
+        if cond do
+            msg <- "Acabando \n".
+            out msg.
             stop.
         or
-            out "Não acabando \n".
+            msg <- "Não acabando \n".
+            out msg.
         fi
     pool
 niam

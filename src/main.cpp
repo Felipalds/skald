@@ -51,7 +51,13 @@ int main(int argc, const char **argv) {
 
     Parser parser;
     parser.parse(lexer.tokens);
-    printf("parsed!\n");
+    if (parser.errors.empty()) {
+        printf("parsed!\n");
+    } else {
+        for (ParseErr err : parser.errors) {
+            err.print(src);
+        }
+    }
 
     if (src_file != stdin) {
         fclose(src_file);
