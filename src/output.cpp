@@ -127,7 +127,6 @@ void Token::print(Src src) {
     term_goto_column(11);
     printf(" | ");
     src.print_span(span);
-    printf("\n");
 }
 
 void rule_print(Rule rule) {
