@@ -159,6 +159,7 @@ Lexer::Lexer(Src &src) {
         case State_Comment:
             // newline termina comentario
             if (ch == '\n') {
+                span.line++;
                 state = State_Start;
             }
             break;
