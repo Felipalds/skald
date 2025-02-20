@@ -19,8 +19,8 @@ void Src::print() {
 }
 
 void Src::print_span(Span span) {
-    if (span.line + 1 > lines.size()) {
-        return;
+    if (span.first >= bytes.size() || span.second >= bytes.size()) {
+        printf("[span OOB]");
     }
     for (size_t i = span.first; i <= span.second; i++) {
         printf("%c", bytes[i]);
@@ -222,13 +222,13 @@ void LexErr::print(Src &src) {
 
     Span line_span = src.line_span(span.line);
     src.print_span(line_span);
+    printf("\n");
 
     term_goto_column(span.first - line_span.first + 1);
     for (size_t i = span.first; i <= span.second; i++) {
         printf("^");
     }
     printf("\n");
-    printf("went to column %zu\n", span.first - line_span.first + 1);
 }
 
 void StackElem::print() {
@@ -247,23 +247,34 @@ void StackElem::print() {
 }
 
 void ParseErr::print(Src &src, Table &table) {
-    Span line_span = src.line_span(token.span.line);
-    src.print_span(line_span);
 
-    term_goto_column(token.span.first - line_span.first + 1);
-    for (size_t i = token.span.first; i <= token.span.second; i++) {
-        printf("^");
-    }
-    printf("\n");
-
-    printf("(line %zu [%zu %zu]) Got: ", token.span.line + 1, token.span.first,
+    printf("line %zu [%zu %zu] - ", token.span.line + 1, token.span.first,
            token.span.second);
+
+    printf("Got: ");
     TokenKind_print(token.kind);
-    printf("\tExpected: ");
+    printf(", expected: ");
     std::vector<TokenKind> &expected = table.err_expect(state);
     for (TokenKind tok : expected) {
         TokenKind_print(tok);
         printf(", ");
     }
-    printf("\n\n");
+    printf("\n");
+
+    if (got_token.span.line != token.span.line) {
+        printf("%2zu | ", got_token.span.line + 1);
+        Span line_span = src.line_span(got_token.span.line);
+        src.print_span(line_span);
+        printf("\n");
+    }
+    printf("%2zu | ", token.span.line + 1);
+    Span line_span = src.line_span(token.span.line);
+    src.print_span(line_span);
+    printf("\n");
+
+    term_goto_column(token.span.first - line_span.first + 1 + 5);
+    for (size_t i = token.span.first; i <= token.span.second; i++) {
+        printf("^");
+    }
+    printf("\n");
 }

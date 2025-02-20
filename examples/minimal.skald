@@ -3,5 +3,6 @@ var
 rav
 
 main
-    out a:
+    out a.
+    a <- 1 + 2
 niam

@@ -66,6 +66,15 @@ void Parser::pop_reduce(Rule rule) {
     }
 }
 
+void stack_print(int curr_state, TokenKind tok, std::vector<StackElem> &stack) {
+    printf("(%d ", curr_state);
+    TokenKind_print(tok);
+    printf(")\t: ");
+    for (StackElem elem : stack) {
+        elem.print();
+    }
+    printf("\n\n");
+}
 void Parser::parse(std::vector<Token> &tokens, Table &table) {
     size_t ip = 0;
     stack.push_back({0});
@@ -74,42 +83,33 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
         int curr_state = state();
         Token token = tokens[ip];
 
-        /*printf("(%d ", curr_state);*/
-        /*TokenKind_print(token.kind);*/
-        /*printf(")\t: ");*/
-        /*for (StackElem elem : stack) {*/
-        /*    elem.print();*/
-        /*}*/
-        /*printf("\n\n");*/
+        stack_print(curr_state, token.kind, stack);
 
         int push_state = table.push(curr_state, token.kind);
         if (push_state != -1) {
             stack.push_back({token});
             stack.push_back({push_state});
             ip++;
-            /*printf("push\n");*/
             continue;
         }
 
         Rule rule = table.reduce(curr_state, token.kind);
         if (rule != Rule_None) {
             pop_reduce(rule);
-            /*printf("reduced, state is now %d\n", state());*/
             int goto_ = table.goto_(state(), rule);
             assert(goto_ > 0);
             stack.push_back({rule});
             stack.push_back({goto_});
-            /*printf("goto %d\n", goto_);*/
             continue;
         }
 
         if (table.accept(state(), token.kind)) {
-            /*printf("accept\n");*/
             return;
         }
 
         // armazena erro, tabela estava vazia
-        errors.push_back({state(), token});
+        size_t prev_token = ip == 0 ? ip : ip - 1;
+        errors.push_back({state(), tokens[prev_token], tokens[ip]});
 
         // tenta reduzir para detectar mais erros
         Rule err_reduce = table.err_reduce(state());
@@ -119,7 +119,6 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
         }
 
         // senão, somente desiste
-
         return;
     }
 }

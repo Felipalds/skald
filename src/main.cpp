@@ -47,6 +47,7 @@ int main(int argc, const char **argv) {
 
     for (LexErr err : lexer.errors) {
         err.print(src);
+        printf("\n");
     }
     printf("\n");
 
@@ -60,7 +61,17 @@ int main(int argc, const char **argv) {
     bool parse_errors = !parser.errors.empty();
 
     if (parse_errors) {
+        Span prev_span;
+        bool first = true;
         for (ParseErr err : parser.errors) {
+            // deduplicação de erros com mesmo span
+            if (first) {
+                first = false;
+                prev_span = err.token.span;
+            } else if (prev_span.line == err.token.span.line &&
+                       prev_span.first == err.token.span.first) {
+                continue;
+            }
             err.print(src, table);
         }
         return 1;

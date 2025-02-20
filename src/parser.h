@@ -133,6 +133,7 @@ struct StackElem {
 
 struct ParseErr {
     int state;
+    Token got_token;
     Token token;
 
     void print(Src &src, Table &table);
