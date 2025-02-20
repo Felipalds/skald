@@ -45,13 +45,13 @@ int main(int argc, const char **argv) {
     printf("\n");
     bool lex_errors = !lexer.errors.empty();
 
-    for (LexErr err : lexer.errors) {
-        err.print(src);
-        printf("\n");
-    }
-    printf("\n");
-
     if (lex_errors) {
+        for (LexErr err : lexer.errors) {
+            err.print(src);
+            printf("\n");
+        }
+        printf("\n");
+
         return 1;
     }
 
