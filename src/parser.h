@@ -7,15 +7,15 @@
 
 // clang-format off
 enum NonTerm {
-    NonTerm_Skald       = 1 << 0,
-    NonTerm_VarBlock    = 1 << 1,
-    NonTerm_MainBlock   = 1 << 2,
-    NonTerm_Decls       = 1 << 3,
-    NonTerm_Decl        = 1 << 4,
-    NonTerm_Stmts       = 1 << 5,
-    NonTerm_Stmt        = 1 << 6,
-    NonTerm_Expr        = 1 << 7,
-    NonTerm_Val         = 1 << 8,
+    NonTerm_Skald       = 0,
+    NonTerm_VarBlock    = 1,
+    NonTerm_MainBlock   = 2,
+    NonTerm_Decls       = 3,
+    NonTerm_Decl        = 4,
+    NonTerm_Stmts       = 5,
+    NonTerm_Stmt        = 6,
+    NonTerm_Expr        = 7,
+    NonTerm_Val         = 8,
     NonTerm_None        = -1,
 };
 enum Rule {
