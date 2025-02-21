@@ -102,19 +102,15 @@ class Table {
 enum StackElemKind {
     StackElem_Token,
     StackElem_Rule,
-    StackElem_State,
 };
 
 union StackElemData {
     Token token;
     Rule rule;
-    int state;
 
     StackElemData(Token _token) : token(_token) {
     }
     StackElemData(Rule _rule) : rule(_rule) {
-    }
-    StackElemData(int _state) : state(_state) {
     }
 };
 
@@ -126,9 +122,6 @@ struct StackElem {
     }
     StackElem(Rule rule) : kind(StackElem_Rule), data(rule) {
     }
-    StackElem(int state) : kind(StackElem_State), data(state) {
-    }
-
     void print();
 };
 
@@ -141,6 +134,7 @@ struct ParseErr {
 };
 
 class Parser {
+    std::vector<int> state_stack;
     std::vector<StackElem> stack;
 
     int state();
