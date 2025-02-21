@@ -82,9 +82,7 @@ Table::Table() {
     tgoto(6, NonTerm_Decls, 18);
     tgoto(6, NonTerm_Decl, 6);
 
-    tpush(7, Tok_Str, 19);
-    tpush(7, Tok_Int, 19);
-    tpush(7, Tok_Real, 19);
+    tpush(7, Tok_Type, 19);
 
     tpush(8, Tok_Niam, 20);
     terr(8, Rule_MainBlock);
@@ -176,9 +174,7 @@ Table::Table() {
     tpush(26, Tok_Not, 35);
     tpush(26, Tok_ParOpen, 34);
     tpush(26, Tok_Ident, 37);
-    tpush(26, Tok_LitInt, 36);
-    tpush(26, Tok_LitStr, 36);
-    tpush(26, Tok_LitReal, 36);
+    tpush(26, Tok_Lit, 36);
     tgoto(26, NonTerm_Expr, 32);
     tgoto(26, NonTerm_Val, 33);
 
@@ -224,9 +220,7 @@ Table::Table() {
     tpush(34, Tok_Not, 35);
     tpush(34, Tok_ParOpen, 34);
     tpush(34, Tok_Ident, 37);
-    tpush(34, Tok_LitInt, 36);
-    tpush(34, Tok_LitStr, 36);
-    tpush(34, Tok_LitReal, 36);
+    tpush(34, Tok_Lit, 36);
     tgoto(34, NonTerm_Expr, 42);
     tgoto(34, NonTerm_Val, 33);
     terr(34, Rule_Expr_Val);
@@ -234,9 +228,7 @@ Table::Table() {
     tpush(35, Tok_Not, 35);
     tpush(35, Tok_ParOpen, 34);
     tpush(35, Tok_Ident, 37);
-    tpush(35, Tok_LitInt, 36);
-    tpush(35, Tok_LitStr, 36);
-    tpush(35, Tok_LitReal, 36);
+    tpush(35, Tok_Lit, 36);
     tgoto(35, NonTerm_Val, 43);
     terr(35, Rule_Val_NotVal);
 
@@ -285,9 +277,7 @@ Table::Table() {
     tpush(41, Tok_Not, 35);
     tpush(41, Tok_ParOpen, 34);
     tpush(41, Tok_Ident, 37);
-    tpush(41, Tok_LitInt, 36);
-    tpush(41, Tok_LitStr, 36);
-    tpush(41, Tok_LitReal, 36);
+    tpush(41, Tok_Lit, 36);
     tgoto(41, NonTerm_Expr, 45);
     tgoto(41, NonTerm_Val, 33);
     terr(41, Rule_Expr_Val);

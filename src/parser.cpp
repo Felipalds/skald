@@ -79,7 +79,9 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
         int curr_state = state();
         Token token = tokens[ip];
 
+#ifdef DEBUG
         stack_print(curr_state, token.kind);
+#endif
 
         int push_state = table.push(curr_state, token.kind);
         if (push_state != -1) {
@@ -112,7 +114,6 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
         if (rule_err_reduce != Rule_None) {
             err_reduce(rule_err_reduce);
             int goto_ = table.goto_(state(), rule_err_reduce);
-            printf("no goto for %d %d\n", state(), rule_err_reduce);
             assert(goto_ > 0);
             stack.push_back({rule});
             stack.push_back({goto_});

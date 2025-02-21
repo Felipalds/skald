@@ -35,6 +35,7 @@ int main(int argc, const char **argv) {
     Src src(src_file);
     Lexer lexer(src);
 
+#ifdef DEBUG
     src.print();
     printf("\n\n");
 
@@ -43,8 +44,9 @@ int main(int argc, const char **argv) {
         printf("\n");
     }
     printf("\n");
-    bool lex_errors = !lexer.errors.empty();
+#endif
 
+    bool lex_errors = !lexer.errors.empty();
     if (lex_errors) {
         for (LexErr err : lexer.errors) {
             err.print(src);
@@ -57,8 +59,9 @@ int main(int argc, const char **argv) {
     Table table;
     Parser parser;
     parser.parse(lexer.tokens, table);
-    bool parse_errors = !parser.errors.empty();
+    printf("\n");
 
+    bool parse_errors = !parser.errors.empty();
     if (parse_errors) {
         Span prev_span;
         bool first = true;

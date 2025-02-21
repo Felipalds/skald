@@ -16,18 +16,34 @@ void Lexer::add_ident_or_kw(std::string &tmp, Span span) {
     struct {
         const char *word;
         TokenKind kind;
+        TokenData data;
     } table[] = {
-        {"var", Tok_Var},   {"rav", Tok_Rav},   {"main", Tok_Main},
-        {"niam", Tok_Niam}, {"loop", Tok_Loop}, {"pool", Tok_Pool},
-        {"if", Tok_If},     {"or", Tok_Or},     {"fi", Tok_Fi},
-        {"do", Tok_Do},     {"in", Tok_In},     {"out", Tok_Out},
-        {"stop", Tok_Stop}, {"die", Tok_Die},   {"int", Tok_Int},
-        {"real", Tok_Real}, {"str", Tok_Str},
+        {"var", Tok_Var, TokData_None},
+        {"rav", Tok_Rav, TokData_None},
+        {"main", Tok_Main, TokData_None},
+
+        {"niam", Tok_Niam, TokData_None},
+        {"loop", Tok_Loop, TokData_None},
+        {"pool", Tok_Pool, TokData_None},
+
+        {"if", Tok_If, TokData_None},
+        {"or", Tok_Or, TokData_None},
+        {"fi", Tok_Fi, TokData_None},
+
+        {"do", Tok_Do, TokData_None},
+        {"in", Tok_In, TokData_None},
+        {"out", Tok_Out, TokData_None},
+        {"stop", Tok_Stop, TokData_None},
+        {"die", Tok_Die, TokData_None},
+        {"int", Tok_Type, TokData_Type_Int},
+        {"real", Tok_Type, TokData_Type_Real},
+        {"str", Tok_Type, TokData_Type_Str},
+
     };
 
     for (size_t i = 0; i < sizeof(table) / sizeof(*table); i++) {
         if (tmp == table[i].word) {
-            tokens.push_back(Token(table[i].kind, span));
+            tokens.push_back(Token(table[i].kind, table[i].data, span));
             return;
         }
     }
@@ -38,22 +54,32 @@ void Lexer::add_op_or_symbol(std::string &tmp, Span span) {
     struct {
         const char *sym;
         TokenKind kind;
-        OperKind data;
+        TokenData data;
     } table[] = {
-        {"*", Tok_Oper, Op_Mul},     {"/", Tok_Oper, Op_Div},
-        {"%", Tok_Oper, Op_Mod},     {"^", Tok_Oper, Op_Pow},
+        {"*", Tok_Oper, TokData_Op_Mul},
+        {"/", Tok_Oper, TokData_Op_Div},
+        {"%", Tok_Oper, TokData_Op_Mod},
+        {"^", Tok_Oper, TokData_Op_Pow},
 
-        {"+", Tok_Oper, Op_Add},     {"-", Tok_Oper, Op_Sub},
+        {"+", Tok_Oper, TokData_Op_Add},
+        {"-", Tok_Oper, TokData_Op_Sub},
 
-        {"<", Tok_Oper, Op_Less},    {"<=", Tok_Oper, Op_LessEq},
-        {">", Tok_Oper, Op_Greater}, {">=", Tok_Oper, Op_GreaterEq},
-        {"=", Tok_Oper, Op_Eq},      {"!=", Tok_Oper, Op_Neq},
+        {"<", Tok_Oper, TokData_Op_Less},
+        {"<=", Tok_Oper, TokData_Op_LessEq},
+        {">", Tok_Oper, TokData_Op_Greater},
+        {">=", Tok_Oper, TokData_Op_GreaterEq},
+        {"=", Tok_Oper, TokData_Op_Eq},
+        {"!=", Tok_Oper, TokData_Op_Neq},
 
-        {"&", Tok_Oper, Op_None},    {"|", Tok_Oper, Op_None},
-        {"!", Tok_Not, Op_None},
+        {"&", Tok_Oper, TokData_Op_And},
+        {"|", Tok_Oper, TokData_Op_Or},
 
-        {"(", Tok_ParOpen, Op_None}, {")", Tok_ParClose, Op_None},
-        {"<-", Tok_Assign, Op_None}, {".", Tok_Period, Op_None},
+        {"!", Tok_Not, TokData_None},
+
+        {"(", Tok_ParOpen, TokData_None},
+        {")", Tok_ParClose, TokData_None},
+        {"<-", Tok_Assign, TokData_None},
+        {".", Tok_Period, TokData_None},
     };
 
     for (size_t i = 0; i < sizeof(table) / sizeof(*table); i++) {
@@ -67,16 +93,16 @@ void Lexer::add_op_or_symbol(std::string &tmp, Span span) {
 }
 
 void Lexer::add_int(Span span) {
-    Token token(Tok_LitInt, Op_None, span);
+    Token token(Tok_Lit, TokData_Type_Int, span);
     tokens.push_back(token);
 }
 void Lexer::add_float(Span span) {
-    Token token(Tok_LitInt, Op_None, span);
+    Token token(Tok_Lit, TokData_Type_Real, span);
     tokens.push_back(token);
 }
 
 void Lexer::add_string(Span span) {
-    Token token(Tok_LitStr, span);
+    Token token(Tok_Lit, TokData_Type_Str, span);
     tokens.push_back(token);
 }
 

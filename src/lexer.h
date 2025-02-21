@@ -21,9 +21,7 @@ enum TokenKind {
     Tok_Out,
     Tok_Stop,
     Tok_Die,
-    Tok_Int,
-    Tok_Real,
-    Tok_Str,
+    Tok_Type,
     Tok_Ident,
     Tok_Assign,
     Tok_Oper,
@@ -31,41 +29,45 @@ enum TokenKind {
     Tok_ParOpen,
     Tok_ParClose,
     Tok_Period,
-    Tok_LitStr,
-    Tok_LitReal,
-    Tok_LitInt,
+    Tok_Lit,
     Tok_Eof,
     Tok_None = -1,
 };
 
-enum OperKind {
-    Op_Add,
-    Op_Sub,
-    Op_Mul,
-    Op_Div,
-    Op_Mod,
-    Op_Pow,
-    Op_Less,
-    Op_LessEq,
-    Op_Greater,
-    Op_GreaterEq,
-    Op_Eq,
-    Op_Neq,
-    Op_None = -1,
+enum TokenData {
+    TokData_Op_Add,
+    TokData_Op_Sub,
+    TokData_Op_Mul,
+    TokData_Op_Div,
+    TokData_Op_Mod,
+    TokData_Op_Pow,
+    TokData_Op_Less,
+    TokData_Op_LessEq,
+    TokData_Op_Greater,
+    TokData_Op_GreaterEq,
+    TokData_Op_Eq,
+    TokData_Op_Neq,
+    TokData_Op_And,
+    TokData_Op_Or,
+    TokData_Type_Str,
+    TokData_Type_Real,
+    TokData_Type_Int,
+    TokData_None = -1,
 };
 
 void TokenKind_print(TokenKind kind);
 
 struct Token {
     TokenKind kind;
-    OperKind oper;
+    TokenData data;
     Span span;
 
-    Token(TokenKind kind, Span span) : kind(kind), span(span) {
+    Token(TokenKind kind, Span span)
+        : kind(kind), data(TokData_None), span(span) {
     }
 
-    Token(TokenKind kind, OperKind oper, Span span)
-        : kind(kind), oper(oper), span(span) {
+    Token(TokenKind kind, TokenData data, Span span)
+        : kind(kind), data(data), span(span) {
     }
 
     // implementado em output.cpp

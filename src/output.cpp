@@ -52,14 +52,8 @@ void TokenKind_print(TokenKind kind) {
     case Tok_Pool:
         printf("[pool]");
         break;
-    case Tok_Int:
-        printf("[int]");
-        break;
-    case Tok_Real:
-        printf("[real]");
-        break;
-    case Tok_Str:
-        printf("[str]");
+    case Tok_Type:
+        printf("[type]");
         break;
     case Tok_If:
         printf("[if]");
@@ -106,14 +100,8 @@ void TokenKind_print(TokenKind kind) {
     case Tok_Period:
         printf("[.]");
         break;
-    case Tok_LitStr:
-        printf("[str]");
-        break;
-    case Tok_LitReal:
-        printf("[real]");
-        break;
-    case Tok_LitInt:
-        printf("[int]");
+    case Tok_Lit:
+        printf("[lit]");
         break;
     case Tok_Eof:
         printf("[eof]");
