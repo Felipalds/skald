@@ -3,9 +3,8 @@
 #include <vector>
 
 int Parser::state() {
-    assert(stack.size() > 0);
-    assert(stack.back().kind == StackElem_State);
-    return stack.back().data.state;
+    assert(state_stack.size() > 0);
+    return state_stack.back();
 }
 
 NonTerm Parser::get_nonterm(Rule rule) {
@@ -59,21 +58,27 @@ NonTerm Parser::get_nonterm(Rule rule) {
 void Parser::pop_reduce(Rule rule) {
     int rule_len = RULE_LEN[rule];
     /* análise semantica e geração de código */
-    for (int i = 0; i < 2 * rule_len; i++) {
+    for (int i = 0; i < rule_len; i++) {
         stack.pop_back();
+    }
+    for (int i = 0; i < rule_len; i++) {
+        state_stack.pop_back();
     }
 }
 
 void Parser::err_reduce(Rule rule) {
     int rule_len = RULE_LEN[rule] - 1;
-    for (int i = 0; i < 2 * rule_len; i++) {
+    for (int i = 0; i < rule_len; i++) {
         stack.pop_back();
+    }
+    for (int i = 0; i < rule_len; i++) {
+        state_stack.pop_back();
     }
 }
 
 void Parser::parse(std::vector<Token> &tokens, Table &table) {
     size_t ip = 0;
-    stack.push_back({0});
+    state_stack.push_back({0});
 
     while (true) {
         int curr_state = state();
@@ -86,7 +91,7 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
         int push_state = table.push(curr_state, token.kind);
         if (push_state != -1) {
             stack.push_back({token});
-            stack.push_back({push_state});
+            state_stack.push_back(push_state);
             ip++;
             continue;
         }
@@ -97,7 +102,7 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
             int goto_ = table.goto_(state(), rule);
             assert(goto_ > 0);
             stack.push_back({rule});
-            stack.push_back({goto_});
+            state_stack.push_back(goto_);
             continue;
         }
 
@@ -116,7 +121,7 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
             int goto_ = table.goto_(state(), rule_err_reduce);
             assert(goto_ > 0);
             stack.push_back({rule});
-            stack.push_back({goto_});
+            state_stack.push_back(goto_);
             continue;
         }
 

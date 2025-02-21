@@ -226,9 +226,6 @@ void StackElem::print() {
     case StackElem_Rule:
         rule_print(data.rule);
         break;
-    case StackElem_State:
-        printf("[State %d]", data.state);
-        break;
     }
     printf(" ");
 }
@@ -271,8 +268,12 @@ void Parser::stack_print(int curr_state, TokenKind tok) {
     printf(")");
     term_goto_column(13);
     printf(": ");
-    for (StackElem elem : stack) {
-        elem.print();
+
+    for (size_t i = 0; i < state_stack.size(); i++) {
+        printf("%d ", state_stack[i]);
+        if (i < stack.size()) {
+            stack[i].print();
+        }
     }
     printf("\n");
 }
