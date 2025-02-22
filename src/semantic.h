@@ -10,6 +10,8 @@ struct Sem_Stmts;
 struct Sem_Stmt;
 struct Sem_Expr;
 struct Sem_Val;
+struct Sem_Decl;
+struct Sem_Decls;
 
 enum Sem_Oper {
     Sem_Op_Add,
@@ -66,7 +68,7 @@ struct Sem_Val {
 };
 
 // ==============================================================
-// Expr
+// Expr, esse eu n sei exato como armazenar
 // ==============================================================
 struct Sem_Expr {
     std::vector<Sem_Val> vals;
@@ -140,11 +142,19 @@ struct Sem_Stmts {
 // ==============================================================
 // Decl
 // ==============================================================
-struct Decl {
+struct Sem_Decl {
     Ident id;
     Sem_Type type;
 };
 
-struct Decls {
-    std::vector<Decl> decls;
+struct Sem_Decls {
+    std::vector<Sem_Decl> decls;
+};
+
+// ==============================================================
+// Raíz
+// ==============================================================
+struct Program {
+    Sem_Decls decls;
+    Sem_Stmts stmts;
 };
