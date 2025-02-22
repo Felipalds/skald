@@ -14,7 +14,6 @@
     - `.` termina declaração
     - `$` inicia comentário
     - sem chaves, usar `do`
-    - sem parênteses no condicional
 - OPERAÇÕES
     - atribuição `<-`, ex. `a <- 1`
     - aritmética `+`, `-`, `*`, `/`, `%`, `ˆ`
@@ -28,6 +27,8 @@ var
     b int.
     c int.
     counter int.
+    cond int.
+    msg str.
 rav
 
 main
@@ -35,26 +36,38 @@ main
     b <- 1.
 
     in counter.
-    if counter < 0 do
-        out "Erro mortal \n".
+    cond <- counter < 0.
+    if cond do
+        msg <- "Erro mortal \n".
+        out msg.
         die.
     fi
         
-    loop counter > 0 do
-        out "fibonacci ".
+    loop do
+        cond <- counter > 0.
+        if cond do
+            stop.
+        fi
+
+        msg <- "fibonacci ".
+        out msg.
         out a.
-        out "\n"
+        msg <- "\n".
+        out msg.
 
         c <- a + b.
         a <- b.
         b <- c.
         counter <- counter - 1.
         
-        if counter = 1 do
-            out "Acabando \n".
+        cond <- counter = 1.
+        if cond do
+            msg <- "Acabando \n".
+            out msg.
             stop.
         or
-            out "Não acabando \n".
+            msg <- "Não Acabando \n".
+            out msg.
         fi
     pool
 niam
