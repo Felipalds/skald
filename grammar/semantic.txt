@@ -1,0 +1,43 @@
+skald   -> varblk mainblk
+
+varblk  ->  var decls rav
+
+mainblk -> main stmts niam
+
+decl    -> id type period
+
+decls   -> decl                         (registra id.lexema) (id.tipo <- type)
+
+         | decl decls                   (registra id.lexema) (id.tipo <- type)
+
+stmts -> stmt
+
+       | stmt stmts
+
+stmt  -> stop period                    (stop.parent <- get_loop_pilha())
+
+       | die period
+
+       | if id do stmts fi              (registrado(id)) (id.tipo == int) (if.true <- stmts)
+
+       | if id do stmts1 or stmts2 fi   (registrado(id)) (id.tipo == int) (if.true <- stmts1) (if.false <- stmts2)
+
+       | loop stmts pool                (loop.body <- stmts)
+
+       | out id period                  (registrado(id))
+
+       | id assign expr period          (registrado(id)) (id.tipo == expr.tipo)
+
+       | in id period                   (registrado(id))
+
+expr  -> val                            (expr.tipo <- val.tipo)
+
+       | val op expr1                   (expr.tipo <- val.tipo) (op?)
+
+val   -> ( expr )                       (val.tipo <- expr.tipo)
+
+       | ! val1                         (val.tipo == int) (val1.tipo == int) (val.tipo == val1.tipo)
+
+       | lit                            (val.tipo == lit.tipo)
+
+       | id                             (registrado(id)) (val.tipo <- id.tipo)

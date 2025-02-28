@@ -1,9 +1,12 @@
 #include "input.h"
 #include "lexer.h"
+#include "parser.h"
 #include <cstdio>
 #include <cstring>
 
-void usage() { fprintf(stderr, "USAGE: skald /path/to/src.skald\n"); }
+void usage() {
+    fprintf(stderr, "USAGE: skald /path/to/src.skald\n");
+}
 
 void no_such_file(const char *exe, const char *path) {
     fprintf(stderr, "%s: cannot open '%s': No such file or directory\n", exe,
@@ -32,6 +35,7 @@ int main(int argc, const char **argv) {
     Src src(src_file);
     Lexer lexer(src);
 
+#ifdef DEBUG
     src.print();
     printf("\n\n");
 
@@ -40,11 +44,40 @@ int main(int argc, const char **argv) {
         printf("\n");
     }
     printf("\n");
+#endif
 
-    for (LexErr err : lexer.errors) {
-        err.print(src);
+    bool lex_errors = !lexer.errors.empty();
+    if (lex_errors) {
+        for (LexErr err : lexer.errors) {
+            err.print(src);
+            printf("\n");
+        }
+        printf("\n");
+        return 1;
     }
+
+    Table table;
+    Parser parser;
+    parser.parse(lexer.tokens, table);
     printf("\n");
+
+    bool parse_errors = !parser.errors.empty();
+    if (parse_errors) {
+        Span prev_span;
+        bool first = true;
+        for (ParseErr err : parser.errors) {
+            // deduplicação de erros com mesmo span
+            if (!first && prev_span.line == err.token.span.line &&
+                prev_span.first == err.token.span.first) {
+                continue;
+            }
+            first = false;
+            prev_span = err.token.span;
+            err.print(src, table);
+        }
+        printf("\n");
+        return 1;
+    }
 
     if (src_file != stdin) {
         fclose(src_file);

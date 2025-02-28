@@ -13,7 +13,9 @@
 
 ### `output`:
 - [x] exibir token
-- [ ] (bugado) reportar erro com highlight na a linha de origem
+- [x] (bugado) reportar erro com highlight na a linha de origem
+- [ ] (seria bonito) deduplicar erros na mesma linha
+- [ ] unificar aviso de erros em Src::report_errors
 
 ### `lexer`:
 - [x] definir formato `Token`
@@ -21,6 +23,7 @@
 - [x] implementar lexer
 - [x] separar Tok_OpArit em Tok_OpAdd (+, -), Tok_OpMul (\*, /, %)
 - [x] separar Tok_OpLogic em Tok_OpOr (|), Tok_OpAnd (&), Tok_OpNot(!)
+- [x] implementar TokenData como bitset? ex. real = Tok_Type | Type_Real
 
 ### `ast`:
 - [ ] implementar analisador sintatico

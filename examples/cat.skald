@@ -1,13 +1,16 @@
 var
     input str.
+    linebreak str.
 rav
 
 main
-    loop 1=1 do
-        if !(in input) do
+    linebreak <- "\n".
+    loop
+        in input.
+        if _IO_ERR do
             die.
         fi
         out input.
-        out "\n".
+        out linebreak.
     pool
 niam

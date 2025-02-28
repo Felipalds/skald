@@ -1,6 +1,7 @@
-.PHONY: main
+.PHONY: debug release
 
-main:
-	g++ -g -Wall -Wextra -o skald src/*.cpp
+debug:
+	g++ -D DEBUG -g -Wall -Wextra -Werror -o skald src/*.cpp
 
-
+release:
+	g++ -Wall -Wextra -O3 -o skald src/*.cpp
