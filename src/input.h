@@ -2,6 +2,7 @@
 #define input_h
 
 #include <cstdio>
+#include <string>
 #include <vector>
 
 struct Span {
@@ -18,6 +19,8 @@ struct Src {
     void print_span(Span span);
 
     Src(FILE *src_file);
+
+    std::string get_lexeme(Span span);
 
     Span line_span(size_t line);
 };

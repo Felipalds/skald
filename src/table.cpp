@@ -2,7 +2,7 @@
 #include "parser.h"
 #include <cassert>
 
-void Table::tpush(int state, TokenKind tok, int dest) {
+void ParseTable::tpush(int state, TokenKind tok, int dest) {
     table_push[{state, tok}] = dest;
 
     auto find = table_err_expect.find(state);
@@ -14,7 +14,7 @@ void Table::tpush(int state, TokenKind tok, int dest) {
     }
 }
 
-void Table::treduce(int state, TokenKind tok, Rule rule) {
+void ParseTable::treduce(int state, TokenKind tok, Rule rule) {
     table_reduce[{state, tok}] = rule;
 
     auto find = table_err_expect.find(state);
@@ -26,21 +26,21 @@ void Table::treduce(int state, TokenKind tok, Rule rule) {
     }
 }
 
-void Table::terr(int state, Rule rule) {
+void ParseTable::terr(int state, Rule rule) {
     table_err_reduce[state] = rule;
 }
 
-void Table::tgoto(int state, NonTerm nt, int dest) {
+void ParseTable::tgoto(int state, NonTerm nt, int dest) {
     table_goto[{state, nt}] = dest;
 }
 
-std::vector<TokenKind> &Table::err_expect(int state) {
+std::vector<TokenKind> &ParseTable::err_expect(int state) {
     auto find = table_err_expect.find(state);
     assert(find != table_err_expect.end());
     return find->second;
 }
 
-Rule Table::err_reduce(int state) {
+Rule ParseTable::err_reduce(int state) {
     auto find = table_err_reduce.find(state);
     if (find == table_err_reduce.end()) {
         return Rule_None;
@@ -49,7 +49,7 @@ Rule Table::err_reduce(int state) {
     }
 }
 
-Table::Table() {
+ParseTable::ParseTable() {
     tpush(0, Tok_Var, 3);
     tgoto(0, NonTerm_Skald, 1);
     tgoto(0, NonTerm_VarBlock, 2);
@@ -337,11 +337,11 @@ Table::Table() {
     treduce(50, Tok_Stop, Rule_Stmt_IfOr);
 }
 
-bool Table::accept(int state, TokenKind token) {
+bool ParseTable::accept(int state, TokenKind token) {
     return state == 1 && token == Tok_Eof;
 }
 
-int Table::push(int state, TokenKind token) {
+int ParseTable::push(int state, TokenKind token) {
     auto next_state = table_push.find({state, token});
     if (next_state == table_push.end()) {
         return -1;
@@ -350,7 +350,7 @@ int Table::push(int state, TokenKind token) {
     }
 }
 
-Rule Table::reduce(int state, TokenKind token) {
+Rule ParseTable::reduce(int state, TokenKind token) {
     auto rule = table_reduce.find({state, token});
     if (rule == table_reduce.end()) {
         return Rule_None;
@@ -359,7 +359,7 @@ Rule Table::reduce(int state, TokenKind token) {
     }
 }
 
-int Table::goto_(int state, Rule rule) {
+int ParseTable::goto_(int state, Rule rule) {
     NonTerm non_term = Parser::get_nonterm(rule);
     auto goto_state = table_goto.find({state, non_term});
     if (goto_state == table_goto.end()) {

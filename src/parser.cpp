@@ -57,26 +57,27 @@ NonTerm Parser::get_nonterm(Rule rule) {
 
 void Parser::pop_reduce(Rule rule) {
     int rule_len = RULE_LEN[rule];
-    /* análise semantica e geração de código */
-    for (int i = 0; i < rule_len; i++) {
-        stack.pop_back();
-    }
-    for (int i = 0; i < rule_len; i++) {
-        state_stack.pop_back();
-    }
+
+    StackElem elem = sem_table.apply_rule(rule, stack, src);
+
+    stack.erase(stack.end() - rule_len, stack.end());
+    state_stack.erase(state_stack.end() - rule_len, state_stack.end());
+
+    int goto_ = table.goto_(state(), rule);
+    assert(goto_ > 0);
+
+    stack.push_back(elem);
+    state_stack.push_back(goto_);
 }
 
 void Parser::err_reduce(Rule rule) {
     int rule_len = RULE_LEN[rule] - 1;
-    for (int i = 0; i < rule_len; i++) {
-        stack.pop_back();
-    }
-    for (int i = 0; i < rule_len; i++) {
-        state_stack.pop_back();
-    }
+
+    stack.erase(stack.end() - rule_len, stack.end());
+    state_stack.erase(state_stack.end() - rule_len, state_stack.end());
 }
 
-void Parser::parse(std::vector<Token> &tokens, Table &table) {
+void Parser::parse(std::vector<Token> &tokens) {
     size_t ip = 0;
     state_stack.push_back({0});
 
@@ -99,10 +100,6 @@ void Parser::parse(std::vector<Token> &tokens, Table &table) {
         Rule rule = table.reduce(curr_state, token.kind);
         if (rule != Rule_None) {
             pop_reduce(rule);
-            int goto_ = table.goto_(state(), rule);
-            assert(goto_ > 0);
-            stack.push_back({rule});
-            state_stack.push_back(goto_);
             continue;
         }
 

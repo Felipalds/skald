@@ -1,6 +1,7 @@
 var
     input str.
     linebreak str.
+    _IO_ERR int.
 rav
 
 main
@@ -8,7 +9,7 @@ main
     loop
         in input.
         if _IO_ERR do
-            die.
+            stop.
         fi
         out input.
         out linebreak.

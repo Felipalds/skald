@@ -230,7 +230,7 @@ void StackElem::print() {
     printf(" ");
 }
 
-void ParseErr::print(Src &src, Table &table) {
+void ParseErr::print(Src &src, ParseTable &table) {
     printf("line %zu [%zu %zu] - ", token.span.line + 1, token.span.first,
            token.span.second);
 

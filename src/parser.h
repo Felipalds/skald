@@ -1,5 +1,5 @@
-#ifndef parser_h
-#define parser_h
+#ifndef PARSER_H
+#define PARSER_H
 #include "lexer.h"
 #include <map>
 
@@ -71,7 +71,7 @@ const int RULE_LEN[22] = {
     1, // Rule_Val_Id
 };
 
-class Table {
+class ParseTable {
     std::map<std::pair<int, TokenKind>, int> table_push;
     std::map<std::pair<int, TokenKind>, Rule> table_reduce;
     std::map<std::pair<int, NonTerm>, int> table_goto;
@@ -84,7 +84,7 @@ class Table {
     void terr(int state, Rule rule);
 
   public:
-    Table();
+    ParseTable();
 
     bool accept(int state, TokenKind token);
 
@@ -97,6 +97,72 @@ class Table {
     std::vector<TokenKind> &err_expect(int state);
 
     Rule err_reduce(int state);
+};
+
+enum SemType {
+    SemType_Int,
+    SemType_Real,
+    SemType_Str,
+    SemType_Void,
+};
+typedef int SemAddr;
+typedef int SemLabel;
+#define ADDR_INVALID (-1)
+#define LABEL_PENDING (-1)
+
+enum SemStmtKind {
+    SemStmt_Line,
+    SemStmt_If,
+    SemStmt_IfOr,
+    SemStmt_Loop,
+};
+
+struct SemVar {
+    SemAddr addr;
+    SemType type;
+};
+
+class SemData {
+  public:
+    SemAddr addr;
+    SemType type;
+    SemStmtKind kind;
+    SemLabel br1, br2, br3;
+    std::string code;
+    std::vector<SemData> stmts1;
+    std::vector<SemData> stmts2;
+
+    SemData() {
+        addr = ADDR_INVALID;
+        type = SemType_Void;
+        kind = SemStmt_Line;
+        br1 = 0;
+        br2 = 0;
+        br3 = 0;
+        code = "";
+        stmts1 = {};
+        stmts2 = {};
+    }
+
+    SemData(const SemData &orig) {
+        addr = orig.addr;
+        type = orig.type;
+        kind = orig.kind;
+        br1 = orig.br1;
+        br2 = orig.br2;
+        br3 = orig.br3;
+        code = orig.code;
+        stmts1 = orig.stmts1;
+        stmts2 = orig.stmts2;
+    }
+
+    SemData &operator=(const SemData &orig) {
+        if (this != &orig) {
+            SemData out(orig);
+            *this = out;
+        }
+        return *this;
+    }
 };
 
 enum StackElemKind {
@@ -117,10 +183,14 @@ union StackElemData {
 struct StackElem {
     StackElemKind kind;
     StackElemData data;
+    SemData sem_data;
 
     StackElem(Token token) : kind(StackElem_Token), data(token) {
     }
     StackElem(Rule rule) : kind(StackElem_Rule), data(rule) {
+    }
+    StackElem(Rule rule, SemData sem_data)
+        : kind(StackElem_Rule), data(rule), sem_data(sem_data) {
     }
     void print();
 };
@@ -130,10 +200,45 @@ struct ParseErr {
     Token got_token;
     Token token;
 
-    void print(Src &src, Table &table);
+    void print(Src &src, ParseTable &table);
+};
+
+class SemTable {
+    int counter;
+    int label_counter;
+    std::map<std::string, SemVar> table;
+
+  public:
+    std::string code_final;
+
+    SemLabel new_label();
+    SemTable() : counter(0){};
+    SemAddr register_new(std::string id, SemType type);
+    SemVar get_var(std::string &id);
+    SemAddr new_tmp_var();
+    StackElem apply_rule(Rule rule, std::vector<StackElem> &stack, Src &src);
+    SemType type_from_tokdata(TokenData data);
+
+    std::string gen_assign_lit(SemAddr addr, SemType type, std::string &lexeme);
+    std::string gen_assign_notval(SemAddr dest, SemAddr src);
+    std::string gen_oper(SemAddr dest, SemAddr left, SemAddr right,
+                         TokenData op);
+    std::string gen_input(SemAddr dest, SemType type);
+    std::string gen_output(SemAddr src, SemType type);
+    std::string gen_assign_expr(SemAddr dest, SemAddr src);
+    std::string gen_loop(SemLabel entry, SemLabel exit,
+                         std::vector<SemData> &body);
+    std::string gen_if_or(SemLabel true_branch, SemLabel false_branch,
+                          SemLabel exit, std::vector<SemData> &body,
+                          std::vector<SemData> &body_false, SemAddr cond);
+    std::string gen_if(SemLabel true_branch, SemLabel exit,
+                       std::vector<SemData> &body, SemAddr cond);
+    std::string gen_stmts(std::vector<SemData> &body);
+    void gen_backpatch(std::vector<SemData> &stmts, SemLabel exit);
 };
 
 class Parser {
+    Src src;
     std::vector<int> state_stack;
     std::vector<StackElem> stack;
 
@@ -144,8 +249,11 @@ class Parser {
     void stack_print(int curr_state, TokenKind tok);
 
   public:
+    SemTable sem_table;
+    Parser(Src src) : src(src){};
+    ParseTable table;
     std::vector<ParseErr> errors;
     static NonTerm get_nonterm(Rule rule);
-    void parse(std::vector<Token> &tokens, Table &table);
+    void parse(std::vector<Token> &tokens);
 };
 #endif
