@@ -124,8 +124,9 @@ std::string SemTable::gen_if_or(SemLabel true_branch, SemLabel false_branch,
                                 std::vector<SemData> &body_false,
                                 SemAddr cond) {
     std::string code;
-    SemAddr cond_bool = new_tmp_var();
-    code += string_format("t%d: bool = t%d != 0\n", cond_bool, cond);
+    /*SemAddr cond_bool = new_tmp_var();*/
+    /*code += string_format("t%d: bool = t%d != 0\n", cond_bool, cond);*/
+    SemAddr cond_bool = cond;
     code += string_format("if t%d goto label%d \t\t\t# is true\n", cond_bool,
                           true_branch);
     code += string_format("goto label%d \t\t\t# is false\n", false_branch);
@@ -141,8 +142,9 @@ std::string SemTable::gen_if_or(SemLabel true_branch, SemLabel false_branch,
 std::string SemTable::gen_if(SemLabel true_branch, SemLabel exit,
                              std::vector<SemData> &body, SemAddr cond) {
     std::string code;
-    SemAddr cond_bool = new_tmp_var();
-    code += string_format("t%d: bool = t%d != 0\n", cond_bool, cond);
+    /*SemAddr cond_bool = new_tmp_var();*/
+    /*code += string_format("t%d: bool = t%d != 0\n", cond_bool, cond);*/
+    SemAddr cond_bool = cond;
     code += string_format("if t%d goto label%d \t\t\t# is true\n", cond_bool,
                           true_branch);
     code += string_format("goto label%d \t\t\t# is false\n", exit);

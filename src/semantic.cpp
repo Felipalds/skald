@@ -15,7 +15,8 @@ SemVar SemTable::get_var(std::string &id) {
     if (find == table.end()) {
         return {ADDR_INVALID, SemType_Int};
     }
-    return {find->second};
+    printf("var '%s' is valid, addr=%d\n", id.c_str(), find->second.addr);
+    return find->second;
 }
 
 SemAddr SemTable::new_tmp_var() {
@@ -193,7 +194,14 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.second = tok_fi.span.second;
 
         SemVar var = get_var(lexeme);
-        if (var.type != SemType_Int) {
+
+        if (var.addr == ADDR_INVALID) {
+            SemErr error = {
+                SemErr_UndefinedVar,
+                sem.span,
+            };
+            errors.push_back(error);
+        } else if (var.type != SemType_Int) {
             SemErr error = {
                 SemErr_IfTypeNotInt,
                 sem.span,
@@ -223,7 +231,13 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.second = tok_fi.span.second;
 
         SemVar var = get_var(lexeme);
-        if (var.type != SemType_Int) {
+        if (var.addr == ADDR_INVALID) {
+            SemErr error = {
+                SemErr_UndefinedVar,
+                sem.span,
+            };
+            errors.push_back(error);
+        } else if (var.type != SemType_Int) {
             SemErr error = {
                 SemErr_IfTypeNotInt,
                 sem.span,
@@ -261,10 +275,17 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         Token tok_period = stack[stack.size() - 1].data.token;
 
         std::string lexeme = src.get_lexeme(tok_id.span);
-        SemVar var = get_var(lexeme);
         sem.span.line = tok_out.span.line;
         sem.span.first = tok_out.span.first;
         sem.span.second = tok_period.span.second;
+        SemVar var = get_var(lexeme);
+        if (var.addr == ADDR_INVALID) {
+            SemErr error = {
+                SemErr_UndefinedVar,
+                sem.span,
+            };
+            errors.push_back(error);
+        }
         sem.code = gen_output(var.addr, var.type);
         break;
     }
@@ -280,7 +301,13 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
 
         std::string lexeme = src.get_lexeme(tok_dest.span);
         SemVar var = get_var(lexeme);
-        if (var.type != expr.type) {
+        if (var.addr == ADDR_INVALID) {
+            SemErr error = {
+                SemErr_UndefinedVar,
+                sem.span,
+            };
+            errors.push_back(error);
+        } else if (var.type != expr.type) {
             SemErr error = {
                 SemErr_AssignTypeMismatch,
                 sem.span,
@@ -296,12 +323,19 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         Token tok_in = stack[stack.size() - 3].data.token;
         Token tok_id = stack[stack.size() - 2].data.token;
         Token tok_period = stack[stack.size() - 1].data.token;
-        std::string lexeme = src.get_lexeme(tok_id.span);
-        SemVar var = get_var(lexeme);
-
         sem.span.line = tok_in.span.line;
         sem.span.first = tok_in.span.first;
         sem.span.second = tok_period.span.second;
+        std::string lexeme = src.get_lexeme(tok_id.span);
+        SemVar var = get_var(lexeme);
+        if (var.addr == ADDR_INVALID) {
+            SemErr error = {
+                SemErr_UndefinedVar,
+                sem.span,
+            };
+            errors.push_back(error);
+        }
+
         sem.code = gen_input(var.addr, var.type);
         break;
     }
