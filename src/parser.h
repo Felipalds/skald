@@ -281,8 +281,8 @@ class SemTable {
     std::string gen_if(SemLabel true_branch, SemLabel exit,
                        std::vector<SemData> &body, SemAddr cond);
     std::string gen_stmts(std::vector<SemData> &body);
-    std::string gen_expr(std::vector<StackElem> &stack);
-    void shunting_yard_pop(std::vector<TokenData> &op_stack,
+    std::string gen_expr(SemAddr addr, std::vector<StackElem> &stack);
+    void shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
                            std::vector<SemData> &stack, std::string &code);
     void gen_backpatch(std::vector<SemData> &stmts, SemLabel exit);
 };

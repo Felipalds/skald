@@ -240,14 +240,18 @@ int get_op_precedence(TokenData op) {
     }
 }
 
-void SemTable::shunting_yard_pop(std::vector<TokenData> &op_stack,
+void SemTable::shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
                                  std::vector<SemData> &stack,
                                  std::string &code) {
     TokenData op = op_stack.back();
     SemData left = stack[stack.size() - 2];
     SemData right = stack[stack.size() - 1];
     SemData dest;
-    dest.addr = new_tmp_var();
+    if (stack.size() == 2) {
+        dest.addr = addr;
+    } else {
+        dest.addr = new_tmp_var();
+    }
     code += left.code;
     code += right.code;
     code += gen_oper(dest.addr, left.addr, right.addr, op);
@@ -257,7 +261,7 @@ void SemTable::shunting_yard_pop(std::vector<TokenData> &op_stack,
 }
 
 // algoritmo shunting-yard
-std::string SemTable::gen_expr(std::vector<StackElem> &input) {
+std::string SemTable::gen_expr(SemAddr addr, std::vector<StackElem> &input) {
 
     std::vector<TokenData> op_stack;
     std::vector<SemData> stack;
@@ -276,12 +280,12 @@ std::string SemTable::gen_expr(std::vector<StackElem> &input) {
             if (top_precedence < cur_precedence) {
                 break;
             }
-            shunting_yard_pop(op_stack, stack, code);
+            shunting_yard_pop(addr, op_stack, stack, code);
         }
         op_stack.push_back(elem.data.token.data);
     }
     while (!op_stack.empty()) {
-        shunting_yard_pop(op_stack, stack, code);
+        shunting_yard_pop(addr, op_stack, stack, code);
     }
     return code;
 }

@@ -289,7 +289,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
             errors.push_back(error);
         }
 
-        sem.code = gen_expr(expr.stack);
+        sem.code = gen_expr(expr.addr, expr.stack);
         sem.code += gen_assign_expr(var.addr, expr.addr);
         break;
     }
@@ -349,7 +349,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.second = par_close.span.second;
         sem.addr = expr.addr;
         sem.type = expr.type;
-        sem.code = gen_expr(expr.stack);
+        sem.code = gen_expr(expr.addr, expr.stack);
         break;
     }
     case Rule_Val_NotVal: {
