@@ -238,6 +238,7 @@ enum SemErrKind {
     SemErr_DeclRedefineVar,
     SemErr_UndefinedVar,
     SemErr_StopOutsideLoop,
+    SemErr_ChainedComparisons,
 };
 
 struct SemErr {
@@ -265,6 +266,7 @@ class SemTable {
     SemType type_from_tokdata(TokenData data);
     SemOper oper_from_tokdata(TokenData data);
     bool oper_compatible(SemOper op, SemType type);
+    void comment_var_addr(SemAddr addr, std::string &id);
 
     std::string gen_assign_lit(SemAddr addr, SemType type, std::string &lexeme);
     std::string gen_assign_notval(SemAddr dest, SemAddr src);
@@ -281,7 +283,7 @@ class SemTable {
     std::string gen_if(SemLabel true_branch, SemLabel exit,
                        std::vector<SemData> &body, SemAddr cond);
     std::string gen_stmts(std::vector<SemData> &body);
-    std::string gen_expr(SemAddr addr, std::vector<StackElem> &stack);
+    std::string gen_expr(SemData expr);
     void shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
                            std::vector<SemData> &stack, std::string &code);
     void gen_backpatch(std::vector<SemData> &stmts, SemLabel exit);

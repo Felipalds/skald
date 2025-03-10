@@ -114,6 +114,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
     switch (rule) {
     case Rule_Skald:
     case Rule_VarBlock:
+
     case Rule_Decls_Decl:
     case Rule_Decls_DeclDecls:
         break;
@@ -130,6 +131,8 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.second = tok_period.span.second;
         SemAddr new_addr = register_new(id, type);
 
+        comment_var_addr(new_addr, id);
+
         if (new_addr == ADDR_INVALID) {
             SemErr error = {SemErr_DeclRedefineVar, sem.span};
             errors.push_back(error);
@@ -139,7 +142,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
     }
     case Rule_MainBlock: {
         SemData stmts = stack[stack.size() - 2].sem_data;
-        code_final = gen_stmts(stmts.stmts1);
+        code_final += gen_stmts(stmts.stmts1);
         break;
     }
     case Rule_Stmts_Stmt: {
@@ -198,13 +201,13 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         if (var.addr == ADDR_INVALID) {
             SemErr error = {
                 SemErr_UndefinedVar,
-                sem.span,
+                {tok_if.span.first, tok_id.span.second, tok_id.span.line},
             };
             errors.push_back(error);
         } else if (var.type != SemType_Int) {
             SemErr error = {
                 SemErr_IfTypeNotInt,
-                sem.span,
+                {tok_if.span.first, tok_id.span.second, tok_id.span.line},
             };
             errors.push_back(error);
         }
@@ -234,13 +237,13 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         if (var.addr == ADDR_INVALID) {
             SemErr error = {
                 SemErr_UndefinedVar,
-                sem.span,
+                {tok_if.span.first, tok_id.span.second, tok_id.span.line},
             };
             errors.push_back(error);
         } else if (var.type != SemType_Int) {
             SemErr error = {
                 SemErr_IfTypeNotInt,
-                sem.span,
+                {tok_if.span.first, tok_id.span.second, tok_id.span.line},
             };
             errors.push_back(error);
         }
@@ -315,7 +318,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
             errors.push_back(error);
         }
 
-        sem.code = gen_expr(expr.addr, expr.stack);
+        sem.code = gen_expr(expr);
         sem.code += gen_assign_expr(var.addr, expr.addr);
         break;
     }
@@ -382,7 +385,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.second = par_close.span.second;
         sem.addr = expr.addr;
         sem.type = expr.type;
-        sem.code = gen_expr(expr.addr, expr.stack);
+        sem.code = gen_expr(expr);
         break;
     }
     case Rule_Val_NotVal: {

@@ -22,6 +22,10 @@ std::string string_format(const char *format, Args... args) {
 // The code snippet above is licensed under CC0 1.0.
 // Modificado.
 
+void SemTable::comment_var_addr(SemAddr addr, std::string &id) {
+    code_final += string_format("# t%d : %s\n", addr, id.c_str());
+}
+
 std::string SemTable::gen_assign_lit(SemAddr addr, SemType type,
                                      std::string &lexeme) {
     switch (type) {
@@ -215,28 +219,34 @@ std::string SemTable::gen_loop(SemLabel entry, SemLabel exit,
     return code;
 }
 
+#define OP_PRECEDENCE_OR 1
+#define OP_PRECEDENCE_AND 2
+#define OP_PRECEDENCE_CMP 3
+#define OP_PRECEDENCE_ADD 4
+#define OP_PRECEDENCE_MUL 5
+#define OP_PRECEDENCE_POW 6
 int get_op_precedence(TokenData op) {
     switch (op) {
-    case TokData_Op_Add:
-    case TokData_Op_Sub:
-        return 1;
-    case TokData_Op_Mul:
-    case TokData_Op_Div:
-    case TokData_Op_Mod:
-        return 2;
-    case TokData_Op_Pow:
-        return 2;
+    case TokData_Op_Or:
+        return OP_PRECEDENCE_OR;
+    case TokData_Op_And:
+        return OP_PRECEDENCE_AND;
     case TokData_Op_Less:
     case TokData_Op_LessEq:
     case TokData_Op_Greater:
     case TokData_Op_GreaterEq:
     case TokData_Op_Eq:
     case TokData_Op_Neq:
-        return 4;
-    case TokData_Op_And:
-        return 5;
-    case TokData_Op_Or:
-        return 6;
+        return OP_PRECEDENCE_CMP;
+    case TokData_Op_Add:
+    case TokData_Op_Sub:
+        return OP_PRECEDENCE_ADD;
+    case TokData_Op_Mul:
+    case TokData_Op_Div:
+    case TokData_Op_Mod:
+        return OP_PRECEDENCE_MUL;
+    case TokData_Op_Pow:
+        return OP_PRECEDENCE_POW;
     default:
         return -1;
     }
@@ -254,6 +264,7 @@ void SemTable::shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
     } else {
         dest.addr = new_tmp_var();
     }
+
     code += left.code;
     code += right.code;
     code += gen_oper(dest.addr, left.addr, right.addr, op);
@@ -263,31 +274,41 @@ void SemTable::shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
 }
 
 // algoritmo shunting-yard
-std::string SemTable::gen_expr(SemAddr addr, std::vector<StackElem> &input) {
+std::string SemTable::gen_expr(SemData expr) {
 
     std::vector<TokenData> op_stack;
     std::vector<SemData> stack;
     std::string code;
 
-    for (StackElem &elem : input) {
+    bool done_comparison = false;
+
+    for (StackElem &elem : expr.stack) {
         if (elem.kind != StackElem_Token) {
             stack.push_back(elem.sem_data);
             continue;
         }
 
         int cur_precedence = get_op_precedence(elem.data.token.data);
+        if (cur_precedence == OP_PRECEDENCE_CMP) {
+            if (done_comparison) {
+                SemErr error = {SemErr_ChainedComparisons, expr.span};
+                errors.push_back(error);
+            }
+            done_comparison = true;
+        }
+
         while (!op_stack.empty()) {
             TokenData op = op_stack.back();
             int top_precedence = get_op_precedence(op);
             if (top_precedence < cur_precedence) {
                 break;
             }
-            shunting_yard_pop(addr, op_stack, stack, code);
+            shunting_yard_pop(expr.addr, op_stack, stack, code);
         }
         op_stack.push_back(elem.data.token.data);
     }
     while (!op_stack.empty()) {
-        shunting_yard_pop(addr, op_stack, stack, code);
+        shunting_yard_pop(expr.addr, op_stack, stack, code);
     }
     return code;
 }

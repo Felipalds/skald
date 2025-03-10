@@ -26,6 +26,9 @@ main
         out a.
     fi
 
+    $ chain comparison
+    a <- 1 < 2 < 3.
+
     $ stop outside loop
     stop.
 niam

@@ -290,6 +290,9 @@ void SemErr::print(Src &src) {
     case SemErr_StopOutsideLoop:
         printf("Cannot 'stop' outside of a loop.\n");
         break;
+    case SemErr_ChainedComparisons:
+        printf("Cannot chain comparison operators.\n");
+        break;
     }
 
     printf("%2zu | ", span.line + 1);

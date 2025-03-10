@@ -5,5 +5,8 @@ rav
 main
     loop
         stop.
+        if a do
+            stop.
+        fi
     pool
 niam

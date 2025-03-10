@@ -1,0 +1,27 @@
+var
+    t0 int.
+    t1 int.
+    t2 int.
+    t3 int.
+    t4 int.
+rav
+
+main
+    in t0.
+    in t1.
+    in t2.
+    in t3.
+    in t4.
+    in t5.
+
+    if t3 do
+        out t0.
+        if t4 do
+            out t1.
+        fi
+    or
+        if t4 do
+            out t2.
+        fi
+    fi
+niam
