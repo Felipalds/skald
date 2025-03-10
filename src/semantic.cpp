@@ -274,12 +274,11 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         SemData expr = stack[stack.size() - 2].sem_data;
         Token tok_period = stack[stack.size() - 1].data.token;
 
-        std::string lexeme = src.get_lexeme(tok_dest.span);
-
         sem.span.line = tok_dest.span.line;
         sem.span.first = tok_dest.span.first;
         sem.span.second = tok_period.span.second;
 
+        std::string lexeme = src.get_lexeme(tok_dest.span);
         SemVar var = get_var(lexeme);
         if (var.type != expr.type) {
             SemErr error = {

@@ -164,7 +164,7 @@ std::string SemTable::gen_stmts(std::vector<SemData> &stmts) {
             break;
         case SemStmt_IfOr:
             code += gen_if_or(stmt.br1, stmt.br2, stmt.br3, stmt.stmts1,
-                              stmt.stmts1, stmt.addr);
+                              stmt.stmts2, stmt.addr);
             break;
         case SemStmt_Loop:
             code += gen_loop(stmt.br1, stmt.br2, stmt.stmts1);
