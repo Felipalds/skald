@@ -96,8 +96,8 @@ std::string SemTable::gen_oper(SemAddr dest, SemAddr left, SemAddr right,
     default:
         break;
     }
-    return string_format("t%d: i32 = t%d + t%d\n", dest, left, op_string,
-                         right);
+
+    return string_format("t%d := t%d %s t%d\n", dest, left, op_string, right);
 }
 
 std::string SemTable::gen_input(SemAddr dest, SemType type) {

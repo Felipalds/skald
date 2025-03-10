@@ -78,7 +78,7 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
-    printf("\n\nETAC:\n%s", parser.sem_table.code_final.c_str());
+    printf("ETAC:\n%s", parser.sem_table.code_final.c_str());
 
     if (src_file != stdin) {
         fclose(src_file);

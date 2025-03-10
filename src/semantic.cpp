@@ -169,9 +169,9 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         break;
     }
     case Rule_Expr_ValOpExpr: {
-        SemData val = stack[stack.size() - 1 - 3].sem_data;
-        TokenData op = stack[stack.size() - 1 - 2].data.token.data;
-        SemData expr = stack[stack.size() - 1 - 1].sem_data;
+        SemData val = stack[stack.size() - 1 - 2].sem_data;
+        TokenData op = stack[stack.size() - 1 - 1].data.token.data;
+        SemData expr = stack[stack.size() - 1 - 0].sem_data;
 
         sem.addr = new_tmp_var();
         sem.type = val.type;
@@ -180,10 +180,10 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         break;
     }
     case Rule_Val_ParExpr: {
-        SemData val = stack[stack.size() - 1 - 1].sem_data;
-        sem.addr = val.addr;
-        sem.type = val.type;
-        sem.code = val.code;
+        SemData expr = stack[stack.size() - 1 - 1].sem_data;
+        sem.addr = expr.addr;
+        sem.type = expr.type;
+        sem.code = expr.code;
         break;
     }
     case Rule_Val_NotVal: {

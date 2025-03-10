@@ -221,8 +221,7 @@ class SemTable {
 
     std::string gen_assign_lit(SemAddr addr, SemType type, std::string &lexeme);
     std::string gen_assign_notval(SemAddr dest, SemAddr src);
-    std::string gen_oper(SemAddr dest, SemAddr left, SemAddr right,
-                         TokenData op);
+    std::string gen_oper(SemAddr dest, SemAddr left, SemAddr right);
     std::string gen_input(SemAddr dest, SemType type);
     std::string gen_output(SemAddr src, SemType type);
     std::string gen_assign_expr(SemAddr dest, SemAddr src);
