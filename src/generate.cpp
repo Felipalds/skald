@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <cassert>
 #include <cstdio>
+#include <deque>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -26,13 +27,13 @@ std::string SemTable::gen_assign_lit(SemAddr addr, SemType type,
                                      std::string &lexeme) {
     switch (type) {
     case SemType_Int: {
-        return string_format("t%d : i32 = %s\n", addr, lexeme.c_str());
+        return string_format("t%d: i32 = %s\n", addr, lexeme.c_str());
     }
     case SemType_Real: {
-        return string_format("t%d : double = %s\n", addr, lexeme.c_str());
+        return string_format("t%d: double = %s\n", addr, lexeme.c_str());
     }
     case SemType_Str: {
-        return string_format("t%d : str = %s\n", addr, lexeme.c_str());
+        return string_format("t%d: str = %s\n", addr, lexeme.c_str());
         break;
     }
     default:
@@ -42,61 +43,48 @@ std::string SemTable::gen_assign_lit(SemAddr addr, SemType type,
 }
 
 std::string SemTable::gen_assign_notval(SemAddr dest, SemAddr src) {
-    return string_format("t%d : bool = not t%d\n", dest, src);
+    return string_format("t%d: bool = not t%d\n", dest, src);
+}
+
+const char *get_op_string(TokenData op) {
+    switch (op) {
+    case TokData_Op_Add:
+        return "+";
+    case TokData_Op_Sub:
+        return "-";
+    case TokData_Op_Mul:
+        return "*";
+    case TokData_Op_Div:
+        return "/";
+    case TokData_Op_Mod:
+        return "%";
+    case TokData_Op_Pow:
+        return "^";
+    case TokData_Op_Less:
+        return "<";
+    case TokData_Op_LessEq:
+        return "<=";
+    case TokData_Op_Greater:
+        return ">";
+    case TokData_Op_GreaterEq:
+        return ">=";
+    case TokData_Op_Eq:
+        return "==";
+    case TokData_Op_Neq:
+        return "!=";
+    case TokData_Op_And:
+        return "and";
+    case TokData_Op_Or:
+        return "or";
+    default:
+        return "???";
+    }
 }
 
 std::string SemTable::gen_oper(SemAddr dest, SemAddr left, SemAddr right,
                                TokenData op) {
 
-    const char *op_string;
-
-    switch (op) {
-    case TokData_Op_Add:
-        op_string = "+";
-        break;
-    case TokData_Op_Sub:
-        op_string = "-";
-        break;
-    case TokData_Op_Mul:
-        op_string = "*";
-        break;
-    case TokData_Op_Div:
-        op_string = "/";
-        break;
-    case TokData_Op_Mod:
-        op_string = "%";
-        break;
-    case TokData_Op_Pow:
-        op_string = "^";
-        break;
-    case TokData_Op_Less:
-        op_string = "<";
-        break;
-    case TokData_Op_LessEq:
-        op_string = "<=";
-        break;
-    case TokData_Op_Greater:
-        op_string = ">";
-        break;
-    case TokData_Op_GreaterEq:
-        op_string = ">=";
-        break;
-    case TokData_Op_Eq:
-        op_string = "==";
-        break;
-    case TokData_Op_Neq:
-        op_string = "!=";
-        break;
-    case TokData_Op_And:
-        op_string = "and";
-        break;
-    case TokData_Op_Or:
-        op_string = "or";
-        break;
-    default:
-        break;
-    }
-
+    const char *op_string = get_op_string(op);
     return string_format("t%d := t%d %s t%d\n", dest, left, op_string, right);
 }
 
@@ -224,5 +212,95 @@ std::string SemTable::gen_loop(SemLabel entry, SemLabel exit,
     code += gen_stmts(body);
     code += string_format("goto label%d \t\t\t# continue loop\n", entry);
     code += string_format("label%d: \t\t\t# loop exit\n", exit);
+    return code;
+}
+
+int get_op_precedence(TokenData op) {
+    switch (op) {
+    case TokData_Op_Add:
+    case TokData_Op_Sub:
+        return 1;
+    case TokData_Op_Mul:
+    case TokData_Op_Div:
+    case TokData_Op_Mod:
+        return 2;
+    case TokData_Op_Pow:
+        return 2;
+    case TokData_Op_Less:
+    case TokData_Op_LessEq:
+    case TokData_Op_Greater:
+    case TokData_Op_GreaterEq:
+    case TokData_Op_Eq:
+    case TokData_Op_Neq:
+        return 4;
+    case TokData_Op_And:
+        return 5;
+    case TokData_Op_Or:
+        return 6;
+    default:
+        return -1;
+    }
+}
+
+// algoritmo shunting-yard
+std::string SemTable::gen_precedence(std::vector<StackElem> &input) {
+    printf("gen_precedence\n");
+
+    std::vector<StackElem> op_stack;
+    std::deque<StackElem> queue;
+
+    for (StackElem &elem : input) {
+        printf("for stackelem : input\n");
+        if (elem.kind != StackElem_Token) {
+            queue.push_back(elem);
+            continue;
+        }
+
+        int cur_precedence = get_op_precedence(elem.data.token.data);
+        while (!op_stack.empty()) {
+            printf("while op_stack not empty 1\n");
+            StackElem top = op_stack.back();
+            int top_precedence = get_op_precedence(top.data.token.data);
+            if (top_precedence < cur_precedence) {
+                break;
+            }
+            queue.push_back(top);
+            op_stack.pop_back();
+        }
+        op_stack.push_back(elem);
+    }
+    while (!op_stack.empty()) {
+        printf("while op_stack not empty 2\n");
+        queue.push_back(op_stack.back());
+        op_stack.pop_back();
+    }
+
+    std::string code;
+    std::vector<SemData> stack;
+
+    for (size_t i = 0; i < queue.size(); i++) {
+        printf("for stackelem: queue\n");
+        if (queue[i].kind != StackElem_Token) {
+            stack.push_back(queue[i].sem_data);
+        } else {
+            TokenData op = queue[i].data.token.data;
+
+            SemData left = stack[stack.size() - 2];
+            SemData right = stack[stack.size() - 1];
+            SemData dest;
+            dest.addr = new_tmp_var();
+
+            printf("dest_%d = left_%d . right_%d\n", dest.addr, left.addr,
+                   right.addr);
+
+            code += left.code;
+            code += right.code;
+            code += gen_oper(dest.addr, left.addr, right.addr, op);
+
+            stack.resize(stack.size() - 2);
+            stack.push_back(dest);
+        }
+    }
+
     return code;
 }

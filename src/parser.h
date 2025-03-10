@@ -122,6 +122,8 @@ struct SemVar {
     SemType type;
 };
 
+struct StackElem;
+
 class SemData {
   public:
     SemAddr addr;
@@ -131,6 +133,7 @@ class SemData {
     std::string code;
     std::vector<SemData> stmts1;
     std::vector<SemData> stmts2;
+    std::vector<StackElem> stack;
 
     SemData() {
         addr = ADDR_INVALID;
@@ -142,6 +145,7 @@ class SemData {
         code = "";
         stmts1 = {};
         stmts2 = {};
+        stack = {};
     }
 
     SemData(const SemData &orig) {
@@ -154,6 +158,7 @@ class SemData {
         code = orig.code;
         stmts1 = orig.stmts1;
         stmts2 = orig.stmts2;
+        stack = orig.stack;
     }
 
     SemData &operator=(const SemData &orig) {
@@ -221,7 +226,8 @@ class SemTable {
 
     std::string gen_assign_lit(SemAddr addr, SemType type, std::string &lexeme);
     std::string gen_assign_notval(SemAddr dest, SemAddr src);
-    std::string gen_oper(SemAddr dest, SemAddr left, SemAddr right);
+    std::string gen_oper(SemAddr dest, SemAddr left, SemAddr right,
+                         TokenData op);
     std::string gen_input(SemAddr dest, SemType type);
     std::string gen_output(SemAddr src, SemType type);
     std::string gen_assign_expr(SemAddr dest, SemAddr src);
@@ -233,6 +239,7 @@ class SemTable {
     std::string gen_if(SemLabel true_branch, SemLabel exit,
                        std::vector<SemData> &body, SemAddr cond);
     std::string gen_stmts(std::vector<SemData> &body);
+    std::string gen_precedence(std::vector<StackElem> &stack);
     void gen_backpatch(std::vector<SemData> &stmts, SemLabel exit);
 };
 

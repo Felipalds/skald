@@ -149,7 +149,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         SemVar var = get_var(lexeme);
         /* checar existencia de var */
         /* checar tipo de var */
-        sem.code = expr.code;
+        sem.code = gen_precedence(expr.stack);
         sem.code += gen_assign_expr(var.addr, expr.addr);
         break;
     }
@@ -162,28 +162,35 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         break;
     }
     case Rule_Expr_Val: {
-        SemData val = stack.back().sem_data;
-        sem.addr = val.addr;
-        sem.type = val.type;
-        sem.code = val.code;
+        StackElem val = stack.back();
+        sem.addr = val.sem_data.addr;
+        sem.type = val.sem_data.type;
+        sem.code = val.sem_data.code;
+        sem.stack = {val};
         break;
     }
     case Rule_Expr_ValOpExpr: {
-        SemData val = stack[stack.size() - 1 - 2].sem_data;
-        TokenData op = stack[stack.size() - 1 - 1].data.token.data;
-        SemData expr = stack[stack.size() - 1 - 0].sem_data;
+        StackElem val = stack[stack.size() - 1 - 2];
+        StackElem op = stack[stack.size() - 1 - 1];
+        StackElem expr = stack[stack.size() - 1 - 0];
 
+        sem.type = val.sem_data.type;
         sem.addr = new_tmp_var();
-        sem.type = val.type;
-        sem.code =
-            val.code + expr.code + gen_oper(sem.addr, val.addr, expr.addr, op);
+        sem.stack = {val, op};
+        sem.stack.insert(sem.stack.end(), expr.sem_data.stack.begin(),
+                         expr.sem_data.stack.end());
+
+        /*sem.code =*/
+        /*    val.code + expr.code + gen_oper(sem.addr, val.addr, expr.addr,
+         * op);*/
         break;
     }
     case Rule_Val_ParExpr: {
         SemData expr = stack[stack.size() - 1 - 1].sem_data;
         sem.addr = expr.addr;
         sem.type = expr.type;
-        sem.code = expr.code;
+        sem.code = gen_precedence(expr.stack);
+        // PARSE PRECEDENCE HERE
         break;
     }
     case Rule_Val_NotVal: {
