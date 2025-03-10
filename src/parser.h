@@ -105,6 +105,24 @@ enum SemType {
     SemType_Str,
     SemType_Void,
 };
+
+enum SemOper {
+    SemOp_Add,
+    SemOp_Sub,
+    SemOp_Mul,
+    SemOp_Div,
+    SemOp_Mod,
+    SemOp_Pow,
+    SemOp_Less,
+    SemOp_LessEq,
+    SemOp_Greater,
+    SemOp_GreaterEq,
+    SemOp_Eq,
+    SemOp_Neq,
+    SemOp_And,
+    SemOp_Or,
+};
+
 typedef int SemAddr;
 typedef int SemLabel;
 #define ADDR_INVALID (-1)
@@ -126,6 +144,7 @@ struct StackElem;
 
 class SemData {
   public:
+    Span span;
     SemAddr addr;
     SemType type;
     SemStmtKind kind;
@@ -146,6 +165,7 @@ class SemData {
         stmts1 = {};
         stmts2 = {};
         stack = {};
+        span = {0, 0, 0};
     }
 
     SemData(const SemData &orig) {
@@ -159,6 +179,7 @@ class SemData {
         stmts1 = orig.stmts1;
         stmts2 = orig.stmts2;
         stack = orig.stack;
+        span = orig.span;
     }
 
     SemData &operator=(const SemData &orig) {
@@ -208,6 +229,24 @@ struct ParseErr {
     void print(Src &src, ParseTable &table);
 };
 
+enum SemErrKind {
+    SemErr_AssignTypeMismatch,
+    SemErr_OperTypeMismatch,
+    SemErr_OperTypeIncompatible,
+    SemErr_IfTypeNotInt,
+    SemErr_NegateNotInt,
+    SemErr_DeclRedefineVar,
+    SemErr_UndefinedVar,
+    SemErr_StopOutsideLoop,
+};
+
+struct SemErr {
+    SemErrKind kind;
+    Span span;
+
+    void print(Src &src);
+};
+
 class SemTable {
     int counter;
     int label_counter;
@@ -215,6 +254,7 @@ class SemTable {
 
   public:
     std::string code_final;
+    std::vector<SemErr> errors;
 
     SemLabel new_label();
     SemTable() : counter(0){};
@@ -223,6 +263,8 @@ class SemTable {
     SemAddr new_tmp_var();
     StackElem apply_rule(Rule rule, std::vector<StackElem> &stack, Src &src);
     SemType type_from_tokdata(TokenData data);
+    SemOper oper_from_tokdata(TokenData data);
+    bool oper_compatible(SemOper op, SemType type);
 
     std::string gen_assign_lit(SemAddr addr, SemType type, std::string &lexeme);
     std::string gen_assign_notval(SemAddr dest, SemAddr src);
@@ -239,7 +281,9 @@ class SemTable {
     std::string gen_if(SemLabel true_branch, SemLabel exit,
                        std::vector<SemData> &body, SemAddr cond);
     std::string gen_stmts(std::vector<SemData> &body);
-    std::string gen_precedence(std::vector<StackElem> &stack);
+    std::string gen_expr(std::vector<StackElem> &stack);
+    void shunting_yard_pop(std::vector<TokenData> &op_stack,
+                           std::vector<SemData> &stack, std::string &code);
     void gen_backpatch(std::vector<SemData> &stmts, SemLabel exit);
 };
 

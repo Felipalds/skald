@@ -1,0 +1,31 @@
+var
+    a int.
+    b real.
+    $ redefine var
+    a int.
+rav
+
+main
+    $ assign dif types
+    a <- b. 
+
+    $ oper type mismatch
+    b <- 1,0 + 2.
+
+    $ oper type incompatible
+    b <- 1,0 % 2,0.
+
+    $ negate not int
+    b <- ! 1,0.
+    
+    $ undefined var
+    c <- 2,0.
+
+    $ condition not int
+    if b do
+        out a.
+    fi
+
+    $ stop outside loop
+    stop.
+niam

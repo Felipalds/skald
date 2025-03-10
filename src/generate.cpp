@@ -1,7 +1,6 @@
 #include "parser.h"
 #include <cassert>
 #include <cstdio>
-#include <deque>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -171,21 +170,22 @@ std::string SemTable::gen_stmts(std::vector<SemData> &stmts) {
             code += gen_loop(stmt.br1, stmt.br2, stmt.stmts1);
             break;
         }
+        if (stmt.br1 == LABEL_PENDING) {
+            SemErr error = {SemErr_StopOutsideLoop, stmt.span};
+            errors.push_back(error);
+        }
     }
     return code;
 }
 
 void SemTable::gen_backpatch(std::vector<SemData> &stmts, SemLabel exit) {
-    printf("backpatching\n");
     for (SemData &stmt : stmts) {
         bool has_sub_stmts = false;
         if (stmt.stmts1.size() > 0) {
-            printf("backpatch recurse\n");
             gen_backpatch(stmt.stmts1, exit);
             has_sub_stmts = true;
         }
         if (stmt.stmts2.size() > 0) {
-            printf("backpatch recurse on false\n");
             gen_backpatch(stmt.stmts2, exit);
             has_sub_stmts = true;
         }
@@ -194,12 +194,10 @@ void SemTable::gen_backpatch(std::vector<SemData> &stmts, SemLabel exit) {
         }
 
         if (stmt.br1 == LABEL_PENDING) {
-            printf("stmt needed backpatch!, dest label = label%d\n", exit);
             stmt.br1 = exit;
             stmt.code =
                 string_format("goto label%d \t\t\t# backpatched\n", exit);
         } else {
-            printf("stmt doesn't need backpatch: %s", stmt.code.c_str());
         }
     }
 }
@@ -242,65 +240,48 @@ int get_op_precedence(TokenData op) {
     }
 }
 
-// algoritmo shunting-yard
-std::string SemTable::gen_precedence(std::vector<StackElem> &input) {
-    printf("gen_precedence\n");
+void SemTable::shunting_yard_pop(std::vector<TokenData> &op_stack,
+                                 std::vector<SemData> &stack,
+                                 std::string &code) {
+    TokenData op = op_stack.back();
+    SemData left = stack[stack.size() - 2];
+    SemData right = stack[stack.size() - 1];
+    SemData dest;
+    dest.addr = new_tmp_var();
+    code += left.code;
+    code += right.code;
+    code += gen_oper(dest.addr, left.addr, right.addr, op);
+    stack.resize(stack.size() - 2);
+    stack.push_back(dest);
+    op_stack.pop_back();
+}
 
-    std::vector<StackElem> op_stack;
-    std::deque<StackElem> queue;
+// algoritmo shunting-yard
+std::string SemTable::gen_expr(std::vector<StackElem> &input) {
+
+    std::vector<TokenData> op_stack;
+    std::vector<SemData> stack;
+    std::string code;
 
     for (StackElem &elem : input) {
-        printf("for stackelem : input\n");
         if (elem.kind != StackElem_Token) {
-            queue.push_back(elem);
+            stack.push_back(elem.sem_data);
             continue;
         }
 
         int cur_precedence = get_op_precedence(elem.data.token.data);
         while (!op_stack.empty()) {
-            printf("while op_stack not empty 1\n");
-            StackElem top = op_stack.back();
-            int top_precedence = get_op_precedence(top.data.token.data);
+            TokenData op = op_stack.back();
+            int top_precedence = get_op_precedence(op);
             if (top_precedence < cur_precedence) {
                 break;
             }
-            queue.push_back(top);
-            op_stack.pop_back();
+            shunting_yard_pop(op_stack, stack, code);
         }
-        op_stack.push_back(elem);
+        op_stack.push_back(elem.data.token.data);
     }
     while (!op_stack.empty()) {
-        printf("while op_stack not empty 2\n");
-        queue.push_back(op_stack.back());
-        op_stack.pop_back();
+        shunting_yard_pop(op_stack, stack, code);
     }
-
-    std::string code;
-    std::vector<SemData> stack;
-
-    for (size_t i = 0; i < queue.size(); i++) {
-        printf("for stackelem: queue\n");
-        if (queue[i].kind != StackElem_Token) {
-            stack.push_back(queue[i].sem_data);
-        } else {
-            TokenData op = queue[i].data.token.data;
-
-            SemData left = stack[stack.size() - 2];
-            SemData right = stack[stack.size() - 1];
-            SemData dest;
-            dest.addr = new_tmp_var();
-
-            printf("dest_%d = left_%d . right_%d\n", dest.addr, left.addr,
-                   right.addr);
-
-            code += left.code;
-            code += right.code;
-            code += gen_oper(dest.addr, left.addr, right.addr, op);
-
-            stack.resize(stack.size() - 2);
-            stack.push_back(dest);
-        }
-    }
-
     return code;
 }

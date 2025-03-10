@@ -78,6 +78,15 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
+    bool semantic_errors = !parser.sem_table.errors.empty();
+    if (semantic_errors) {
+        for (SemErr err : parser.sem_table.errors) {
+            err.print(src);
+        }
+        printf("\n");
+        return 1;
+    }
+
     printf("ETAC:\n%s", parser.sem_table.code_final.c_str());
 
     if (src_file != stdin) {

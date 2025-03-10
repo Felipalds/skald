@@ -193,7 +193,7 @@ Lexer::Lexer(Src &src) {
             if (ch == ',') {
                 // não eh mais inteiro
                 state = State_Real;
-            } else {
+            } else if (!isdigit(ch)) {
                 // terminou inteiro
                 i--;
                 span.second = i;
