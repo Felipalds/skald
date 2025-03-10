@@ -132,7 +132,7 @@ std::string SemTable::gen_if_or(SemLabel true_branch, SemLabel false_branch,
     code += string_format("label%d: \t\t\t# true branch\n", true_branch);
     code += gen_stmts(body);
     code += string_format("goto label%d \t\t\t# skip false branch\n", exit);
-    code += string_format("label%d \t\t\t# false branch\n", false_branch);
+    code += string_format("label%d: \t\t\t# false branch\n", false_branch);
     code += gen_stmts(body_false);
     code += string_format("label%d: \t\t\t# if-or exit\n", exit);
     return code;
