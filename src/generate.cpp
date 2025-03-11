@@ -127,7 +127,7 @@ std::string SemTable::gen_input(SemAddr dest, SemType type) {
     case SemType_Int:
         return string_format("t%d: i32 = call read_int()\n", dest);
     case SemType_Real:
-        return string_format("t%d: f32 = call read_double()\n", dest);
+        return string_format("t%d: f32 = call read_float()\n", dest);
     case SemType_Str:
         return string_format("t%d: str = call read_string()\n", dest);
     default:
@@ -141,7 +141,7 @@ std::string SemTable::gen_output(SemAddr src, SemType type) {
     case SemType_Int:
         return string_format("call write_int(t%d)\n", src);
     case SemType_Real:
-        return string_format("call write_double(t%d)\n", src);
+        return string_format("call write_float(t%d)\n", src);
     case SemType_Str:
         return string_format("call write_string(t%d)\n", src);
     default:
