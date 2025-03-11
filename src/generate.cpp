@@ -135,7 +135,7 @@ std::string SemTable::gen_input(SemAddr dest, SemType type) {
     case SemType_Real:
         return string_format("t%d: f32 = call read_float()\n", dest);
     case SemType_Str:
-        return string_format("t%d: str = call read_string()\n", dest);
+        return string_format("t%d: str = call read_string(0u32)\n", dest);
     default:
         assert(false);
         return {};
