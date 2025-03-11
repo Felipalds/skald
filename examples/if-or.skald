@@ -1,0 +1,19 @@
+var
+    a int.
+    b int.
+    cond bool.
+    min int.
+rav
+
+main
+    in a.
+    in b.
+
+    cond <- a < b.
+    if cond do
+        min <- a.
+    or
+        min <- b.
+    fi
+    out min.
+niam

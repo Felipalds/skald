@@ -56,9 +56,8 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
-    Table table;
-    Parser parser;
-    parser.parse(lexer.tokens, table);
+    Parser parser(src);
+    parser.parse(lexer.tokens);
     printf("\n");
 
     bool parse_errors = !parser.errors.empty();
@@ -73,11 +72,22 @@ int main(int argc, const char **argv) {
             }
             first = false;
             prev_span = err.token.span;
-            err.print(src, table);
+            err.print(src, parser.table);
         }
         printf("\n");
         return 1;
     }
+
+    bool semantic_errors = !parser.sem_table.errors.empty();
+    if (semantic_errors) {
+        for (SemErr err : parser.sem_table.errors) {
+            err.print(src);
+        }
+        printf("\n");
+        return 1;
+    }
+
+    printf("ETAC:\n%s", parser.sem_table.code_final.c_str());
 
     if (src_file != stdin) {
         fclose(src_file);

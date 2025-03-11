@@ -3,41 +3,114 @@ skald   -> varblk mainblk
 varblk  ->  var decls rav
 
 mainblk -> main stmts niam
+            { Print(stmts.all_codes()) }
 
 decl    -> id type period
+            { assert(not exists(id))
+              registra(id, type) }
 
-decls   -> decl                         (registra id.lexema) (id.tipo <- type)
-
-         | decl decls                   (registra id.lexema) (id.tipo <- type)
+decls   -> decl
+decls   -> decl decls
 
 stmts -> stmt
+            { stmts.list = [ stmt ] }
 
-       | stmt stmts
+stmts -> stmt stmts1
+            { stmts.list = [ stmt ] + stmts1.list }
 
-stmt  -> stop period                    (stop.parent <- get_loop_pilha())
+stmt  -> stop period           
+            { stmt.br1 = LABEL_PENDING 
+              stms.code = "" }
+            backpatching:
+                { stmt.code = GenCode(goto label) }
 
-       | die period
+stmt  -> die period
+           { stmt.code = GenCode(exit 0) }
 
-       | if id do stmts fi              (registrado(id)) (id.tipo == int) (if.true <- stmts)
+stmt  -> if id do stmts fi
+            { assert(Table.tipo(id) == int)
+              stmt.br1 = NewLabel()
+              stmt.br2 = NewLabel()
+              stmt.code = GenCode(
+                      ifzero id.addr goto stmt.br2
+                  stmt.br1:
+                      stmts.code
+                  stmt.br2:
+              )
+            }
 
-       | if id do stmts1 or stmts2 fi   (registrado(id)) (id.tipo == int) (if.true <- stmts1) (if.false <- stmts2)
+stmt  -> if id do stmts1 or stmts2 fi   
+            { assert(Table.tipo(id) == int)
+              stmt.br1 = NewLabel()
+              stmt.br2 = NewLabel()
+              stmt.br3 = NewLabel()
+              stmt.code = GenCode(
+                      ifzero id.addr goto stmt.br2
+                  stmt.br1:
+                      stmts1.code
+                      jmp stmt.br3
+                  stmt.br2:
+                      stmts2.code
+                  stmt.br3:
+              )
+            }
 
-       | loop stmts pool                (loop.body <- stmts)
+stmt  -> loop stmts pool       
+            { stmt.br1 = NewLabel()
+              stmt.br2 = NewLabel()
+              b_code = backpatch(stmts.all_codes())
+              stmt.code = GenCode(
+                  stmt.entry: 
+                      b_code
+                  stmt.exit:
+              )
+            }
 
-       | out id period                  (registrado(id))
+stmt  -> out id period
+            { stmt.code = GenCode(print addr(id)) }
 
-       | id assign expr period          (registrado(id)) (id.tipo == expr.tipo)
+stmt  -> id assign expr period
+            { stmt.code = GenCode(Table.addr(id) = expr.addr) }
 
-       | in id period                   (registrado(id))
+stmt  -> in id period
+            { stmt.code = GenCode(Table.addr(id) = read_*) }
 
-expr  -> val                            (expr.tipo <- val.tipo)
+expr  -> val                   
+            { expr.addr = val.addr
+             expr.tipo = val.tipo
+             expr.code = val.code }
 
-       | val op expr1                   (expr.tipo <- val.tipo) (op?)
+expr  -> val op expr1           
+            { assert(op_compativel(val.tipo, expr1.tipo, op))
+              expr.addr = NewTmpVar()
+              expr.tipo = val.tipo
+              expr.code = GenCode(
+                  val.code
+                  expr1.code
+                  expr.addr = val.addr op expr1.addr
+              )
+            }
 
-val   -> ( expr )                       (val.tipo <- expr.tipo)
+val   -> ( expr )              
+            { val.addr = expr.addr
+              val.tipo = expr.tipo
+              val.code = expr.code }
 
-       | ! val1                         (val.tipo == int) (val1.tipo == int) (val.tipo == val1.tipo)
+val   -> ! val1                
+            { assert(val1.tipo == int)
+              val.addr = NewTmpVar()
+              val.tipo = int
+              val.code = GenCode(val.addr = not val1.addr) }
 
-       | lit                            (val.tipo == lit.tipo)
+val   -> lit
+            { val.addr = NewTmpVar()
+              val.tipo = lit.tipo
+              val.code = GenCode(val.addr = lit) }
 
-       | id                             (registrado(id)) (val.tipo <- id.tipo)
+val   -> id                     
+            { assert(existe(id))
+              val.addr = Table.addr(id)
+              val.tipo = Table.tipo(id)
+              val.code = "" }
+
+

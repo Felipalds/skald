@@ -230,7 +230,7 @@ void StackElem::print() {
     printf(" ");
 }
 
-void ParseErr::print(Src &src, Table &table) {
+void ParseErr::print(Src &src, ParseTable &table) {
     printf("line %zu [%zu %zu] - ", token.span.line + 1, token.span.first,
            token.span.second);
 
@@ -260,6 +260,54 @@ void ParseErr::print(Src &src, Table &table) {
         printf("^");
     }
     printf("\n");
+}
+
+void SemErr::print(Src &src) {
+    printf("line %zu [%zu %zu] - ", span.line + 1, span.first, span.second);
+
+    switch (kind) {
+    case SemErr_AssignTypeMismatch:
+        printf("Cannot assign between different types.\n");
+        break;
+    case SemErr_OperTypeMismatch:
+        printf("Cannot operate between different types.\n");
+        break;
+    case SemErr_OperTypeIncompatible:
+        printf("Operator not compatible with type.\n");
+        break;
+    case SemErr_IfTypeNotBool:
+        printf("Cannot use non-boolean as condition.\n");
+        break;
+    case SemErr_NegateNotBool:
+        printf("Cannot negate non-boolean.\n");
+        break;
+    case SemErr_DeclRedefineVar:
+        printf("Cannot redefine variable.\n");
+        break;
+    case SemErr_UndefinedVar:
+        printf("Variable has not been defined.\n");
+        break;
+    case SemErr_StopOutsideLoop:
+        printf("Cannot 'stop' outside of a loop.\n");
+        break;
+    case SemErr_ChainedComparisons:
+        printf("Cannot chain comparison operators.\n");
+        break;
+    }
+
+    printf("%2zu | ", span.line + 1);
+    Span line_span = src.line_span(span.line);
+    src.print_span(line_span);
+    printf("\n");
+
+    term_goto_column(span.first - line_span.first + 1 + 5);
+    if (span.first <= span.second) {
+        for (size_t i = span.first; i <= span.second; i++) {
+            printf("^");
+        }
+        printf("\n");
+    }
+    /*printf("\n");*/
 }
 
 void Parser::stack_print(int curr_state, TokenKind tok) {

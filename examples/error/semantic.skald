@@ -1,0 +1,32 @@
+var
+    a int.
+    b real.
+    a int. $ erro
+    x bool.
+rav
+
+main
+    a <- b. $ erro
+    a <- a. $ permitido
+
+    b <- 1,0 + 2.   $ erro
+    b <- 1,0 + 2,0. $ permitido
+
+    b <- 1,0 % 2,0. $ erro
+    b <- 1,0 * 2,0. $ permitido
+
+    b <- ! 1,0. $ erro
+    x <- !x.    $ permitido
+
+    c <- 2,0. $ erro
+    b <- 2,0. $ permitido
+
+    if a do out a. fi $ erro
+    if x do out a. fi $ permitido
+
+    x <- 1 < 2 < 3. $ erro
+    x <- 1 < 2.       $ permitido
+
+    stop.           $ erro
+    loop stop. pool $ permitido
+niam

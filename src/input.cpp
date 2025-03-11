@@ -27,6 +27,18 @@ Src::Src(FILE *src_file) {
     }
 }
 
+std::string Src::get_lexeme(Span span) {
+    if (span.first >= bytes.size() || span.second >= bytes.size()) {
+        printf("[span OOB]");
+        return {};
+    }
+    std::string s;
+    for (size_t i = span.first; i <= span.second; i++) {
+        s += bytes[i];
+    }
+    return s;
+}
+
 // span da linha `line`, _sem_ incluir '\n' no final
 Span Src::line_span(size_t line) {
     if (line > lines.size() - 1) {

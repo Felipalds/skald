@@ -38,6 +38,7 @@ void Lexer::add_ident_or_kw(std::string &tmp, Span span) {
         {"int", Tok_Type, TokData_Type_Int},
         {"real", Tok_Type, TokData_Type_Real},
         {"str", Tok_Type, TokData_Type_Str},
+        {"bool", Tok_Type, TokData_Type_Bool},
 
     };
 
@@ -193,7 +194,7 @@ Lexer::Lexer(Src &src) {
             if (ch == ',') {
                 // não eh mais inteiro
                 state = State_Real;
-            } else {
+            } else if (!isdigit(ch)) {
                 // terminou inteiro
                 i--;
                 span.second = i;
