@@ -1,46 +1,32 @@
 var
     a int.
     b real.
-    $ redefine var
-    a int.
+    a int. $ erro
+    x bool.
 rav
 
 main
-    $ assign dif types
-    a <- b. 
-    $ permitido
-    a <- a. 
+    a <- b. $ erro
+    a <- a. $ permitido
 
-    $ oper type mismatch
-    b <- 1,0 + 2.
-    $ permitido
-    b <- 1,0 + 2,0.
+    b <- 1,0 + 2.   $ erro
+    b <- 1,0 + 2,0. $ permitido
 
-    $ oper type incompatible
-    b <- 1,0 % 2,0.
-    $ permitido:
-    b <- 1,0 * 2,0.
+    b <- 1,0 % 2,0. $ erro
+    b <- 1,0 * 2,0. $ permitido
 
-    $ negate not int
-    b <- ! 1,0.
-    $ permitido
-    a <- !a.
-    
-    $ undefined var
-    c <- 2,0.
+    b <- ! 1,0. $ erro
+    x <- !x.    $ permitido
 
-    $ condition not int
-    if b do out a. fi
-    $ permitido:
-    if a do out a. fi
+    c <- 2,0. $ erro
+    b <- 2,0. $ permitido
 
-    $ chain comparison
-    a <- 1 < 2 < 3.
-    $ permitido:
-    a <- 1 < 2 | a | 2 < 3.
+    if a do out a. fi $ erro
+    if x do out a. fi $ permitido
 
-    $ stop outside loop
-    stop.
-    $ permitido:
-    loop stop. pool
+    x <- 1 < 2 < 3. $ erro
+    x <- 1 < 2.       $ permitido
+
+    stop.           $ erro
+    loop stop. pool $ permitido
 niam

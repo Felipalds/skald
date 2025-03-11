@@ -1,7 +1,7 @@
 var
     input str.
     linebreak str.
-    _IO_ERR int.
+    _IO_ERR bool.
 rav
 
 main

@@ -103,6 +103,7 @@ enum SemType {
     SemType_Int,
     SemType_Real,
     SemType_Str,
+    SemType_Bool,
     SemType_Void,
 };
 
@@ -233,8 +234,8 @@ enum SemErrKind {
     SemErr_AssignTypeMismatch,
     SemErr_OperTypeMismatch,
     SemErr_OperTypeIncompatible,
-    SemErr_IfTypeNotInt,
-    SemErr_NegateNotInt,
+    SemErr_IfTypeNotBool,
+    SemErr_NegateNotBool,
     SemErr_DeclRedefineVar,
     SemErr_UndefinedVar,
     SemErr_StopOutsideLoop,
@@ -283,10 +284,9 @@ class SemTable {
     std::string gen_if(SemLabel true_branch, SemLabel exit,
                        std::vector<SemData> &body, SemAddr cond);
     std::string gen_stmts(std::vector<SemData> &body);
-    std::string gen_expr(SemData expr);
-    void shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
-                           std::vector<SemData> &stack, std::string &code,
-                           SemType type);
+    std::string gen_expr(SemData &expr);
+    void shunting_yard_pop(SemData &expr, std::vector<TokenData> &op_stack,
+                           std::vector<SemData> &stack, std::string &code);
     void gen_backpatch(std::vector<SemData> &stmts, SemLabel exit);
 };
 

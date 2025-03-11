@@ -35,6 +35,10 @@ void SemTable::init_var(SemAddr addr, std::string &id, SemType type) {
         code_final +=
             string_format("t%d: str = \"\" \t# %s\n", addr, id.c_str());
         break;
+    case SemType_Bool:
+        code_final +=
+            string_format("t%d: bool = false \t# %s\n", addr, id.c_str());
+        break;
     default:
         break;
     }
@@ -107,6 +111,8 @@ const char *get_type_string(SemType type) {
         return "f32";
     case SemType_Str:
         return "str";
+    case SemType_Bool:
+        return "bool";
     default:
         return "???";
     }
@@ -282,35 +288,49 @@ int get_op_precedence(TokenData op) {
     }
 }
 
-void SemTable::shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
-                                 std::vector<SemData> &stack, std::string &code,
-                                 SemType type) {
+void SemTable::shunting_yard_pop(SemData &expr,
+                                 std::vector<TokenData> &op_stack,
+                                 std::vector<SemData> &stack,
+                                 std::string &code) {
     TokenData op = op_stack.back();
     SemData left = stack[stack.size() - 2];
     SemData right = stack[stack.size() - 1];
     SemData dest;
     if (stack.size() == 2) {
-        dest.addr = addr;
+        dest.addr = expr.addr;
     } else {
         dest.addr = new_tmp_var();
     }
 
+    if (left.type != right.type) {
+        SemErr error = {SemErr_OperTypeMismatch, expr.span};
+        errors.push_back(error);
+    } else if (!oper_compatible(oper_from_tokdata(op), expr.type)) {
+        SemErr error = {SemErr_OperTypeIncompatible, expr.span};
+        errors.push_back(error);
+    }
+
+    if (get_op_precedence(op) == OP_PRECEDENCE_CMP) {
+        printf("turned bool\n");
+        expr.type = SemType_Bool;
+    } else {
+        printf("kept type %s\n", get_type_string(expr.type));
+    }
+
     code += left.code;
     code += right.code;
-    code += gen_oper(dest.addr, left.addr, right.addr, op, type);
+    code += gen_oper(dest.addr, left.addr, right.addr, op, expr.type);
     stack.resize(stack.size() - 2);
     stack.push_back(dest);
     op_stack.pop_back();
 }
 
 // algoritmo shunting-yard
-std::string SemTable::gen_expr(SemData expr) {
-
+std::string SemTable::gen_expr(SemData &expr) {
+    printf("gen expr called addr: %d\n", expr.addr);
     std::vector<TokenData> op_stack;
     std::vector<SemData> stack;
     std::string code = expr.code;
-
-    bool done_comparison = false;
 
     for (StackElem &elem : expr.stack) {
         if (elem.kind != StackElem_Token) {
@@ -319,16 +339,6 @@ std::string SemTable::gen_expr(SemData expr) {
         }
 
         int cur_precedence = get_op_precedence(elem.data.token.data);
-        if (cur_precedence == OP_PRECEDENCE_CMP) {
-            if (done_comparison) {
-                SemErr error = {SemErr_ChainedComparisons, expr.span};
-                errors.push_back(error);
-            }
-            done_comparison = true;
-        } else if (cur_precedence == OP_PRECEDENCE_AND ||
-                   cur_precedence == OP_PRECEDENCE_OR) {
-            done_comparison = false;
-        }
 
         while (!op_stack.empty()) {
             TokenData op = op_stack.back();
@@ -336,12 +346,12 @@ std::string SemTable::gen_expr(SemData expr) {
             if (top_precedence < cur_precedence) {
                 break;
             }
-            shunting_yard_pop(expr.addr, op_stack, stack, code, expr.type);
+            shunting_yard_pop(expr, op_stack, stack, code);
         }
         op_stack.push_back(elem.data.token.data);
     }
     while (!op_stack.empty()) {
-        shunting_yard_pop(expr.addr, op_stack, stack, code, expr.type);
+        shunting_yard_pop(expr, op_stack, stack, code);
     }
     return code;
 }

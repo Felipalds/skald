@@ -1,0 +1,29 @@
+var
+    a int.
+    b int.
+    c int.
+    max int.
+    cond bool.
+    newline str.
+rav
+
+main
+    newline <- "\n".
+    a <- 1.
+    b <- 1.
+    in max.
+
+    loop
+        cond <- b < max.
+        if cond do
+            stop.
+        fi
+        
+        out a.
+        out newline.
+        
+        c <- a + b.
+        a <- b.
+        b <- c.
+    pool
+niam

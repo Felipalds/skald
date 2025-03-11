@@ -8,7 +8,7 @@ var
     y real.
     s str.
     newline str.
-    cond int.
+    cond bool.
 rav
 
 main

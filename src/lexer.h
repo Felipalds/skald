@@ -52,6 +52,7 @@ enum TokenData {
     TokData_Type_Str,
     TokData_Type_Real,
     TokData_Type_Int,
+    TokData_Type_Bool,
     TokData_None = -1,
 };
 

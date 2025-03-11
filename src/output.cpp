@@ -275,11 +275,11 @@ void SemErr::print(Src &src) {
     case SemErr_OperTypeIncompatible:
         printf("Operator not compatible with type.\n");
         break;
-    case SemErr_IfTypeNotInt:
-        printf("Cannot use non-integer as condition.\n");
+    case SemErr_IfTypeNotBool:
+        printf("Cannot use non-boolean as condition.\n");
         break;
-    case SemErr_NegateNotInt:
-        printf("Cannot boolean-negate non-integer.\n");
+    case SemErr_NegateNotBool:
+        printf("Cannot negate non-boolean.\n");
         break;
     case SemErr_DeclRedefineVar:
         printf("Cannot redefine variable.\n");

@@ -36,6 +36,8 @@ SemType SemTable::type_from_tokdata(TokenData data) {
         return SemType_Int;
     case TokData_Type_Real:
         return SemType_Real;
+    case TokData_Type_Bool:
+        return SemType_Bool;
     default:
         break;
     }
@@ -95,11 +97,12 @@ bool SemTable::oper_compatible(SemOper op, SemType type) {
     case SemOp_GreaterEq:
     case SemOp_Eq:
     case SemOp_Neq:
-        return true;
+        return type == SemType_Int || type == SemType_Real;
     case SemOp_Mod:
+        return type == SemType_Int;
     case SemOp_And:
     case SemOp_Or:
-        return type == SemType_Int;
+        return type == SemType_Bool;
     default:
         assert(false);
         return false;
@@ -204,9 +207,9 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
                 {tok_if.span.first, tok_id.span.second, tok_id.span.line},
             };
             errors.push_back(error);
-        } else if (var.type != SemType_Int) {
+        } else if (var.type != SemType_Bool) {
             SemErr error = {
-                SemErr_IfTypeNotInt,
+                SemErr_IfTypeNotBool,
                 {tok_if.span.first, tok_id.span.second, tok_id.span.line},
             };
             errors.push_back(error);
@@ -240,9 +243,9 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
                 {tok_if.span.first, tok_id.span.second, tok_id.span.line},
             };
             errors.push_back(error);
-        } else if (var.type != SemType_Int) {
+        } else if (var.type != SemType_Bool) {
             SemErr error = {
-                SemErr_IfTypeNotInt,
+                SemErr_IfTypeNotBool,
                 {tok_if.span.first, tok_id.span.second, tok_id.span.line},
             };
             errors.push_back(error);
@@ -301,6 +304,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.first = tok_dest.span.first;
         sem.span.second = tok_period.span.second;
 
+        bool undef_error = false;
         std::string lexeme = src.get_lexeme(tok_dest.span);
         SemVar var = get_var(lexeme);
         if (var.addr == ADDR_INVALID) {
@@ -309,7 +313,12 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
                 sem.span,
             };
             errors.push_back(error);
-        } else if (var.type != expr.type) {
+            undef_error = true;
+        }
+
+        sem.code = gen_expr(expr);
+
+        if (!undef_error && var.type != expr.type) {
             SemErr error = {
                 SemErr_AssignTypeMismatch,
                 sem.span,
@@ -317,7 +326,6 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
             errors.push_back(error);
         }
 
-        sem.code = gen_expr(expr);
         sem.code += gen_assign_expr(var.addr, expr.addr, expr.type);
         break;
     }
@@ -359,15 +367,6 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.first = val.sem_data.span.first;
         sem.span.second = expr.span.second;
 
-        if (val.sem_data.type != expr.type) {
-            SemErr error = {SemErr_OperTypeMismatch, sem.span};
-            errors.push_back(error);
-        } else if (!oper_compatible(oper_from_tokdata(op.data.token.data),
-                                    expr.type)) {
-            SemErr error = {SemErr_OperTypeIncompatible, sem.span};
-            errors.push_back(error);
-        }
-
         sem.code = val.sem_data.code /* + expr.code*/;
         sem.type = val.sem_data.type;
         sem.addr = new_tmp_var();
@@ -384,8 +383,8 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.first = par_open.span.first;
         sem.span.second = par_close.span.second;
         sem.addr = expr.addr;
-        sem.type = expr.type;
         sem.code = gen_expr(expr);
+        sem.type = expr.type;
         break;
     }
     case Rule_Val_NotVal: {
@@ -398,9 +397,9 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.first = tok_not.span.first;
         sem.span.second = val.span.second;
 
-        if (val.type != SemType_Int) {
+        if (val.type != SemType_Bool) {
             SemErr error = {
-                SemErr_NegateNotInt,
+                SemErr_NegateNotBool,
                 sem.span,
             };
             errors.push_back(error);

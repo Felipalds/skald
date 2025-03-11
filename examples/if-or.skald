@@ -1,7 +1,7 @@
 var
     a int.
     b int.
-    cond int.
+    cond bool.
     min int.
 rav
 
