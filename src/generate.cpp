@@ -22,8 +22,22 @@ std::string string_format(const char *format, Args... args) {
 // The code snippet above is licensed under CC0 1.0.
 // Modificado.
 
-void SemTable::comment_var_addr(SemAddr addr, std::string &id) {
-    code_final += string_format("# t%d : %s\n", addr, id.c_str());
+void SemTable::init_var(SemAddr addr, std::string &id, SemType type) {
+    switch (type) {
+    case SemType_Int:
+        code_final += string_format("t%d: i32 = 0 \t# %s\n", addr, id.c_str());
+        break;
+    case SemType_Real:
+        code_final +=
+            string_format("t%d: f32 = 0.0 \t# %s\n", addr, id.c_str());
+        break;
+    case SemType_Str:
+        code_final +=
+            string_format("t%d: str = \"\" \t# %s\n", addr, id.c_str());
+        break;
+    default:
+        break;
+    }
 }
 
 std::string SemTable::gen_assign_lit(SemAddr addr, SemType type,
@@ -33,7 +47,8 @@ std::string SemTable::gen_assign_lit(SemAddr addr, SemType type,
         return string_format("t%d: i32 = %s\n", addr, lexeme.c_str());
     }
     case SemType_Real: {
-        return string_format("t%d: double = %s\n", addr, lexeme.c_str());
+        lexeme[lexeme.find(',')] = '.';
+        return string_format("t%d: f32 = %s\n", addr, lexeme.c_str());
     }
     case SemType_Str: {
         return string_format("t%d: str = %s\n", addr, lexeme.c_str());
@@ -84,11 +99,27 @@ const char *get_op_string(TokenData op) {
     }
 }
 
+const char *get_type_string(SemType type) {
+    switch (type) {
+    case SemType_Int:
+        return "i32";
+    case SemType_Real:
+        return "f32";
+    case SemType_Str:
+        return "str";
+    default:
+        return "???";
+    }
+}
+
 std::string SemTable::gen_oper(SemAddr dest, SemAddr left, SemAddr right,
-                               TokenData op) {
+                               TokenData op, SemType type) {
 
     const char *op_string = get_op_string(op);
-    return string_format("t%d := t%d %s t%d\n", dest, left, op_string, right);
+    const char *type_string = get_type_string(type);
+
+    return string_format("t%d: %s = t%d %s t%d\n", dest, type_string, left,
+                         op_string, right);
 }
 
 std::string SemTable::gen_input(SemAddr dest, SemType type) {
@@ -96,7 +127,7 @@ std::string SemTable::gen_input(SemAddr dest, SemType type) {
     case SemType_Int:
         return string_format("t%d: i32 = call read_int()\n", dest);
     case SemType_Real:
-        return string_format("t%d: double = call read_double()\n", dest);
+        return string_format("t%d: f32 = call read_double()\n", dest);
     case SemType_Str:
         return string_format("t%d: str = call read_string()\n", dest);
     default:
@@ -119,8 +150,8 @@ std::string SemTable::gen_output(SemAddr src, SemType type) {
     }
 }
 
-std::string SemTable::gen_assign_expr(SemAddr dest, SemAddr src) {
-    return string_format("t%d := t%d\n", dest, src);
+std::string SemTable::gen_assign_expr(SemAddr dest, SemAddr src, SemType type) {
+    return string_format("t%d: %s = t%d\n", dest, get_type_string(type), src);
 }
 
 std::string SemTable::gen_if_or(SemLabel true_branch, SemLabel false_branch,
@@ -203,7 +234,6 @@ void SemTable::gen_backpatch(std::vector<SemData> &stmts, SemLabel exit) {
             stmt.br1 = exit;
             stmt.code =
                 string_format("goto label%d \t\t\t# backpatched\n", exit);
-        } else {
         }
     }
 }
@@ -253,8 +283,8 @@ int get_op_precedence(TokenData op) {
 }
 
 void SemTable::shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
-                                 std::vector<SemData> &stack,
-                                 std::string &code) {
+                                 std::vector<SemData> &stack, std::string &code,
+                                 SemType type) {
     TokenData op = op_stack.back();
     SemData left = stack[stack.size() - 2];
     SemData right = stack[stack.size() - 1];
@@ -267,7 +297,7 @@ void SemTable::shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
 
     code += left.code;
     code += right.code;
-    code += gen_oper(dest.addr, left.addr, right.addr, op);
+    code += gen_oper(dest.addr, left.addr, right.addr, op, type);
     stack.resize(stack.size() - 2);
     stack.push_back(dest);
     op_stack.pop_back();
@@ -278,7 +308,7 @@ std::string SemTable::gen_expr(SemData expr) {
 
     std::vector<TokenData> op_stack;
     std::vector<SemData> stack;
-    std::string code;
+    std::string code = expr.code;
 
     bool done_comparison = false;
 
@@ -295,6 +325,9 @@ std::string SemTable::gen_expr(SemData expr) {
                 errors.push_back(error);
             }
             done_comparison = true;
+        } else if (cur_precedence == OP_PRECEDENCE_AND ||
+                   cur_precedence == OP_PRECEDENCE_OR) {
+            done_comparison = false;
         }
 
         while (!op_stack.empty()) {
@@ -303,12 +336,12 @@ std::string SemTable::gen_expr(SemData expr) {
             if (top_precedence < cur_precedence) {
                 break;
             }
-            shunting_yard_pop(expr.addr, op_stack, stack, code);
+            shunting_yard_pop(expr.addr, op_stack, stack, code, expr.type);
         }
         op_stack.push_back(elem.data.token.data);
     }
     while (!op_stack.empty()) {
-        shunting_yard_pop(expr.addr, op_stack, stack, code);
+        shunting_yard_pop(expr.addr, op_stack, stack, code, expr.type);
     }
     return code;
 }

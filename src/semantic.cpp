@@ -15,7 +15,6 @@ SemVar SemTable::get_var(std::string &id) {
     if (find == table.end()) {
         return {ADDR_INVALID, SemType_Int};
     }
-    printf("var '%s' is valid, addr=%d\n", id.c_str(), find->second.addr);
     return find->second;
 }
 
@@ -114,7 +113,8 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
     switch (rule) {
     case Rule_Skald:
     case Rule_VarBlock:
-
+        code_final += "\n";
+        break;
     case Rule_Decls_Decl:
     case Rule_Decls_DeclDecls:
         break;
@@ -131,7 +131,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.span.second = tok_period.span.second;
         SemAddr new_addr = register_new(id, type);
 
-        comment_var_addr(new_addr, id);
+        init_var(new_addr, id, type);
 
         if (new_addr == ADDR_INVALID) {
             SemErr error = {SemErr_DeclRedefineVar, sem.span};
@@ -255,7 +255,6 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         sem.kind = SemStmt_IfOr;
         sem.stmts1 = stmts1;
         sem.stmts2 = stmts2;
-
         break;
     }
     case Rule_Stmt_Loop: {
@@ -319,7 +318,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
         }
 
         sem.code = gen_expr(expr);
-        sem.code += gen_assign_expr(var.addr, expr.addr);
+        sem.code += gen_assign_expr(var.addr, expr.addr, expr.type);
         break;
     }
     case Rule_Stmt_InId: {
@@ -369,6 +368,7 @@ StackElem SemTable::apply_rule(Rule rule, std::vector<StackElem> &stack,
             errors.push_back(error);
         }
 
+        sem.code = val.sem_data.code /* + expr.code*/;
         sem.type = val.sem_data.type;
         sem.addr = new_tmp_var();
         sem.stack = {val, op};

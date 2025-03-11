@@ -8,27 +8,39 @@ rav
 main
     $ assign dif types
     a <- b. 
+    $ permitido
+    a <- a. 
 
     $ oper type mismatch
     b <- 1,0 + 2.
+    $ permitido
+    b <- 1,0 + 2,0.
 
     $ oper type incompatible
     b <- 1,0 % 2,0.
+    $ permitido:
+    b <- 1,0 * 2,0.
 
     $ negate not int
     b <- ! 1,0.
+    $ permitido
+    a <- !a.
     
     $ undefined var
     c <- 2,0.
 
     $ condition not int
-    if b do
-        out a.
-    fi
+    if b do out a. fi
+    $ permitido:
+    if a do out a. fi
 
     $ chain comparison
     a <- 1 < 2 < 3.
+    $ permitido:
+    a <- 1 < 2 | a | 2 < 3.
 
     $ stop outside loop
     stop.
+    $ permitido:
+    loop stop. pool
 niam

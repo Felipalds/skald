@@ -266,15 +266,15 @@ class SemTable {
     SemType type_from_tokdata(TokenData data);
     SemOper oper_from_tokdata(TokenData data);
     bool oper_compatible(SemOper op, SemType type);
-    void comment_var_addr(SemAddr addr, std::string &id);
+    void init_var(SemAddr addr, std::string &id, SemType type);
 
     std::string gen_assign_lit(SemAddr addr, SemType type, std::string &lexeme);
     std::string gen_assign_notval(SemAddr dest, SemAddr src);
     std::string gen_oper(SemAddr dest, SemAddr left, SemAddr right,
-                         TokenData op);
+                         TokenData op, SemType type);
     std::string gen_input(SemAddr dest, SemType type);
     std::string gen_output(SemAddr src, SemType type);
-    std::string gen_assign_expr(SemAddr dest, SemAddr src);
+    std::string gen_assign_expr(SemAddr dest, SemAddr src, SemType type);
     std::string gen_loop(SemLabel entry, SemLabel exit,
                          std::vector<SemData> &body);
     std::string gen_if_or(SemLabel true_branch, SemLabel false_branch,
@@ -285,7 +285,8 @@ class SemTable {
     std::string gen_stmts(std::vector<SemData> &body);
     std::string gen_expr(SemData expr);
     void shunting_yard_pop(SemAddr addr, std::vector<TokenData> &op_stack,
-                           std::vector<SemData> &stack, std::string &code);
+                           std::vector<SemData> &stack, std::string &code,
+                           SemType type);
     void gen_backpatch(std::vector<SemData> &stmts, SemLabel exit);
 };
 
